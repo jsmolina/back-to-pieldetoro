@@ -1,0 +1,13 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  build_pieldetoro_dat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: build_pieldetoro
+    volumes:
+      - ./static:/app # Carpeta compartida para resultados
+    working_dir: /app
+    command: /bin/bash -c -e "./build.sh  "
