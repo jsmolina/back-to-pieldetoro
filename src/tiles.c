@@ -19,9 +19,8 @@ struct coords get_tile_coords(int tile_number) {
     return result;
 }
 
-inline void load_tiles(DATAFILE *dat_file) {
-    tiles =  load_pcx("tiles.pcx", palette);
-   // generate_optimized_palette(tiles, palette, 0); 
+inline void load_tiles() {
+    tiles = dat_file[TILES_BMP].dat;
 
     if(!tiles) {
         die("cannot load tiles");
@@ -34,18 +33,22 @@ inline void destroy_tiles() {
 
 BITMAP * load_background(int id, int screen_w) {
     char *in_file = dat_file[id].dat;
+    int length = dat_file[id].size;
+
     if (in_file == NULL) {
         die("cannot load %s", id);
     }
+
     BITMAP* background = create_bitmap(screen_w, SCREEN_H);
     rectfill(background, 0, 0, screen_w, SCREEN_H, makecol(40, 40, 40));
     
     char current;
 
     short start_csv = 0;
+    size_t pos = 0;
     // skip xml data
     do {
-        current = fgetc(in_file);
+        current = in_file[pos++];
         if (current == '>') {
             start_csv += 1;
         }
@@ -59,9 +62,8 @@ BITMAP * load_background(int id, int screen_w) {
     // current screen position
     struct coords screen_coords;
     screen_coords.x = screen_coords.y = 0;
-
     do {
-        current = fgetc(in_file);
+        current = in_file[pos++];
         if (current == ',' || current == '<') {
             if (current == '<') {
                 // signal finish reading
@@ -87,13 +89,9 @@ BITMAP * load_background(int id, int screen_w) {
             current_tile[charpos] = current;
             charpos += 1;
         }
-        /*iterations += 1;
-        if (iterations == 200) {
-            // start_csv = -1;
-        }*/
-    } while (current != EOF && start_csv != -1);
+        
+    } while (current != '\0' && start_csv != -1);
 
-    fclose(in_file);
 
     return background;
 }

@@ -21,7 +21,7 @@ extern PALETTE palette;
 /**
 Preloads all tiles as a bitmap to blit them to screen
 */
-inline void load_tiles(DATAFILE *dat_file);
+inline void load_tiles();
 inline void destroy_tiles();
 BITMAP * load_background(int id, int screen_w);
 
