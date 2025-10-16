@@ -21,16 +21,15 @@ RUN ls -lah /usr/local/djgpp/bin
 RUN cd vendor/allegro-4.2.2-xc && ./xmake.sh lib
 # Limpiar artefactos de compilación
 
-COPY ./src /app/src
-COPY ./static /app/static
 
 ENV PATH=/app/vendor/djgpp/i586-pc-msdosdjgpp/bin:$PATH
 ENV DJDIR=/app/vendor/djgpp/i586-pc-msdosdjgpp
 ENV DJGPP_CC=/app/vendor/djgpp/bin/i586-pc-msdosdjgpp-gcc
 
 RUN ln -s /usr/bin/convert /usr/bin/magick
-RUN mkdir -p /app/dist
-RUN mkdir -p /app/out
-
+RUN mkdir -p /compile
+COPY Makefile /compile
+COPY build_project.sh /compile
+RUN ln -s /app/vendor /compile/vendor
 
 CMD ["bash"]

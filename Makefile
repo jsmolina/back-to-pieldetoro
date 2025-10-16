@@ -14,7 +14,7 @@ STATICDIR = static
 
 # Static files, e.g. the readme.txt file, that get copied straight to
 # the dist directory.
-STATIC    = $(shell find $(STATICDIR) -name "DATA.DAT" -not -name ".*" 2> /dev/null)
+STATIC    = $(shell find $(STATICDIR) -name "datos.dat" -not -name ".*" 2> /dev/null)
 STATICDEST= $(subst $(STATICDIR),$(DISTDIR),$(STATIC))
 
 # All source files (*.c) and their corresponding object files.
@@ -41,7 +41,7 @@ ${DISTDIR}/${BIN}: ${OBJS}
 
 
 ${STATICDEST}:
-	cd $(STATICDIR) && sh convert.sh	
+	cd $(STATICDIR)
 	@mkdir -p $(shell dirname $@)
 	cp $(subst $(DISTDIR),$(STATICDIR),$@) $@
 	cp static/cwsdpmi.exe ${DISTDIR}
@@ -52,6 +52,5 @@ all: ${DISTDIR} ${DISTDIR}/${BIN} ${STATICDEST}
 static: ${STATICDEST}
 
 clean:
-	rm -rf ${DISTDIR}
+	rm -f ${DISTDIR}/*
 	rm -f ${OBJS}
-	touch ${STATICDIR}/data.dat

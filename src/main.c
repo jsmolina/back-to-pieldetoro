@@ -31,7 +31,7 @@ int main(void) {
 
     extract_data();
 
-    load_tiles();
+    load_tiles(dat_file);
     palette[0].r = 10;
     palette[0].g = 10;
     palette[0].b = 10;
@@ -39,7 +39,7 @@ int main(void) {
 
     set_color(0, &black);
 
-    BITMAP* bm1 = load_background("bg_test.tmx", SCREEN_VIRTUAL);
+    BITMAP* bm1 = load_background(PIELDETORO_INTRO_BMP, SCREEN_VIRTUAL);
 
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);

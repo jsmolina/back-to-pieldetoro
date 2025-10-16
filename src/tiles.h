@@ -2,6 +2,7 @@
 #define TILES_H
 
 #include <allegro.h>
+#include "statics.h"
 
 #define TILES_SIZE 8
 
@@ -20,9 +21,9 @@ extern PALETTE palette;
 /**
 Preloads all tiles as a bitmap to blit them to screen
 */
-inline void load_tiles();
+inline void load_tiles(DATAFILE *dat_file);
 inline void destroy_tiles();
-BITMAP * load_background(char * filename, int screen_w);
+BITMAP * load_background(int id, int screen_w);
 
 /**
 Returns x and y positions from a tile number
