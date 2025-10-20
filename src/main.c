@@ -1,14 +1,15 @@
 #include <stdio.h>
 
+#include "allegro/gfx.h"
 #include "dat_manager.h"
 #include "tiles.h"
 #include <allegro.h>
 
-#define SCREEN_VIRTUAL 960
+#define SCREEN_VIRTUAL 640
 
 int main(void) {
     BITMAP* scroller;
-    RGB black = { 0, 0, 0, 0 };
+    RGB black = { 16, 16, 16, 0 };
     int x = 0;
     int next_x = 0;
     int h = 100;
@@ -32,45 +33,43 @@ int main(void) {
     extract_data();
 
     load_tiles();
-    palette[0].r = 10;
+    /*palette[0].r = 10;
     palette[0].g = 10;
     palette[0].b = 10;
-    set_pallete(palette);
+    set_pallete(palette);*/
+    get_pallete(palette);
 
     set_color(0, &black);
 
-    BITMAP* bm1 = load_background(TILES_TSX, SCREEN_VIRTUAL);
-        die("after load bg");
+    //BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
+    BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
 
 
-    // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
-    // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    blit(bm1, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 200);
-    
+    //rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
+    //rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
+    blit(bm1, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
 
     do {
 
-        if (next_x < 640) {
-            next_x = x + 1;
-        }
+        if (next_x < 320) {
+            next_x++;
+        } 
 
-        /* scroll the screen */
+        // scroll the screen 
         scroll_screen(next_x, 0);
         
-        rectfill(scroller, x, 201, 320 +x, 240, makecol(1, 1, 1));
-        textprintf_ex(scroller, font, 10 + x, 210, makecol(255, 255, 255), makecol(1,1,1), "Score: %05d", 222);
+        rectfill(scroller, next_x, 201, next_x + 100, 240, makecol(16, 16, 16));
+        textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1,1,1), "Score: %05d", next_x);
+        vsync();
 
-
-        x = next_x;
+       // x = next_x;
 
     } while (!keypressed());
 
     destroy_bitmap(scroller);
+    unload_datafile(dat_file);
 
     clear_keybuf();
-    destroy_tiles();
-    cleanup_data();
-
     return 0;
 }
 

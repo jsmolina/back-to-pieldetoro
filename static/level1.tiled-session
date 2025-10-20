@@ -6,13 +6,30 @@
     "activeFile": "level1.tmx",
     "expandedProjectPaths": [
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
-        "level1.tmx": {
-            "scale": 0.3739,
+        "bg0 copia.tmx": {
+            "scale": 2.7921,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 549.6121957742711,
-                "y": 57.502005883926245
+                "x": 145.7684180366033,
+                "y": 95.26879409763262
+            }
+        },
+        "bg0.tmx": {
+            "scale": 2.3453,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 243.03927002942055,
+                "y": 128.7681746471667
+            }
+        },
+        "level1.tmx": {
+            "scale": 1.4336,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 268.5546875,
+                "y": 131.13839285714283
             }
         },
         "tiles.tsx": {
