@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "allegro/gfx.h"
+#include "allegro/inline/draw.inl"
 #include "dat_manager.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -44,6 +45,8 @@ int main(void) {
     //BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
 
+    BITMAP * coche1 = dat_file[COCHE1_BMP].dat;
+    BITMAP * coche2 = dat_file[COCHE2_BMP].dat;
 
     //rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     //rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
@@ -57,6 +60,11 @@ int main(void) {
 
         // scroll the screen 
         scroll_screen(next_x, 0);
+        if ((next_x & 1) == 0) {
+            draw_sprite(scroller, coche1, 10 + next_x, 60);
+        } else {
+            draw_sprite(scroller, coche2, 10 + next_x, 60);
+        }
         
         rectfill(scroller, next_x, 201, next_x + 100, 240, makecol(16, 16, 16));
         textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1,1,1), "Score: %05d", next_x);
