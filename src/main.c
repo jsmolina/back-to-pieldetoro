@@ -76,6 +76,7 @@ int main(void) {
     } while (!keypressed());
 
     destroy_bitmap(scroller);
+    destroy_coche_spritesheet(sp_coche);
     unload_datafile(dat_file);
 
     clear_keybuf();

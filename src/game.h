@@ -6,4 +6,6 @@
 
 
 void load_coche_spritesheet(BITMAP ** sp_coche);
+void destroy_coche_spritesheet(BITMAP ** sp_coche);
+
 #endif
