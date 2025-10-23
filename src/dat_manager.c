@@ -41,7 +41,3 @@ DATAFILE * extract_data() {
     return dat_file;
     //fclose(input);
 }
-
-void cleanup_data() {
-    chdir("..");
-}

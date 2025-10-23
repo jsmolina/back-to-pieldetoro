@@ -7,6 +7,7 @@ services:
     image: build_pieldetoro
     volumes:
       - ./static:/compile # Carpeta compartida para resultados
+      - ./src:/src
     working_dir: /compile
     command: /bin/bash -c -e "./build.sh  "
 
