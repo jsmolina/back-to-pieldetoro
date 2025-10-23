@@ -65,7 +65,9 @@ int main(void) {
 
         // scroll the screen 
         scroll_screen(next_x, 0);
-        draw_sprite(scroller, sp_coche[(next_x & 1)], 10 + next_x, 60);
+        // todo move to video memory
+        blit(bm1, screen, 10 + next_x, 60, 10 + next_x, 60, 135, 50);
+        draw_sprite(screen, sp_coche[(next_x & 1)], 10 + next_x, 60);
         
         rectfill(scroller, next_x, 201, next_x + 100, 240, makecol(16, 16, 16));
         textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1,1,1), "Score: %05d", next_x);
