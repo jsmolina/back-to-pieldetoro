@@ -6,9 +6,45 @@
 #include "dat_manager.h"
 #include "tiles.h"
 #include "game.h"
+//https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
 
-
+// game states
+#define TITLE 0
+#define GAME 1
+#define GAME_OVER 2
+// screen scroll size
 #define SCREEN_VIRTUAL 640
+
+short game_state = 0;
+
+
+static volatile int update_count, frame_count, fps = 0;
+
+void gfx_timer_proc(void) { update_count = 1; }
+END_OF_FUNCTION(gfx_timer_proc)
+
+static void gfx_fps_proc(void) {
+    fps = frame_count;
+    frame_count = 0;
+}
+END_OF_FUNCTION(gfx_fps_proc)
+
+void gfx_init_timer() {
+    LOCK_VARIABLE(update_count);
+    LOCK_VARIABLE(frame_count);
+    LOCK_VARIABLE(fps);
+    LOCK_FUNCTION(gfx_timer_proc);
+    LOCK_FUNCTION(gfx_fps_proc);
+    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(70));
+    install_int_ex(gfx_fps_proc, BPS_TO_TIMER(1));
+}
+static volatile long speed_counter = 0;
+
+void increment_speed_counter()
+{
+    speed_counter++;
+}
+END_OF_FUNCTION(increment_speed_counter);
 
 int main(void) {
     BITMAP* scroller;
@@ -56,9 +92,16 @@ int main(void) {
     //rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     //rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
     blit(bm1, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-
+    gfx_init_timer();
     do {
-
+        switch(game_state) {
+            case TITLE:
+            break;
+            case GAME:
+            break;
+            case GAME_OVER:
+            break;
+        }
         if (next_x < 320) {
             next_x++;
         } 

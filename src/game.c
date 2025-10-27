@@ -3,6 +3,14 @@
 #include "statics.h"
 #include "dat_manager.h"
 
+#define START_STAGE 0 
+#define GAME_RUN 1
+#define PLAYER_FALL 2
+#define STAGE_CLEAR 3
+#define GAME_OVER 4
+
+short world_state = 0;
+
 void load_coche_spritesheet(BITMAP ** sp_coche) {
     BITMAP *coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
     int frame_width = (int) coche_spritesheet->w / COCHE_FRAMES;
@@ -17,4 +25,37 @@ void destroy_coche_spritesheet(BITMAP ** sp_coche) {
     for (int i = 0; i < COCHE_FRAMES; i++) {
         destroy_bitmap(sp_coche[i]);
     }
+}
+
+void update_game_run() {
+    //https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
+}
+
+void update() {
+    switch(world_state) {
+        case START_STAGE:
+            // start title
+            break;
+        case GAME_RUN:
+            update_game_run();
+            break;
+        case STAGE_CLEAR:
+            //world_state=START_STAGE
+            break;
+        case PLAYER_FALL:
+            //this.player.affectForce(0, GRAVITY);
+            //this.player.update();
+            //if (this.player.y > this.h * MAP_ELEM_SIZE) {
+            //    this.state = State.GAME_OVER;
+            //}
+            break;
+        case GAME_OVER:
+            break;
+        }
+}
+
+/**
+ */
+void draw() {
+
 }
