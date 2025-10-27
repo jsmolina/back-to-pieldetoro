@@ -29,6 +29,7 @@ void destroy_coche_spritesheet(BITMAP ** sp_coche) {
 
 void update_game_run() {
     //https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
+    //https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
 }
 
 void update() {
