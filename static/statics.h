@@ -1,13 +1,12 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Thu Oct 23 06:24:09 2025 */
+/* Date: Tue Oct 28 10:36:26 2025 */
 /* Do not hand edit! */
 
 #define BG0_TMX                          0        /* DATA */
-#define COCHE1_BMP                       1        /* BMP  */
-#define COCHE2_BMP                       2        /* BMP  */
-#define COCHE_SPRITESHEET_BMP            3        /* BMP  */
-#define LEVEL1_TMX                       4        /* DATA */
-#define PIELDETORO_INTRO_BMP             5        /* BMP  */
-#define TILES_BMP                        6        /* BMP  */
+#define COCHE_SPRITESHEET_BMP            1        /* BMP  */
+#define LEVEL1_TMX                       2        /* DATA */
+#define MENU2_BMP                        3        /* BMP  */
+#define PIELDETORO_INTRO_BMP             4        /* BMP  */
+#define TILES_BMP                        5        /* BMP  */
 
