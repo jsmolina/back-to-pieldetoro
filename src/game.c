@@ -3,6 +3,7 @@
 #include "dat_manager.h"
 #include "statics.h"
 #include "tiles.h"
+#include "stage1.h"
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -20,8 +21,8 @@ BITMAP* current_background;
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
-    blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
     current_level = 1;
+    world_state = START_STAGE;
 }
 
 void load_coche_spritesheet(BITMAP** sp_coche) {
@@ -62,11 +63,21 @@ inline void draw_game() {
     textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "Score: %05d", next_x);
 }
 
+void start_stage() {
+    switch(current_level) {
+        case 1:
+            level1_intro();
+        break;
+    }
+}
 
 inline void update_game() {
     switch (world_state) {
         case START_STAGE:
             // start title
+            start_stage();
+            blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+            world_state = GAME_RUN;
             break;
         case GAME_RUN:
             update_game_run();

@@ -92,6 +92,7 @@ int main(void) {
         case TITLE:
             if (key[KEY_SPACE]) {
                 game_state = GAME;
+                do {} while(key[KEY_SPACE]);
                 start_new_game();
             }
             break;
