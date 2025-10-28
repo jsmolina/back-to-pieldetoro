@@ -35,7 +35,7 @@ void level1_intro() {
     BITMAP * intro_bmp = dat_file[PIELDETORO_INTRO_BMP].dat;
     blit(intro_bmp, screen, 0, 0, 0, 0, 320, 240);
     print_at(10, 200, "has montado una máquina del tiempoen una loca?", makecol(255, 255, 255));
-    print_at(10, 220, "Si vas a montar una cacharra del   tiempo,hazlo con estilo,tron!", makecol(255, 205, 205));
+    print_at(10, 220, "Si vas a montar una cacharra del   tiempo,que mole,tron!", makecol(255, 205, 205));
 
    wait_for_space();   
    print_at(10, 200, "Necesito que vengas al futuro", makecol(255, 205, 205));
