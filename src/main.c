@@ -2,21 +2,20 @@
 
 #include "allegro/gfx.h"
 #include "allegro/inline/draw.inl"
-#include <allegro.h>
+#include "allegro/keyboard.h"
 #include "dat_manager.h"
-#include "tiles.h"
 #include "game.h"
-//https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
+#include "tiles.h"
+#include <allegro.h>
+// https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
 
 // game states
 #define TITLE 0
 #define GAME 1
 #define GAME_OVER 2
 // screen scroll size
-#define SCREEN_VIRTUAL 640
 
 short game_state = 0;
-
 
 static volatile int update_count, frame_count, fps = 0;
 
@@ -40,18 +39,13 @@ void gfx_init_timer() {
 }
 static volatile long speed_counter = 0;
 
-void increment_speed_counter()
-{
+void increment_speed_counter() {
     speed_counter++;
 }
 END_OF_FUNCTION(increment_speed_counter);
 
 int main(void) {
-    BITMAP* scroller;
     RGB black = { 16, 16, 16, 0 };
-    int x = 0;
-    int next_x = 0;
-    int h = 100;
 
     if (allegro_init() != 0)
         return 1;
@@ -80,45 +74,42 @@ int main(void) {
 
     set_color(0, &black);
 
-    //BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
-    BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
-    BITMAP *sp_coche[COCHE_FRAMES];
+    // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     load_coche_spritesheet(sp_coche);
-    
+    BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     /*coche_spritesheet->w
     coche_spritesheet->h*/
+    short exit_game = 0;
 
-    //rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
-    //rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    blit(bm1, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+    // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
+    // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
+
+    blit(menu, screen, 0, 0, 0, 0, 320, 240);
     gfx_init_timer();
     do {
-        switch(game_state) {
-            case TITLE:
+        switch (game_state) {
+        case TITLE:
+            if (key[KEY_SPACE]) {
+                game_state = GAME;
+                do {} while(key[KEY_SPACE]);
+                start_new_game();
+            }
             break;
-            case GAME:
+        case GAME:
+            update_game();
             break;
-            case GAME_OVER:
+        case GAME_OVER:
             break;
         }
-        if (next_x < 320) {
-            next_x++;
-        } 
 
-        // scroll the screen 
-        scroll_screen(next_x, 0);
-        // todo move to video memory
-        blit(bm1, screen, 10 + next_x, 60, 10 + next_x, 60, 135, 50);
-        draw_sprite(screen, sp_coche[(next_x & 1)], 10 + next_x, 60);
-        
-        rectfill(scroller, next_x, 201, next_x + 100, 240, makecol(16, 16, 16));
-        textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1,1,1), "Score: %05d", next_x);
         vsync();
 
-       // x = next_x;
+        if (key[KEY_ESC]) {
+            exit_game = 1;
+        }
 
-    } while (!keypressed());
+    } while (exit_game == 0);
 
     destroy_bitmap(scroller);
     destroy_coche_spritesheet(sp_coche);
