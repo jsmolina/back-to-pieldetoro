@@ -24,6 +24,7 @@ struct playerType {
     unsigned int state;
     unsigned int prev_state;
     CheckHitFn checkHitObj; // should be injected during player initialization
+    CheckHitFn checkOverObj;
 };
 
 /**

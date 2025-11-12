@@ -119,12 +119,8 @@ void player_affect_force(int vx, int vy) {
  * @return TRUE if player is in top of object
  */
 int is_on_obj() {
-    // returns true if sprite is over an object (not a world thing)
-    if (player.pos.y >= 60) {
-        return TRUE;
-    }
-    
-    return FALSE;
+    // returns true if sprite is over a walkable tile
+    return player.checkOverObj();
 }
 
 /**
@@ -278,13 +274,14 @@ void player_action_stop() {
 
 void player_action_jump_up() {
     if (player.vy < 0) {
-        int ht = player.checkHitObj();
+        // collides on up
+        //int ht = player.pushUpObj();
 
-        if (ht) {
+        /*if (ht) {
             player.vy = 0;
             player_change_state(JUMP_HIT);
             return;
-        }
+        }*/
         if (player.vx == 0) {
             if (key[KEY_LEFT]) {
                 player.flip = TRUE;
@@ -397,6 +394,8 @@ void player_update() {
     if (game_pause) {
         return;
     }
+    player_update_position();
+
     switch(player.state) {
         case MOVE_LEFT:
             player_action_move_left();
@@ -429,7 +428,6 @@ void player_update() {
 
     }
     player_anime_update();
-    player_update_position();
     
     /**
         if (this.pause) 

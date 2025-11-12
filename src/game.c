@@ -13,7 +13,7 @@
 #define GAME_OVER 4
 
 
-// debería cambiar por nivel
+// gravedad
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
@@ -27,10 +27,17 @@ int next_x = 0;
 BITMAP* scroller;
 BITMAP* current_background;
 
-
+// will check if player laterally collides PLAYER => [OBJ]
 int checkHitObj() {
-    // will check if player laterally collides PLAYER => [OBJ]
  
+    return FALSE;
+}
+
+// will check if player is over a walkable thing
+int checkOverObj() {
+    if (player.pos.y > 59) {
+        return TRUE;
+    }
     return FALSE;
 }
 
@@ -39,6 +46,7 @@ void start_new_game() {
     load_coche_spritesheet();
 
     player.checkHitObj = checkHitObj;
+    player.checkOverObj = checkOverObj;
     player_init(10, 60);
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
     current_level = 1;
@@ -53,7 +61,7 @@ void update_game_run() {
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
     switch(current_level) {
         case 1:
-            player_affect_force(0, GRAVITY);
+            player_affect_force(0, (player.anime_index & 1) ==0);
             player_update();
              if (player_is_deading()) {
                 world_state = PLAYER_FALL;
@@ -87,14 +95,17 @@ void update_game_run() {
  */
 inline void draw_game() {
     switch(current_level) {
+        int fromx = player.pos.x + next_x -2;
+        int fromy = player.pos.y -2;
         case 1:
+            
 
-            blit(current_background, screen, player.pos.x + next_x -2, player.pos.y, player.pos.x + next_x-2, player.pos.y, 137, 50);
+            blit(current_background, screen, player.pos.x + next_x -2, player.pos.y - 5, player.pos.x + next_x-2, player.pos.y -5, 137, 55);
             // TODO: player should be responsible of drawing himself!!
             draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
 
             rectfill(scroller, next_x, 201, next_x + 200, 240, makecol(16, 16, 16));
-            textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vx:%d,x:%d,%d", player.vx, player.pos.x, player.state);
+            textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,x:%d,y:%d,s:%d", player.vy, player.vx, player.pos.x, player.pos.y, player.state);
 
             // draw objects, player, enemies
 
