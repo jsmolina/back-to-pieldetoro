@@ -41,7 +41,7 @@ void level1_intro() {
    print_at(10, 200, "Necesito que vengas al futuro", makecol(255, 205, 205));
    print_at(10, 220, "Nos volvemos tolais o así?", makecol(255, 255, 255));   
    wait_for_space();
-   print_at(10, 200, "Tus hijos tron,escuchan regueton", makecol(255, 205, 205));
+   print_at(10, 200, "Tus hijos tron,escuchan regueton y dicen bro", makecol(255, 205, 205));
    print_at(10, 220, "Ostia, arranca la loca que la meto a 140 km/h", makecol(255, 255, 255));
     wait_for_space();
 }

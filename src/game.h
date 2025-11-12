@@ -2,16 +2,15 @@
 #define GAME_H
 #include <allegro.h>
 #define SCREEN_VIRTUAL 640
-#define COCHE_FRAMES 2
 
-extern BITMAP *sp_coche[COCHE_FRAMES];
+
 extern BITMAP *scroller;
 extern BITMAP *current_background;
+extern int game_pause;
 
-void load_coche_spritesheet(BITMAP ** sp_coche);
-void destroy_coche_spritesheet(BITMAP ** sp_coche);
 void start_new_game();
 inline void update_game();
 inline void draw_game();
+void unload_game_memory();
 
 #endif

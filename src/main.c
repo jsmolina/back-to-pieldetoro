@@ -75,7 +75,6 @@ int main(void) {
     set_color(0, &black);
 
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
-    load_coche_spritesheet(sp_coche);
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     /*coche_spritesheet->w
@@ -112,7 +111,7 @@ int main(void) {
     } while (exit_game == 0);
 
     destroy_bitmap(scroller);
-    destroy_coche_spritesheet(sp_coche);
+    unload_game_memory();
     unload_datafile(dat_file);
 
     clear_keybuf();
