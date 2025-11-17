@@ -17,7 +17,7 @@
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
-int GROUND_Y = 75;
+int GROUND_Y = 72;
 int game_pause = 0;
 
 
