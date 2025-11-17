@@ -20,7 +20,7 @@
 #define DEAD 10
 #define FALL_END 11
 
-#define JUMP_VY -5
+#define JUMP_VY -8
 
 #define FINISHED 1
 #define NOT_FINISHED 0
@@ -68,7 +68,7 @@ struct animeItem player_animations[13] = {
     { 1, {0},1, 60 }, // STOP 
     { 12, {0,1},2, 2 }, // MOVE_LEFT
     { 12, {0,1},2, 2 }, // MOVE_RIGHT
-    { 16, {0,1},2, 2 }, // BREAKING
+    { 16, {2},1, 2 }, // BREAKING
     { 60, {0,1},2, 1 }, // JUMP_UP
     { 60, {0,1},2, 1 }, // JUMP_DOWN
     { 16, {0,1},2, 1 }, // JUMP_HIT
@@ -85,16 +85,27 @@ void player_change_state(unsigned int state) {
     player.move_count = player_animations[player.state].move_count;
 }
 
+uint8_t space_was_pressed = 0;
+int jump_key_freed() {
+    if (!space_was_pressed && key[KEY_SPACE]) {
+        space_was_pressed = 1;
+        return TRUE;
+    } else if(space_was_pressed && !key[KEY_SPACE]) {
+        space_was_pressed = 0;
+    }
+    return FALSE;
+}
+
 /**
  * @brief Player performs a jump, that could be diagonal
  */
 void player_do_jump() {
     if (key[KEY_LEFT]) {
-        player.vx = -1;
+        player.vx = -3;
         player.flip = 1;
     }
     if (key[KEY_RIGHT]) {
-        player.vx = 1;
+        player.vx = 3;
         player.flip = 0;
     }
     player.vy = JUMP_VY;
@@ -205,7 +216,7 @@ void player_action_fall() {
 }
 
 void player_action_move_left() {
-    if (key[KEY_SPACE]) {
+    if (jump_key_freed()) {
         player_do_jump();
         return;
     }
@@ -231,7 +242,7 @@ void player_action_move_left() {
 }
 
 void player_action_move_right() {
-    if (key[KEY_SPACE]) {
+    if (jump_key_freed()) {
         player_do_jump();
         return;
     }
@@ -265,7 +276,7 @@ void player_action_stop() {
         player_move_left();
     } else if (key[KEY_RIGHT]) {
         player_move_right();
-    } else if (key[KEY_SPACE]) {
+    } else if (jump_key_freed()) {
         player_do_jump();
     } else {
         player_count_move(0,0);

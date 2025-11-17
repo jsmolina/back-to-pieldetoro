@@ -17,7 +17,7 @@
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
-int GROUND_Y = 70;
+int GROUND_Y = 75;
 int game_pause = 0;
 
 
@@ -35,7 +35,7 @@ int checkHitObj() {
 
 // will check if player is over a walkable thing
 int checkOverObj() {
-    if (player.pos.y > 59) {
+    if (player.pos.y > GROUND_Y) {
         return TRUE;
     }
     return FALSE;
@@ -47,7 +47,7 @@ void start_new_game() {
 
     player.checkHitObj = checkHitObj;
     player.checkOverObj = checkOverObj;
-    player_init(10, 60);
+    player_init(10, GROUND_Y);
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
     current_level = 1;
     world_state = START_STAGE;
@@ -95,12 +95,11 @@ void update_game_run() {
  */
 inline void draw_game() {
     switch(current_level) {
-        int fromx = player.pos.x + next_x -2;
-        int fromy = player.pos.y -2;
+
         case 1:
             
 
-            blit(current_background, screen, player.pos.x + next_x -2, player.pos.y - 5, player.pos.x + next_x-2, player.pos.y -5, 137, 55);
+            blit(current_background, screen, player.pos.x + next_x -5, player.pos.y - 10, player.pos.x + next_x-5, player.pos.y -10, 140, 58);
             // TODO: player should be responsible of drawing himself!!
             draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
 

@@ -2,7 +2,7 @@
 #define PLAYER_H
 #include <allegro.h>
 
-#define COCHE_FRAMES 2
+#define COCHE_FRAMES 3
 
 typedef int (*CheckHitFn)();
 
