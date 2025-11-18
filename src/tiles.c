@@ -12,6 +12,7 @@ PALETTE palette;
 BITMAP *tiles;
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
 int curr_tiles_width = 0;
+int map_width = 0;
 
 struct coords get_tile_coords(int tile_number) {
     struct coords result;
@@ -77,6 +78,7 @@ BITMAP * load_background(int id, int screen_w) {
             start_csv += 1;
         }
     } while (start_csv < 5 && current != '\0');
+    map_width = curr_tiles_width * TILES_SIZE - SCREEN_W;
 
     // temporal data for csv
     char current_tile[5] = "     ";

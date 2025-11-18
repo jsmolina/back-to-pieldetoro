@@ -22,6 +22,7 @@ extern PALETTE palette;
 // dirty tiles array
 extern char dirty_tiles[25][MAX_HORIZ_TILES];
 extern int curr_tiles_width;
+extern int map_width;
 /**
 Preloads all tiles as a bitmap to blit them to screen
 */

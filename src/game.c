@@ -115,6 +115,14 @@ void repaint_dirty_tiles() {
 /**
  */
 inline void draw_game() {
+    int scroll_x = player.pos.x - SCREEN_W / 3;
+    if (scroll_x < 0) scroll_x = 0;
+
+    if (scroll_x > map_width) {
+        scroll_x = map_width;
+    }
+
+
     switch(current_level) {
 
         case 1:
@@ -130,7 +138,7 @@ inline void draw_game() {
             // draw objects, player, enemies
 
             // scroll the screen
-            //scroll_screen(next_x, 0);
+            scroll_screen(scroll_x, 0);
             // todo move to video memory
         break;
     }
