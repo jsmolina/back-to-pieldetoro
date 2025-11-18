@@ -10,6 +10,8 @@
 
 PALETTE palette;
 BITMAP *tiles;
+// defines the current width in tiles of the loaded background (e.g., 80 for 640px)
+int curr_tiles_width = 0;
 
 struct coords get_tile_coords(int tile_number) {
     struct coords result;
@@ -36,20 +38,42 @@ BITMAP * load_background(int id, int screen_w) {
     }
     BITMAP * background = create_bitmap(screen_w, SCREEN_H);
     rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
-    // FILE *in_file  = fopen(filename, "r");
     char current;
-
-    // if (!in_file) {
-    //     die("ops, file <%s> can't be read", filename);
-    //}
 
     // skip xml data
     int start_csv = 0;
     int i = 0;
 
+    curr_tiles_width = 0;
+
+    // Find the first '>' and extract width before skipping header
     do {
         current = in_file[i++];
         if (current == '>') {
+            // Read whole header line
+            int header_start = i - 1;
+            while (header_start > 0 && in_file[header_start] != '<') header_start--;
+            char header_line[256] = {0};
+            int hlen = 0;
+            while (in_file[header_start + hlen] != '>' && hlen < 255) {
+                header_line[hlen] = in_file[header_start + hlen];
+                hlen++;
+            }
+            header_line[hlen] = '\0';
+            // search for width="
+            const char *wptr = strstr(header_line, "width=\"");
+            if (wptr) {
+                // skip width=": we just want the number
+                wptr += 7;
+                char numbuf[16] = {0};
+                int ni = 0;
+                while (wptr[ni] && wptr[ni] != '"' && ni < 15) {
+                    numbuf[ni] = wptr[ni];
+                    ni++;
+                }
+                numbuf[ni] = '\0';
+                curr_tiles_width = atoi(numbuf);
+            }
             start_csv += 1;
         }
     } while (start_csv < 5 && current != '\0');
@@ -97,4 +121,28 @@ BITMAP * load_background(int id, int screen_w) {
 
 
     return background;
+}
+//width="80" height="25"
+char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
+
+void mark_dirty_tiles(int x, int y, int width, int height) {
+    int sx, sy, ex, ey;
+
+    sx = x / TILES_SIZE;
+    sy = y / TILES_SIZE;
+    ex = (x + width - 1) / TILES_SIZE;
+    ex = (y + height - 1) / TILES_SIZE;
+
+    for (int ty = sy; ty <= ey; ++ty) {
+        for (int tx = sx; tx <= ex; ++tx) {
+            if (x >= 0 && x < TILES_SIZE && y >= 0 && y < TILES_SIZE) {
+                dirty_tiles[ty][tx] = 1;
+            }
+        }
+    }
+}
+
+// Clear all dirty tiles
+void clear_dirty_tiles() {
+    memset(dirty_tiles, 0, sizeof(dirty_tiles));
 }

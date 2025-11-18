@@ -91,6 +91,27 @@ void update_game_run() {
     
 }
 
+// Repaint only dirty tiles
+void repaint_dirty_tiles() {
+    for (int y = 0; y < MAX_VERT_TILES; ++y) {
+        for (int x = 0; x < curr_tiles_width; ++x) {
+            if (dirty_tiles[y][x]) {
+                blit(
+                    current_background,
+                    screen,
+                    x * TILES_SIZE,
+                    y * TILES_SIZE,
+                    x * TILES_SIZE,
+                    y * TILES_SIZE,
+                    TILES_SIZE,
+                    TILES_SIZE
+                );
+                dirty_tiles[y][x] = 0; // clear after repaint
+            }
+        }
+    }
+}
+
 /**
  */
 inline void draw_game() {
