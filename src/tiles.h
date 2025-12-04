@@ -34,5 +34,12 @@ Returns x and y positions from a tile number
 */
 struct coords get_tile_coords(int tile_number);
 
+/** gets tile number at position x,y
+@param x position in pixels
+@param y position in pixels
+@return tile number
+*/
+int get_tile_at_position(int x, int y);
+
 
 #endif

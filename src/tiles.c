@@ -10,6 +10,9 @@
 
 PALETTE palette;
 BITMAP *tiles;
+//width="80" height="25"
+char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
+int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
 int curr_tiles_width = 0;
 int map_width = 0;
@@ -20,6 +23,18 @@ struct coords get_tile_coords(int tile_number) {
     result.y = 8 * ((tile_number - 1) >> 5);
 
     return result;
+}
+
+int get_tile_at_position(int x, int y) {
+    int tile_x = x / TILES_SIZE;
+    int tile_y = y / TILES_SIZE;
+
+    // Validar límites
+    if (tile_x < 0 || tile_x >= curr_tiles_width || tile_y < 0 || tile_y >= MAX_VERT_TILES) {
+        return -1; // Fuera de límites
+    }
+
+    return tiles_values[tile_y][tile_x];
 }
 
 inline void load_tiles() {
@@ -88,6 +103,7 @@ BITMAP * load_background(int id, int screen_w) {
     // current screen position
     struct coords screen_coords;
     screen_coords.x = screen_coords.y = 0;
+    int tiles_x, tiles_y = 0;
 
     do {
         current = in_file[i++];
@@ -105,12 +121,18 @@ BITMAP * load_background(int id, int screen_w) {
             // copies from tiles to background
             blit(tiles, background, coordinates.x, coordinates.y,
                  screen_coords.x, screen_coords.y, TILES_SIZE, TILES_SIZE);
+            // store tile value
+            tiles_values[tiles_y][tiles_x] = tile_number;
 
             screen_coords.x += 8;
+            tiles_x++;
             if (screen_coords.x >= screen_w - 1) {
                 iterations = 0;
                 screen_coords.y += 8;
                 screen_coords.x = 0;
+                // store the current tiles values
+                tiles_x = 0;
+                tiles_y++;
             }
 
         } else if (current != '\0') { // a number
@@ -124,8 +146,7 @@ BITMAP * load_background(int id, int screen_w) {
 
     return background;
 }
-//width="80" height="25"
-char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
+
 
 void mark_dirty_tiles(int x, int y, int width, int height) {
     int sx, sy, ex, ey;

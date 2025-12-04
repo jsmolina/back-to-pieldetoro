@@ -1,10 +1,10 @@
 #include "game.h"
 #include "allegro/gfx.h"
 #include "dat_manager.h"
+#include "player.h"
+#include "stage1.h"
 #include "statics.h"
 #include "tiles.h"
-#include "stage1.h"
-#include "player.h"
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -12,14 +12,12 @@
 #define STAGE_CLEAR 3
 #define GAME_OVER 4
 
-
 // gravedad
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
-int GROUND_Y = 72;
+int GROUND_Y = 66;
 int game_pause = 0;
-
 
 int current_level = 0;
 short world_state = 0;
@@ -29,12 +27,30 @@ BITMAP* current_background;
 
 // will check if player laterally collides PLAYER => [OBJ]
 int checkHitObj() {
- 
+
     return FALSE;
+}
+
+int tiles_at_positions[4];
+void check_tiles_around_player(int* tiles_at_pos) {
+    // Obtén los 4 tiles de las esquinas del jugador
+    tiles_at_pos[0] = get_tile_at_position(player.pos.x, player.pos.y);                                // Superior izquierda
+    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.width, player.pos.y);                 // Superior derecha
+    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.height - 4);                // Inferior izquierda
+    tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height - 4); // Inferior derecha
 }
 
 // will check if player is over a walkable thing
 int checkOverObj() {
+    // find tile from player.pos.x to player.pos.x + player.width, at player.pos.y + player.height +1
+    check_tiles_around_player(tiles_at_positions);
+    // 874 is skewers, 1 is hole, 875 is oil
+    // > 832 is ground (in general)
+   /*if (tiles_at_positions[2] >= 832 && tiles_at_positions[3] >= 832) {
+        return TRUE;
+    }
+    return FALSE;*/
+
     if (player.pos.y > GROUND_Y) {
         return TRUE;
     }
@@ -53,42 +69,40 @@ void start_new_game() {
     world_state = START_STAGE;
 }
 
-
-
-
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    switch(current_level) {
-        case 1:
-            player_affect_force(0, (player.anime_index & 1) ==0);
-            player_update();
-             if (player_is_deading()) {
-                world_state = PLAYER_FALL;
-                return;
+    switch (current_level) {
+    case 1:
+        player_affect_force(0, (player.anime_index & 1) == 0);
+        player_update();
+        if (player_is_deading()) {
+            world_state = PLAYER_FALL;
+            return;
+        }
+        // attack_enemy() check if player collides enemies
+        // TODO: check if player is on harming tiles
+
+        /**
+        this.create_enemy();
+        for (let e of this.enemy_list) {
+            e.affectForce(0, GRAVITY);
+            e.update();
+            if (e.offensive()) {
+                this.player.attack(e)
             }
-            // attack_enemy() check if player collides enemies
-            /**
-            this.create_enemy();
-            for (let e of this.enemy_list) {
-                e.affectForce(0, GRAVITY);
-                e.update();
-                if (e.offensive()) {
-                    this.player.attack(e)
-                }
-                this.warp_if_outside2(e);
-                if (e.y > this.h * MAP_ELEM_SIZE) {
-                    dead_enemies.push(e);
-                    this.num_of_dead_enemies++;
-                }
+            this.warp_if_outside2(e);
+            if (e.y > this.h * MAP_ELEM_SIZE) {
+                dead_enemies.push(e);
+                this.num_of_dead_enemies++;
             }
-             */
-            if (next_x < 320) {
-                //next_x++;
-            }
+        }
+         */
+        if (next_x < 320) {
+            // next_x++;
+        }
         break;
     }
-    
 }
 
 // Repaint only dirty tiles
@@ -104,8 +118,7 @@ void repaint_dirty_tiles() {
                     x * TILES_SIZE,
                     y * TILES_SIZE,
                     TILES_SIZE,
-                    TILES_SIZE
-                );
+                    TILES_SIZE);
                 dirty_tiles[y][x] = 0; // clear after repaint
             }
         }
@@ -116,67 +129,67 @@ void repaint_dirty_tiles() {
  */
 inline void draw_game() {
     int scroll_x = player.pos.x - SCREEN_W / 3;
-    if (scroll_x < 0) scroll_x = 0;
+    if (scroll_x < 0)
+        scroll_x = 0;
 
     if (scroll_x > map_width) {
         scroll_x = map_width;
     }
 
+    switch (current_level) {
 
-    switch(current_level) {
+    case 1:
 
-        case 1:
-            
+        blit(current_background, screen, player.pos.x + next_x - 5, player.pos.y - 10, player.pos.x + next_x - 5, player.pos.y - 10, 140, 58);
+        // TODO: player should be responsible of drawing himself!!
+        draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
 
-            blit(current_background, screen, player.pos.x + next_x -5, player.pos.y - 10, player.pos.x + next_x-5, player.pos.y -10, 140, 58);
-            // TODO: player should be responsible of drawing himself!!
-            draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
+        rectfill(scroller, next_x, 201, next_x + 320, 240, makecol(25, 25, 25));
+        textprintf_ex(scroller, font, 10 + scroll_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d", player.vy, player.vx, player.state);
+        textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
 
-            rectfill(scroller, next_x, 201, next_x + 200, 240, makecol(16, 16, 16));
-            textprintf_ex(scroller, font, 10 + next_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,x:%d,y:%d,s:%d", player.vy, player.vx, player.pos.x, player.pos.y, player.state);
+        // draw objects, player, enemies
 
-            // draw objects, player, enemies
-
-            // scroll the screen
-            scroll_screen(scroll_x, 0);
-            // todo move to video memory
+        // scroll the screen
+        scroll_screen(scroll_x, 0);
+        // todo move to video memory
         break;
     }
 }
 
 void start_stage() {
-    switch(current_level) {
-        case 1:
-            level1_intro();
+    switch (current_level) {
+    case 1:
+        level1_intro();
         break;
     }
 }
 
 inline void update_game() {
     switch (world_state) {
-        case START_STAGE:
-            // start title
-            start_stage();
-            blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-            world_state = GAME_RUN;
-            break;
-        case GAME_RUN:
-            update_game_run();
-            draw_game();
-            break;
-        case STAGE_CLEAR:
-            // world_state=START_STAGE
-            break;
-        case PLAYER_FALL:
-            // dead fall
-            // this.player.affectForce(0, GRAVITY);
-            // this.player.update();
-            // if (this.player.y > this.h * MAP_ELEM_SIZE) {
-            //     this.state = State.GAME_OVER;
-            // }
-            break;
-        case GAME_OVER:
-            break;
+    case START_STAGE:
+        // start title
+        start_stage();
+        blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        world_state = GAME_RUN;
+        break;
+    case GAME_RUN:
+        update_game_run();
+        draw_game();
+        break;
+    case STAGE_CLEAR:
+        // world_state=START_STAGE
+        break;
+    case PLAYER_FALL:
+        // dead fall
+        // this.player.affectForce(0, GRAVITY);
+        // this.player.update();
+        // if (this.player.y > this.h * MAP_ELEM_SIZE) {
+        //     this.state = State.GAME_OVER;
+        // }
+        break;
+    case GAME_OVER:
+        break;
     }
 }
 

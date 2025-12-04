@@ -16,6 +16,8 @@ struct playerType {
     struct coordsType pos;
     int vx;
     int vy;
+    int width;
+    int height;
     int flip;
     int move_count;
     int anime_count;

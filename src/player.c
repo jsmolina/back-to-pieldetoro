@@ -49,6 +49,9 @@ void player_init(int x, int y) {
 void load_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
+    player.width = frame_width;
+    player.height = coche_spritesheet->h;
+
     for (int i = 0; i < COCHE_FRAMES; i++) {
         sp_coche[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
     }
