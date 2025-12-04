@@ -5,7 +5,7 @@
 #include "dat_manager.h"
 #include "statics.h"
 #include "player.h"
-
+#include "object.h"
 
 
 #define STOP 1
@@ -134,13 +134,35 @@ void player_affect_force(int vx, int vy) {
  */
 int is_on_obj() {
     // returns true if sprite is over a walkable tile
-    return player.checkOverObj();
+    // todo foot_area collision
+    return checkOverObj();
 }
+
+struct collisionType foot_area() {
+    // should consist in wheel area
+    int y = player.pos.y + player.height - 12;
+
+    struct collisionType ret = {
+        .x = player.pos.x + 16,
+        .y = y,
+        .w = player.width - 32,
+        .h = 12
+    };
+    return ret;
+}
+
 
 /**
  * @brief Checks vy for hits
  */
 void check_vy() {
+    if (player.state == JUMP_HIT || player.state == DEAD) {
+        player.vy = 0;
+        return;
+    }
+    if (player.state == FALL_END)
+        return;
+
     if (player.vy > 0) {
         if (is_on_obj()) {
             player.vy = 0;
@@ -153,7 +175,7 @@ void check_vy() {
  */
 void check_vx() {
     if (player.vx != 0) {
-        if (player.checkHitObj()) {
+        if (checkHitObj()) {
             player.vx = -player.vx;
         }
     }
@@ -215,6 +237,8 @@ void player_action_fall() {
         } else {
             player_change_state(BREAKING);
         }
+    } else if (player.pos.y > SCREEN_H - player.height) {
+        player_change_state(FALL_END);        
     }
 }
 
@@ -350,7 +374,7 @@ void player_action_breaking() {
 
 void player_action_dead() {
     if (player_count_move(0,0) == FINISHED) {
-        player_change_state(FALL_END);
+        player_change_state(DEAD);
     }
 }
     

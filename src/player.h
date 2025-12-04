@@ -93,10 +93,16 @@ int player_is_deading();
 
 void load_coche_spritesheet();
 void destroy_coche_spritesheet();
+/**
+ * @brief Gets the collision area for the player's foot
+ * 
+ * @return collisionType struct representing the foot collision area
+ */
+struct collisionType foot_area();
 
 extern struct playerType player;
 extern BITMAP *sp_coche[COCHE_FRAMES];
-
+extern struct playerType player;
 
 
 #endif

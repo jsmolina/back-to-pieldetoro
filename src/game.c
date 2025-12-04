@@ -1,6 +1,6 @@
 #include "game.h"
 #include "allegro/gfx.h"
-#include "dat_manager.h"
+#include "object.h"
 #include "player.h"
 #include "stage1.h"
 #include "statics.h"
@@ -16,7 +16,7 @@
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
-int GROUND_Y = 66;
+int GROUND_Y = 67;
 int game_pause = 0;
 
 int current_level = 0;
@@ -25,44 +25,11 @@ int next_x = 0;
 BITMAP* scroller;
 BITMAP* current_background;
 
-// will check if player laterally collides PLAYER => [OBJ]
-int checkHitObj() {
 
-    return FALSE;
-}
-
-int tiles_at_positions[4];
-void check_tiles_around_player(int* tiles_at_pos) {
-    // Obtén los 4 tiles de las esquinas del jugador
-    tiles_at_pos[0] = get_tile_at_position(player.pos.x, player.pos.y);                                // Superior izquierda
-    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.width, player.pos.y);                 // Superior derecha
-    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.height - 4);                // Inferior izquierda
-    tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height - 4); // Inferior derecha
-}
-
-// will check if player is over a walkable thing
-int checkOverObj() {
-    // find tile from player.pos.x to player.pos.x + player.width, at player.pos.y + player.height +1
-    check_tiles_around_player(tiles_at_positions);
-    // 874 is skewers, 1 is hole, 875 is oil
-    // > 832 is ground (in general)
-   /*if (tiles_at_positions[2] >= 832 && tiles_at_positions[3] >= 832) {
-        return TRUE;
-    }
-    return FALSE;*/
-
-    if (player.pos.y > GROUND_Y) {
-        return TRUE;
-    }
-    return FALSE;
-}
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
     load_coche_spritesheet();
-
-    player.checkHitObj = checkHitObj;
-    player.checkOverObj = checkOverObj;
     player_init(10, GROUND_Y);
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
     current_level = 1;
@@ -82,6 +49,8 @@ void update_game_run() {
         }
         // attack_enemy() check if player collides enemies
         // TODO: check if player is on harming tiles
+        // this.world.checkHitObj(this.foot_area(0, dy));
+        // player_attack();
 
         /**
         this.create_enemy();
@@ -125,8 +94,6 @@ void repaint_dirty_tiles() {
     }
 }
 
-/**
- */
 inline void draw_game() {
     int scroll_x = player.pos.x - SCREEN_W / 3;
     if (scroll_x < 0)
@@ -148,6 +115,8 @@ inline void draw_game() {
         textprintf_ex(scroller, font, 10 + scroll_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d", player.vy, player.vx, player.state);
         textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
 
+        struct collisionType f = foot_area();
+        rect(screen, f.x, f.y, f.x + f.w, f.y + f.h, makecol(255, 0, 0));   
         // draw objects, player, enemies
 
         // scroll the screen
