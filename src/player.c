@@ -41,6 +41,23 @@ struct animeItem {
 
 BITMAP* sp_coche[COCHE_FRAMES];
 
+
+struct animeItem player_animations[13] = {
+    { 0, {0},0, -1 }, // NONE
+    { 1, {0},1, 60 }, // STOP 
+    { 12, {0,1},2, 2 }, // MOVE_LEFT
+    { 12, {0,1},2, 2 }, // MOVE_RIGHT
+    { 16, {2},1, 2 }, // BREAKING
+    { 60, {0,1},2, 1 }, // JUMP_UP
+    { 60, {0,1},2, 1 }, // JUMP_DOWN
+    { 16, {0,1},2, 1 }, // JUMP_HIT
+    { 1, {0},1, 1 }, // FALL
+    { 1, {0},1, 1 }, // FALL2
+    { 30, {0},1, 30 }, // DEAD
+    { 60, {0},1, 60 }, // FALL_END
+    { 70, {0},1, 70 }, // DEAD_END
+};
+
 void player_init(int x, int y) {
     player.pos.x = x;
     player.pos.y = y;
@@ -48,6 +65,10 @@ void player_init(int x, int y) {
     player.vy = 0;
     player.state = STOP;
     player.prev_state = 0;
+    player.anime_count = 0;
+    player.anime_index = 0;
+    player.flip = FALSE;
+    player.move_count = 0;
 }
 
 void load_coche_spritesheet() {
@@ -70,21 +91,6 @@ void destroy_coche_spritesheet() {
     }
 }
 
-struct animeItem player_animations[13] = {
-    { 0, {0},0, -1 }, // NONE
-    { 1, {0},1, 60 }, // STOP 
-    { 12, {0,1},2, 2 }, // MOVE_LEFT
-    { 12, {0,1},2, 2 }, // MOVE_RIGHT
-    { 16, {2},1, 2 }, // BREAKING
-    { 60, {0,1},2, 1 }, // JUMP_UP
-    { 60, {0,1},2, 1 }, // JUMP_DOWN
-    { 16, {0,1},2, 1 }, // JUMP_HIT
-    { 1, {0},1, 1 }, // FALL
-    { 1, {0},1, 1 }, // FALL2
-    { 30, {0},1, 30 }, // DEAD
-    { 60, {0},1, 60 }, // FALL_END
-    { 70, {0},1, 70 }, // DEAD_END
-};
 
 void player_change_state(unsigned int state) {
     player.prev_state = player.state;

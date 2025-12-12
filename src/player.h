@@ -19,6 +19,7 @@ struct playerType {
     int width;
     int height;
     int flip;
+    int lives;
     int move_count;
     int anime_count;
     int anime_index;

@@ -11,6 +11,7 @@
 #define PLAYER_FALL 2
 #define STAGE_CLEAR 3
 #define GAME_OVER 4
+#define RESTART_STAGE 5
 
 // gravedad
 float GRAVITY = 0.8;
@@ -153,6 +154,11 @@ inline void update_game() {
         blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         world_state = GAME_RUN;
         break;
+    case RESTART_STAGE:
+        player_init(10, GROUND_Y);
+        blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        world_state = GAME_RUN;
+        break;
     case GAME_RUN:
         update_game_run();
         draw_game();
@@ -164,8 +170,9 @@ inline void update_game() {
         // dead fall
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
-        if (player.pos.y > 170) {
-            world_state = GAME_OVER;            
+        if (player.pos.y > GROUND_Y + player.height) {
+            player.lives--;
+            world_state = RESTART_STAGE;            
         }
         draw_game();
         break;
