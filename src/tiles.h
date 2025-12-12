@@ -21,6 +21,7 @@ extern BITMAP *tiles;
 extern PALETTE palette;
 // dirty tiles array
 extern char dirty_tiles[25][MAX_HORIZ_TILES];
+extern int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES];
 extern int curr_tiles_width;
 extern int map_width;
 /**

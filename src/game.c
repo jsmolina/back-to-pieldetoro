@@ -36,6 +36,8 @@ void start_new_game() {
     world_state = START_STAGE;
 }
 
+
+
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
@@ -43,8 +45,15 @@ void update_game_run() {
     case 1:
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
+        // this.attackEnemy(this.player);
+        // this.warp_if_outside(this.player);
         if (player_is_deading()) {
             world_state = PLAYER_FALL;
+            return;
+        }
+
+        if (wheels_on_harmful_tiles()) {
+            player_killed();
             return;
         }
         // attack_enemy() check if player collides enemies
@@ -107,16 +116,18 @@ inline void draw_game() {
 
     case 1:
 
-        blit(current_background, screen, player.pos.x + next_x - 5, player.pos.y - 10, player.pos.x + next_x - 5, player.pos.y - 10, 140, 58);
+        blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
         // TODO: player should be responsible of drawing himself!!
         draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
 
         rectfill(scroller, next_x, 201, next_x + 320, 240, makecol(25, 25, 25));
-        textprintf_ex(scroller, font, 10 + scroll_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d", player.vy, player.vx, player.state);
+        textprintf_ex(scroller, font, 10 + scroll_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d,w:%d,m:%d", player.vy, player.vx, player.state, world_state, player.move_count);
         textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
 
         struct collisionType f = foot_area();
         rect(screen, f.x, f.y, f.x + f.w, f.y + f.h, makecol(255, 0, 0));   
+        struct collisionType f2 = foot_area2();
+        rect(screen, f2.x, f2.y, f2.x + f2.w, f2.y + f2.h, makecol(255, 0, 0));   
         // draw objects, player, enemies
 
         // scroll the screen
@@ -151,11 +162,12 @@ inline void update_game() {
         break;
     case PLAYER_FALL:
         // dead fall
-        // this.player.affectForce(0, GRAVITY);
-        // this.player.update();
-        // if (this.player.y > this.h * MAP_ELEM_SIZE) {
-        //     this.state = State.GAME_OVER;
-        // }
+        player_affect_force(0, (player.anime_index & 1) == 0);
+        player_update();
+        if (player.pos.y > 170) {
+            world_state = GAME_OVER;            
+        }
+        draw_game();
         break;
     case GAME_OVER:
         break;

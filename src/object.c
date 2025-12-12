@@ -22,10 +22,42 @@ void check_tiles_around_player(int* tiles_at_pos) {
     tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height - 4); // Inferior derecha
 }
 
-void check_harming_tiles() {
-    // 874 & 875 are harming tiles
-    // Obtén los 4 tiles de las esquinas del jugador
-    
+
+static inline int is_harmful_tile(int id) {
+    return id == 874 || id == 875 || id == 876;
+}
+
+static int rect_over_harmful_tiles(struct collisionType r) {
+    if (r.w <= 0 || r.h <= 0) return 0;
+
+    int sx = r.x / TILES_SIZE;
+    int ex = (r.x + r.w - 1) / TILES_SIZE;
+    int sy = r.y / TILES_SIZE;
+    int ey = (r.y + r.h - 1) / TILES_SIZE;
+
+    if (sx < 0) sx = 0;
+    if (sy < 0) sy = 0;
+    if (ex >= curr_tiles_width) ex = curr_tiles_width - 1;
+    if (ey >= MAX_VERT_TILES) ey = MAX_VERT_TILES - 1;
+
+    for (int ty = sy; ty <= ey; ++ty) {
+        for (int tx = sx; tx <= ex; ++tx) {
+            int tile_id = tiles_values[ty][tx];
+            if (is_harmful_tile(tile_id)) return 1;
+        }
+    }
+    return 0;
+}
+
+/* Returns true if one of wheels is over (foot_area/foot_area2) 
+   a tile 874/875/876, FALSE otherwise. */
+int wheels_on_harmful_tiles() {
+    struct collisionType f1 = foot_area();
+    struct collisionType f2 = foot_area2();
+
+    if (rect_over_harmful_tiles(f1)) return TRUE;
+    if (rect_over_harmful_tiles(f2)) return TRUE;
+    return FALSE;
 }
 
 // will check if player is over a walkable thing

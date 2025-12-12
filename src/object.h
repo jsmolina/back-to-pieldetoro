@@ -13,11 +13,19 @@
  * 
  * @function checkOverObj()
  * @brief Checks if objects are overlapping
- * @return int - Result of overlap check (0 = no overlap, non-zero = overlap detected)
+ * @return int - Result of overlap check (FALSE = no overlap, TRUE = overlap detected)
  * 
  * @function checkHitObj()
  * @brief Checks if a collision/hit has occurred between objects
- * @return int - Result of hit check (0 = no hit, non-zero = hit detected)
+ * @return int - Result of hit check (FALSE = no hit, TRUE = hit detected)
+ * 
+ * @function wheels_on_harmful_tiles()
+ * @brief Checks if any wheels are positioned on harmful tile types
+ * @return int - Result of check (FALSE = no wheels on harmful tiles, TRUE = wheels detected on harmful tiles)
+ * 
+ * @var tiles_at_positions
+ * @brief Global array storing tile information at 4 specific positions
+ * @note TODO: remove from global scope
  */
 
 struct collisionType {
@@ -29,6 +37,7 @@ struct collisionType {
 
 int checkOverObj();
 int checkHitObj();
+int wheels_on_harmful_tiles();
 
 // TODO: remove from global
 extern int tiles_at_positions[4];

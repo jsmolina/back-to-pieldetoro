@@ -19,11 +19,15 @@
 #define FALL2 9
 #define DEAD 10
 #define FALL_END 11
+#define DEAD_END 12
 
 #define JUMP_VY -8
 
 #define FINISHED 1
 #define NOT_FINISHED 0
+
+#define MAX_PLAYER_VX 5
+#define PLAYER_ACCEL 1
 
 
 struct playerType player;
@@ -79,7 +83,7 @@ struct animeItem player_animations[13] = {
     { 1, {0},1, 1 }, // FALL2
     { 30, {0},1, 30 }, // DEAD
     { 60, {0},1, 60 }, // FALL_END
-    { 70, {0},1, 70 }, // FALL_END
+    { 70, {0},1, 70 }, // DEAD_END
 };
 
 void player_change_state(unsigned int state) {
@@ -104,11 +108,11 @@ int jump_key_freed() {
  */
 void player_do_jump() {
     if (key[KEY_LEFT]) {
-        player.vx = -3;
+        player.vx = -4;
         player.flip = 1;
     }
     if (key[KEY_RIGHT]) {
-        player.vx = 3;
+        player.vx = 4;
         player.flip = 0;
     }
     player.vy = JUMP_VY;
@@ -140,12 +144,25 @@ int is_on_obj() {
 
 struct collisionType foot_area() {
     // should consist in wheel area
-    int y = player.pos.y + player.height - 12;
+    int y = player.pos.y + player.height - 13;
 
     struct collisionType ret = {
         .x = player.pos.x + 16,
         .y = y,
-        .w = player.width - 32,
+        .w = 12,
+        .h = 12
+    };
+    return ret;
+}
+
+struct collisionType foot_area2() {
+    // should consist in wheel area
+    int y = player.pos.y + player.height - 13;
+
+    struct collisionType ret = {
+        .x = player.pos.x + player.width - 26,
+        .y = y,
+        .w = 12,
         .h = 12
     };
     return ret;
@@ -156,10 +173,15 @@ struct collisionType foot_area() {
  * @brief Checks vy for hits
  */
 void check_vy() {
+    if (player.state == DEAD) {
+        return;
+    }
+
     if (player.state == JUMP_HIT || player.state == DEAD) {
         player.vy = 0;
         return;
     }
+
     if (player.state == FALL_END)
         return;
 
@@ -238,8 +260,12 @@ void player_action_fall() {
             player_change_state(BREAKING);
         }
     } else if (player.pos.y > SCREEN_H - player.height) {
-        player_change_state(FALL_END);        
+        player_change_state(FALL_END);
     }
+}
+
+void player_killed() {
+    player_change_state(DEAD);
 }
 
 void player_action_move_left() {
@@ -274,6 +300,13 @@ void player_action_move_right() {
         return;
     }
     if (player_count_move(1, 0) == NOT_FINISHED) {
+        // accelerate up to MAX_PLAYER_VX
+        if (player.vx < MAX_PLAYER_VX) {
+            player.vx += PLAYER_ACCEL;
+            if (player.vx > MAX_PLAYER_VX) player.vx = MAX_PLAYER_VX;
+        } else {
+            player.vx = MAX_PLAYER_VX;
+        }
         return;
     }
 
@@ -374,7 +407,7 @@ void player_action_breaking() {
 
 void player_action_dead() {
     if (player_count_move(0,0) == FINISHED) {
-        player_change_state(DEAD);
+        player_change_state(FALL_END);
     }
 }
     
