@@ -1,6 +1,7 @@
 #include <math.h>
 #include <allegro.h>
 #include "player.h"
+#include "allegro/gfx.h"
 #include "game.h"
 #include "dat_manager.h"
 #include "statics.h"
@@ -20,6 +21,7 @@
 #define DEAD 10
 #define FALL_END 11
 #define DEAD_END 12
+#define BOUNCING 13
 
 #define JUMP_VY -8
 
@@ -42,7 +44,7 @@ struct animeItem {
 BITMAP* sp_coche[COCHE_FRAMES];
 
 
-struct animeItem player_animations[13] = {
+struct animeItem player_animations[14] = {
     { 0, {0},0, -1 }, // NONE
     { 1, {0},1, 60 }, // STOP 
     { 12, {0,1},2, 2 }, // MOVE_LEFT
@@ -56,6 +58,7 @@ struct animeItem player_animations[13] = {
     { 30, {0},1, 30 }, // DEAD
     { 60, {0},1, 60 }, // FALL_END
     { 70, {0},1, 70 }, // DEAD_END
+    { 20, {0, 2},2, 30 }, // BOUNCING
 };
 
 void player_init(int x, int y) {
@@ -76,6 +79,7 @@ void load_coche_spritesheet() {
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
     player.width = frame_width;
     player.height = coche_spritesheet->h;
+    //player.current_sprite = create_video_bitmap(player.width, player.height);
 
     for (int i = 0; i < COCHE_FRAMES; i++) {
         sp_coche[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
@@ -274,6 +278,10 @@ void player_killed() {
     player_change_state(DEAD);
 }
 
+void player_traveling() {
+    player_change_state(BOUNCING);
+}
+
 void player_action_move_left() {
     if (jump_key_freed()) {
         player_do_jump();
@@ -463,6 +471,7 @@ void player_anime_update() {
         }
 
         player.sprite_index = frames[player.anime_index];
+        //blit(sp_coche[player.sprite_index], player.current_sprite, 0, 0, 0, 0, player.width, player.height);
         player.anime_count++;
 }
 

@@ -51,17 +51,17 @@ int main(void) {
         return 1;
     install_keyboard();
 
-    if (set_gfx_mode(GFX_MODEX, 320, 240, SCREEN_VIRTUAL, 240) != 0) {
+    if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("Unable to set a 320x240 mode with 640x240 "
-                        "virtual dimensions\n");
+        allegro_message("Unable to set a 320x240 mode \n");
         return 1;
     }
     set_color_depth(8);
     set_color_conversion(COLORCONV_NONE);
 
     /* the scrolling area is twice the width of the screen (640x240) */
-    scroller = create_sub_bitmap(screen, 0, 0, SCREEN_VIRTUAL, 240);
+    //scroller = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
+    //scroller = create_video_bitmap(SCREEN_W, SCREEN_H);
 
     extract_data();
 
@@ -83,8 +83,11 @@ int main(void) {
 
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-
-    blit(menu, screen, 0, 0, 0, 0, 320, 240);
+    for (int i = 0; i < 40 ; i++) {
+        blit(menu, screen, 0, i, 0, 0, 320, 200);
+        vsync();
+    }
+    
     gfx_init_timer();
     do {
         switch (game_state) {
@@ -102,6 +105,7 @@ int main(void) {
             break;
         }
 
+        //blit(scroller, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
         vsync();
 
         if (key[KEY_ESC]) {
@@ -109,8 +113,8 @@ int main(void) {
         }
 
     } while (exit_game == 0);
-
-    destroy_bitmap(scroller);
+    
+    //destroy_bitmap(scroller);
     unload_game_memory();
     unload_datafile(dat_file);
 

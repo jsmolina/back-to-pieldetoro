@@ -26,6 +26,7 @@ struct playerType {
     int sprite_index;
     unsigned int state;
     unsigned int prev_state;
+    BITMAP * current_sprite;
     CheckHitFn checkHitObj; // should be injected during player initialization
     CheckHitFn checkOverObj;
 };

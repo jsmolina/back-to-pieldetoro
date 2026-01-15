@@ -1,4 +1,5 @@
 #include "tiles.h"
+#include "allegro/gfx.h"
 #include "errors.h"
 #include "allegro/datafile.h"
 #include <allegro.h>
@@ -16,6 +17,7 @@ int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
 int curr_tiles_width = 0;
 int map_width = 0;
+int map_pixel_width = 0;
 
 struct coords get_tile_coords(int tile_number) {
     struct coords result;
@@ -52,8 +54,8 @@ BITMAP * load_background(int id, int screen_w) {
     if (in_file == NULL) {
         die("cannot load %s", id);
     }
-    BITMAP * background = create_bitmap(screen_w, SCREEN_H);
-    rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
+    //BITMAP * background = create_bitmap(screen_w, SCREEN_H);
+    //rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
     char current;
 
     // skip xml data
@@ -94,6 +96,8 @@ BITMAP * load_background(int id, int screen_w) {
         }
     } while (start_csv < 5 && current != '\0');
     map_width = curr_tiles_width * TILES_SIZE - SCREEN_W;
+    map_pixel_width = curr_tiles_width * TILES_SIZE;
+    BITMAP *background = create_bitmap(map_pixel_width, SCREEN_H);
 
     // temporal data for csv
     char current_tile[5] = "     ";
@@ -126,7 +130,7 @@ BITMAP * load_background(int id, int screen_w) {
 
             screen_coords.x += 8;
             tiles_x++;
-            if (screen_coords.x >= screen_w - 1) {
+            if (screen_coords.x >= map_pixel_width - 1) {
                 iterations = 0;
                 screen_coords.y += 8;
                 screen_coords.x = 0;

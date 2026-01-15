@@ -1,4 +1,5 @@
 #include "game.h"
+#include "allegro/color.h"
 #include "allegro/gfx.h"
 #include "object.h"
 #include "player.h"
@@ -12,6 +13,7 @@
 #define STAGE_CLEAR 3
 #define GAME_OVER 4
 #define RESTART_STAGE 5
+#define WBACK_IN_TIME 6
 
 // gravedad
 float GRAVITY = 0.8;
@@ -23,10 +25,9 @@ int game_pause = 0;
 int current_level = 0;
 short world_state = 0;
 int next_x = 0;
-BITMAP* scroller;
+// BITMAP* scroller;
 BITMAP* current_background;
-
-
+PALETTE pal_flash;
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
@@ -35,15 +36,32 @@ void start_new_game() {
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
     current_level = 1;
     world_state = START_STAGE;
+
+    for (int i = 0; i < 255; i++) {
+        pal_flash[i].r = palette[i].r;
+        pal_flash[i].g = palette[i].g;
+        pal_flash[i].b = palette[i].b;
+    }
+    pal_flash[78].r = 0;
+    pal_flash[78].g = 229;
+    pal_flash[78].b = 255;
+
+    pal_flash[44].r = 243;
+    pal_flash[44].g = 156;
+    pal_flash[44].b = 0;
 }
-
-
 
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
     switch (current_level) {
     case 1:
+        if (key[KEY_8_PAD]) {
+            player.state = 1;
+            player.pos.y--;
+        } else if (key[KEY_2_PAD]) {
+            player.pos.y++;
+        }
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
         // this.attackEnemy(this.player);
@@ -52,9 +70,13 @@ void update_game_run() {
             world_state = PLAYER_FALL;
             return;
         }
-
-        if (wheels_on_harmful_tiles()) {
+        int tile_below_type = wheels_on_tiles();
+        if (tile_below_type == HARMFUL) {
             player_killed();
+            return;
+        } else if (tile_below_type == BACK_IN_TIME) {
+            // back in time tile
+            world_state = WBACK_IN_TIME;
             return;
         }
         // attack_enemy() check if player collides enemies
@@ -109,30 +131,34 @@ inline void draw_game() {
     if (scroll_x < 0)
         scroll_x = 0;
 
-    if (scroll_x > map_width) {
-        scroll_x = map_width;
+    if (scroll_x > map_pixel_width - SCREEN_W) {
+        scroll_x = map_pixel_width - SCREEN_W;
     }
+    int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
 
     switch (current_level) {
 
     case 1:
 
-        blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
-        // TODO: player should be responsible of drawing himself!!
-        draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
+        // blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
+        //  TODO: player should be responsible of drawing himself!!
+        // draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
 
-        rectfill(scroller, next_x, 201, next_x + 320, 240, makecol(25, 25, 25));
-        textprintf_ex(scroller, font, 10 + scroll_x, 210, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d,w:%d,m:%d", player.vy, player.vx, player.state, world_state, player.move_count);
-        textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
+        // rectfill(scroller, next_x, 201, next_x + 320, 240, makecol(25, 25, 25));
+        // textprintf_ex(scroller, font, 10 , 10, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d,w:%d,m:%d", player.vy, player.vx, player.state, world_state, player.move_count);
 
+        // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
+        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
+        draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        // rectfill(screen, 0, 201, SCREEN_W, SCREEN_H, 32);
         struct collisionType f = foot_area();
-        rect(screen, f.x, f.y, f.x + f.w, f.y + f.h, makecol(255, 0, 0));   
+        rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
         struct collisionType f2 = foot_area2();
-        rect(screen, f2.x, f2.y, f2.x + f2.w, f2.y + f2.h, makecol(255, 0, 0));   
+        rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // draw objects, player, enemies
 
         // scroll the screen
-        scroll_screen(scroll_x, 0);
+        // scroll_screen(scroll_x, 0);
         // todo move to video memory
         break;
     }
@@ -145,22 +171,46 @@ void start_stage() {
         break;
     }
 }
+int flash_count = 0;
+int flash_state = 0;
+
+void palete_flash() {
+    flash_count++;
+    if ((flash_count % 4) == 0) {
+        flash_state = !flash_state;
+        if (flash_state) {
+            set_palette(pal_flash);
+        } else {
+            set_palette(palette);
+        }
+    }
+    if (flash_count > 200) {
+        flash_count = 0;
+        world_state = STAGE_CLEAR;
+        set_palette(palette);
+    }
+}
 
 inline void update_game() {
     switch (world_state) {
     case START_STAGE:
         // start title
         start_stage();
-        blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         world_state = GAME_RUN;
         break;
     case RESTART_STAGE:
         player_init(10, GROUND_Y);
-        blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         world_state = GAME_RUN;
         break;
     case GAME_RUN:
         update_game_run();
+        draw_game();
+        break;
+    case WBACK_IN_TIME:
+        palete_flash();
+        player.pos.x++;
         draw_game();
         break;
     case STAGE_CLEAR:
@@ -172,7 +222,7 @@ inline void update_game() {
         player_update();
         if (player.pos.y > GROUND_Y + player.height) {
             player.lives--;
-            world_state = RESTART_STAGE;            
+            world_state = RESTART_STAGE;
         }
         draw_game();
         break;

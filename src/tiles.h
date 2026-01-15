@@ -5,7 +5,7 @@
 #include "statics.h"
 
 #define TILES_SIZE 8
-#define MAX_HORIZ_TILES 80
+#define MAX_HORIZ_TILES 325
 #define MAX_VERT_TILES 25
 
 
@@ -24,6 +24,7 @@ extern char dirty_tiles[25][MAX_HORIZ_TILES];
 extern int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES];
 extern int curr_tiles_width;
 extern int map_width;
+extern int map_pixel_width;
 /**
 Preloads all tiles as a bitmap to blit them to screen
 */

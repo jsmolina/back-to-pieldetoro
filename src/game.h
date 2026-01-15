@@ -20,7 +20,7 @@
  * @see Allegro library documentation for BITMAP type
  */
 
-extern BITMAP *scroller;
+//extern BITMAP *scroller;
 extern BITMAP *current_background;
 extern int game_pause;
 extern int GROUND_Y;
