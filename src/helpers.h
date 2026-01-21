@@ -7,6 +7,11 @@
  * @param frequency The frequency of the beep in Hertz (Hz).
  * @param duration The duration of the beep in milliseconds (ms).
  */
-extern void beep(int frequency, int duration);
+void beep(int frequency, int duration);
+
+/** Waits for the spacebar key to be pressed and released. */
+void wait_for_space();
+/** Prints text at a specific position on screen. */
+void print_at(int x, int y, char* texto, int col);
 
 #endif

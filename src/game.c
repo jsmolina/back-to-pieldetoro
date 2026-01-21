@@ -4,6 +4,7 @@
 #include "object.h"
 #include "player.h"
 #include "stage1.h"
+#include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
 
@@ -28,6 +29,7 @@ int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
 PALETTE pal_flash;
+//int levels_bg[] = {BG0_TMX, BG1_TMX};
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
@@ -134,11 +136,15 @@ inline void draw_game() {
     if (scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
-    int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
+    //int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
+    if (key[KEY_F1]) {
+        world_state = STAGE_CLEAR;
+        while (key[KEY_F1]); // wait key release
+    }
 
     switch (current_level) {
 
-    case 1:
+        case 1:
 
         // blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
         //  TODO: player should be responsible of drawing himself!!
@@ -151,15 +157,14 @@ inline void draw_game() {
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
         draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         // rectfill(screen, 0, 201, SCREEN_W, SCREEN_H, 32);
-        struct collisionType f = foot_area();
-        rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
-        struct collisionType f2 = foot_area2();
-        rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
+        //struct collisionType f = foot_area();
+        //rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
+        //struct collisionType f2 = foot_area2();
+        //rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // draw objects, player, enemies
-
-        // scroll the screen
-        // scroll_screen(scroll_x, 0);
-        // todo move to video memory
+        break;
+        case 2:
+            blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
         break;
     }
 }
@@ -169,8 +174,29 @@ void start_stage() {
     case 1:
         level1_intro();
         break;
+    case 2:
+        level2_intro();
+        break;
     }
 }
+
+void advance_stage() {
+    current_level++;
+    switch (current_level) {
+        case 2:
+            if (current_background) {
+                destroy_bitmap(current_background);
+            }
+            //player_init(10, GROUND_Y);
+            current_background = load_background(BG1_TMX, SCREEN_VIRTUAL);
+            world_state = START_STAGE;
+            break;
+        default:
+            world_state = GAME_OVER;
+            break;
+    }
+}
+
 int flash_count = 0;
 int flash_state = 0;
 
@@ -193,41 +219,41 @@ void palete_flash() {
 
 inline void update_game() {
     switch (world_state) {
-    case START_STAGE:
-        // start title
-        start_stage();
-        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-        world_state = GAME_RUN;
-        break;
-    case RESTART_STAGE:
-        player_init(10, GROUND_Y);
-        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-        world_state = GAME_RUN;
-        break;
-    case GAME_RUN:
-        update_game_run();
-        draw_game();
-        break;
-    case WBACK_IN_TIME:
-        palete_flash();
-        player.pos.x++;
-        draw_game();
-        break;
-    case STAGE_CLEAR:
-        // world_state=START_STAGE
-        break;
-    case PLAYER_FALL:
-        // dead fall
-        player_affect_force(0, (player.anime_index & 1) == 0);
-        player_update();
-        if (player.pos.y > GROUND_Y + player.height) {
-            player.lives--;
-            world_state = RESTART_STAGE;
-        }
-        draw_game();
-        break;
-    case GAME_OVER:
-        break;
+        case START_STAGE:
+            // start title
+            start_stage();
+            // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+            world_state = GAME_RUN;
+            break;
+        case RESTART_STAGE:
+            player_init(10, GROUND_Y);
+            // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+            world_state = GAME_RUN;
+            break;
+        case GAME_RUN:
+            update_game_run();
+            draw_game();
+            break;
+        case WBACK_IN_TIME:
+            palete_flash();
+            player.pos.x++;
+            draw_game();
+            break;
+        case STAGE_CLEAR:
+            advance_stage();
+            break;
+        case PLAYER_FALL:
+            // dead fall
+            player_affect_force(0, (player.anime_index & 1) == 0);
+            player_update();
+            if (player.pos.y > GROUND_Y + player.height) {
+                player.lives--;
+                world_state = RESTART_STAGE;
+            }
+            draw_game();
+            break;
+        case GAME_OVER:
+            break;
     }
 }
 

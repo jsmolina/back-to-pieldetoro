@@ -2,7 +2,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include <allegro.h>
-#define SCREEN_VIRTUAL 640
+
 /**
  * @file game.h
  * @brief Core game state and rendering management header
