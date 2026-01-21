@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "allegro/gfx.h"
-#include "allegro/inline/draw.inl"
+#include "errors.h"
 #include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "game.h"
@@ -113,11 +113,12 @@ int main(void) {
         }
 
     } while (exit_game == 0);
+    //die("Exiting game...");
     
     //destroy_bitmap(scroller);
     unload_game_memory();
-    unload_datafile(dat_file);
-
+    //unload_datafile(dat_file);
+    printf("Enjoyed playing? See you soon!\n");
     clear_keybuf();
     return 0;
 }
