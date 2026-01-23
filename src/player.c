@@ -42,6 +42,7 @@ struct animeItem {
 };
 
 BITMAP* sp_coche[COCHE_FRAMES];
+BITMAP* sp_martin[MARTIN_FRAMES];
 
 
 struct animeItem player_animations[14] = {
@@ -86,12 +87,31 @@ void load_coche_spritesheet() {
     }
 }
 
-
 void destroy_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
     for (int i = 0; i < COCHE_FRAMES; i++) {
         destroy_bitmap(sp_coche[i]);
+    }
+}
+
+void load_martin_spritesheet() {
+    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
+    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
+    player.width = frame_width;
+    player.height = martin_spritesheet->h;
+    //player.current_sprite = create_video_bitmap(player.width, player.height);
+
+    for (int i = 0; i < MARTIN_FRAMES; i++) {
+        sp_martin[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
+    }
+}
+
+void destroy_martin_spritesheet() {
+    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
+    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
+    for (int i = 0; i < MARTIN_FRAMES; i++) {
+        destroy_bitmap(sp_martin[i]);
     }
 }
 
