@@ -30,13 +30,14 @@
 
 #define MAX_PLAYER_VX 5
 #define PLAYER_ACCEL 1
+#define MAX_FRAMES 13
 
 
 struct playerType player;
 
 struct animeItem {
     int move_count;
-    int frames[6];
+    int frames[MAX_FRAMES];
     uint8_t length;
     int frame_interval;
 };
@@ -45,7 +46,7 @@ BITMAP* sp_coche[COCHE_FRAMES];
 BITMAP* sp_martin[MARTIN_FRAMES];
 
 
-struct animeItem player_animations[14] = {
+struct animeItem car_animations[14] = {
     { 0, {0},0, -1 }, // NONE
     { 1, {0},1, 60 }, // STOP 
     { 12, {0,1},2, 2 }, // MOVE_LEFT
@@ -62,7 +63,24 @@ struct animeItem player_animations[14] = {
     { 20, {0, 2},2, 30 }, // BOUNCING
 };
 
-void player_init(int x, int y) {
+struct animeItem martin_animations[14] = {
+    { 0, {0},0, -1 }, // NONE
+    { 1, {0},1, 60 }, // STOP 
+    { 12, {0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12}, 13, 2 }, // MOVE_LEFT
+    { 12, {0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 2}, // MOVE_RIGHT
+    { 16, {9},1, 2 }, // BREAKING
+    { 60, {13},1, 1 }, // JUMP_UP
+    { 60, {13},1, 1 }, // JUMP_DOWN
+    { 16, {13},1, 1 }, // JUMP_HIT
+    { 1, {13},1, 1 }, // FALL
+    { 1, {13},1, 1 }, // FALL2
+    { 30, {0},1, 30 }, // DEAD
+    { 60, {14},1, 60 }, // FALL_END
+    { 70, {0},1, 70 }, // DEAD_END
+    { 20, {0, 2},2, 30 }, // BOUNCING
+};
+
+void player_init(int x, int y, int current_level) {
     player.pos.x = x;
     player.pos.y = y;
     player.vx = 0;
@@ -73,6 +91,7 @@ void player_init(int x, int y) {
     player.anime_index = 0;
     player.flip = FALSE;
     player.move_count = 0;
+    player.animations = current_level == 1 ? car_animations : martin_animations;
 }
 
 void load_coche_spritesheet() {
@@ -119,7 +138,7 @@ void destroy_martin_spritesheet() {
 void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
-    player.move_count = player_animations[player.state].move_count;
+    player.move_count = player.animations[player.state].move_count;
 }
 
 uint8_t space_was_pressed = 0;
@@ -478,15 +497,15 @@ REBORN: {move_count: 70, frames: [0], frame_interval: 70},
 void player_anime_update() {
         // player_animations
 
-        int * frames = player_animations[player.state].frames;
-        int frame_interval = player_animations[player.state].frame_interval;
+        int * frames = player.animations[player.state].frames;
+        int frame_interval = player.animations[player.state].frame_interval;
 
         if (player.anime_count >= frame_interval) {
             player.anime_index++;
             player.anime_count = 0;
         }
 
-        if (player.anime_index >= player_animations[player.state].length) {
+        if (player.anime_index >= player.animations[player.state].length) {
             player.anime_index = 0;
         }
 

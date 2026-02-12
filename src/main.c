@@ -116,7 +116,7 @@ int main(void) {
     //die("Exiting game...");
     
     //destroy_bitmap(scroller);
-    unload_game_memory();
+    //unload_game_memory();
     //unload_datafile(dat_file);
     printf("Enjoyed playing? See you soon!\n");
     clear_keybuf();

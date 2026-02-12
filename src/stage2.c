@@ -2,6 +2,7 @@
 #include "allegro/color.h"
 #include "allegro/gfx.h"
 #include "allegro/inline/draw.inl"
+#include "enemy.h"
 #include "helpers.h"
 #include "dat_manager.h"
 #include "statics.h"
@@ -15,6 +16,8 @@ void level2_intro() {
     rectfill(screen, 0, 180, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
     print_at(10, 180, "Nen, ahora gobierna Bruno Tanez", makecol(255, 205, 205));
     print_at(10, 190, "Ostias, no me jodas.", makecol(255, 255, 255));
+    // initializes level enemies
+    init_enemy(0, ENEMY_BIRD);
    wait_for_space();
 }
 

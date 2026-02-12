@@ -15,12 +15,14 @@
 #define GAME_OVER 4
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
+#define LEVEL1_GROUND_Y 67
+#define LEVEL2_GROUND_Y 120
 
 // gravedad
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
-int GROUND_Y = 67;
+int GROUND_Y = LEVEL1_GROUND_Y;
 int game_pause = 0;
 
 int current_level = 0;
@@ -29,12 +31,10 @@ int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
 PALETTE pal_flash;
-//int levels_bg[] = {BG0_TMX, BG1_TMX};
+// int levels_bg[] = {BG0_TMX, BG1_TMX};
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
-    load_coche_spritesheet();
-    player_init(10, GROUND_Y);
     current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
     current_level = 1;
     world_state = START_STAGE;
@@ -57,13 +57,7 @@ void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
     switch (current_level) {
-    case 1:
-        if (key[KEY_8_PAD]) {
-            player.state = 1;
-            player.pos.y--;
-        } else if (key[KEY_2_PAD]) {
-            player.pos.y++;
-        }
+    case 1:        
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
         // this.attackEnemy(this.player);
@@ -104,7 +98,21 @@ void update_game_run() {
         if (next_x < 320) {
             // next_x++;
         }
-        break;
+    break;
+    case 2:
+        if (key[KEY_8_PAD]) {
+            player.state = 1;
+            player.pos.y--;
+        } else if (key[KEY_2_PAD]) {
+            player.pos.y++;
+        } else if (key[KEY_4_PAD]) {
+            player.pos.x--;
+        } else if (key[KEY_6_PAD]) {
+            player.pos.x++;
+        }
+        player_affect_force(0, (player.anime_index & 1) == 0);
+        player_update();
+    break;
     }
 }
 
@@ -136,15 +144,16 @@ inline void draw_game() {
     if (scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
-    //int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
+    // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
     if (key[KEY_F1]) {
         world_state = STAGE_CLEAR;
-        while (key[KEY_F1]); // wait key release
+        while (key[KEY_F1])
+            ; // wait key release
     }
 
     switch (current_level) {
 
-        case 1:
+    case 1:
 
         // blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
         //  TODO: player should be responsible of drawing himself!!
@@ -157,14 +166,15 @@ inline void draw_game() {
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
         draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         // rectfill(screen, 0, 201, SCREEN_W, SCREEN_H, 32);
-        //struct collisionType f = foot_area();
-        //rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
-        //struct collisionType f2 = foot_area2();
-        //rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
+        // struct collisionType f = foot_area();
+        // rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
+        // struct collisionType f2 = foot_area2();
+        // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // draw objects, player, enemies
         break;
-        case 2:
-            blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
+    case 2:
+        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
+        draw_sprite(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         break;
     }
 }
@@ -173,9 +183,15 @@ void start_stage() {
     switch (current_level) {
     case 1:
         level1_intro();
+        load_coche_spritesheet();
+        GROUND_Y = LEVEL1_GROUND_Y;
+        player_init(10, GROUND_Y, current_level);
         break;
     case 2:
         level2_intro();
+        load_martin_spritesheet();
+        GROUND_Y = LEVEL2_GROUND_Y;
+        player_init(20, GROUND_Y, current_level);
         break;
     }
 }
@@ -183,17 +199,18 @@ void start_stage() {
 void advance_stage() {
     current_level++;
     switch (current_level) {
-        case 2:
-            if (current_background) {
-                destroy_bitmap(current_background);
-            }
-            //player_init(10, GROUND_Y);
-            current_background = load_background(BG1_TMX, SCREEN_VIRTUAL);
-            world_state = START_STAGE;
-            break;
-        default:
-            world_state = GAME_OVER;
-            break;
+    case 2:
+        if (current_background) {
+            destroy_coche_spritesheet();
+            destroy_bitmap(current_background);
+        }
+        // player_init(10, GROUND_Y);
+        current_background = load_background(BG1_TMX, SCREEN_VIRTUAL);
+        world_state = START_STAGE;
+        break;
+    default:
+        world_state = GAME_OVER;
+        break;
     }
 }
 
@@ -219,41 +236,41 @@ void palete_flash() {
 
 inline void update_game() {
     switch (world_state) {
-        case START_STAGE:
-            // start title
-            start_stage();
-            // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-            world_state = GAME_RUN;
-            break;
-        case RESTART_STAGE:
-            player_init(10, GROUND_Y);
-            // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-            world_state = GAME_RUN;
-            break;
-        case GAME_RUN:
-            update_game_run();
-            draw_game();
-            break;
-        case WBACK_IN_TIME:
-            palete_flash();
-            player.pos.x++;
-            draw_game();
-            break;
-        case STAGE_CLEAR:
-            advance_stage();
-            break;
-        case PLAYER_FALL:
-            // dead fall
-            player_affect_force(0, (player.anime_index & 1) == 0);
-            player_update();
-            if (player.pos.y > GROUND_Y + player.height) {
-                player.lives--;
-                world_state = RESTART_STAGE;
-            }
-            draw_game();
-            break;
-        case GAME_OVER:
-            break;
+    case START_STAGE:
+        // start title
+        start_stage();
+        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        world_state = GAME_RUN;
+        break;
+    case RESTART_STAGE:
+        player_init(10, GROUND_Y, current_level);
+        // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        world_state = GAME_RUN;
+        break;
+    case GAME_RUN:
+        update_game_run();
+        draw_game();
+        break;
+    case WBACK_IN_TIME:
+        palete_flash();
+        player.pos.x++;
+        draw_game();
+        break;
+    case STAGE_CLEAR:
+        advance_stage();
+        break;
+    case PLAYER_FALL:
+        // dead fall
+        player_affect_force(0, (player.anime_index & 1) == 0);
+        player_update();
+        if (player.pos.y > GROUND_Y + player.height) {
+            player.lives--;
+            world_state = RESTART_STAGE;
+        }
+        draw_game();
+        break;
+    case GAME_OVER:
+        break;
     }
 }
 

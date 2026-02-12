@@ -39,16 +39,25 @@ pero fuera de pantalla, simplemente congelan su lógica para que no se
 caiga por un precipicio mientras no lo ves.
  */
 
+enum EnemyType {
+    ENEMY_BIRD,
+};
+
 typedef struct {
-    BITMAP* image;
+    enum EnemyType type;
     int x;
     int y;
+    int active;
 } Enemy;
 
 extern Enemy spawnable_enemies[4];
 
-void init_enemy(Enemy* enemy, int bitmap_id);
+/* Initialize an enemy */
+void init_enemy(int index, enum EnemyType type);
+/* Draw an enemy */
 void draw_enemy(Enemy* enemy);
+/* Update an enemy logic */
 void update_enemy(Enemy* enemy);
+
 
 #endif // ENEMY_H

@@ -2,30 +2,41 @@
 #include "dat_manager.h"
 #include "statics.h"
 
-Enemy spawnable_enemies[4];
+Enemy spawnable_enemies[4] = {ENEMY_BIRD, 0, 0, FALSE,
+                              ENEMY_BIRD, 0, 0, FALSE,
+                              ENEMY_BIRD, 0, 0, FALSE,
+                              ENEMY_BIRD, 0, 0, FALSE
+                            };
 
-void init_enemy(Enemy* enemy, int bitmap_id) {
-    enemy->image = dat_file[bitmap_id].dat;
-    enemy->x = 0;
-    enemy->y = 0;
+void init_enemy(int index, enum EnemyType type) {
+    spawnable_enemies[index].type = type;
+    spawnable_enemies[index].x = 0;
+    spawnable_enemies[index].y = 0;
+    spawnable_enemies[index].active = TRUE;
 }
 
-void draw_enemy(Enemy* enemy) {
-    draw_sprite(screen, enemy->image, enemy->x, enemy->y);
+inline int get_enemy_bitmap_id(enum EnemyType type) {
+    switch (type) {
+        case ENEMY_BIRD:
+            return BIRD_SPRITESHEET_BMP;
+        default:
+            return BIRD_SPRITESHEET_BMP;
+    }
 }
 
 void update_enemy(Enemy* enemy) {
     // Update enemy logic here
 }
 
-void init_bird() {
-    init_enemy(&spawnable_enemies[0], BIRD_SPRITESHEET_BMP);
-}
-
-void update_bird() {
-    // Update bird logic here
-}
-
-void draw_bird() {
-    draw_enemy(&spawnable_enemies[0]);
+void draw_enemies() {
+    for (int i = 0; i < 4; i++) {
+        if (spawnable_enemies[i].active) {
+            draw_sprite(
+                screen, 
+                dat_file[get_enemy_bitmap_id(spawnable_enemies[i].type)].dat, 
+                spawnable_enemies[i].x, 
+                spawnable_enemies[i].y
+            );
+        }
+    }
 }
