@@ -17,6 +17,9 @@
 #define WBACK_IN_TIME 6
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 120
+#define MAX_MARTIN_VX 1
+#define MAX_CAR_VX 5
+
 
 // gravedad
 float GRAVITY = 0.8;
@@ -174,7 +177,12 @@ inline void draw_game() {
         break;
     case 2:
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
-        draw_sprite(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        if (player.flip == TRUE) {
+            draw_sprite_h_flip(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        } else {
+            draw_sprite(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        }
+        textprintf_ex(screen, font, 10 , SCREEN_H - 10, 103, 16, "vy:%d,vx:%d,s:%d,w:%d,m:%04d", player.vy, player.vx, player.state, world_state, player.move_count);
         break;
     }
 }
@@ -185,13 +193,13 @@ void start_stage() {
         level1_intro();
         load_coche_spritesheet();
         GROUND_Y = LEVEL1_GROUND_Y;
-        player_init(10, GROUND_Y, current_level);
+        player_init(10, GROUND_Y, current_level, MAX_CAR_VX);
         break;
     case 2:
         level2_intro();
         load_martin_spritesheet();
         GROUND_Y = LEVEL2_GROUND_Y;
-        player_init(20, GROUND_Y, current_level);
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         break;
     }
 }
@@ -243,7 +251,7 @@ inline void update_game() {
         world_state = GAME_RUN;
         break;
     case RESTART_STAGE:
-        player_init(10, GROUND_Y, current_level);
+        player_init(10, GROUND_Y, current_level, player.max_vx);
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         world_state = GAME_RUN;
         break;

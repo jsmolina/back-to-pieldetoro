@@ -1,13 +1,12 @@
-#include <math.h>
-#include <allegro.h>
 #include "player.h"
 #include "allegro/gfx.h"
-#include "game.h"
 #include "dat_manager.h"
-#include "statics.h"
-#include "player.h"
+#include "game.h"
 #include "object.h"
-
+#include "player.h"
+#include "statics.h"
+#include <allegro.h>
+#include <math.h>
 
 #define STOP 1
 #define MOVE_LEFT 2
@@ -28,10 +27,8 @@
 #define FINISHED 1
 #define NOT_FINISHED 0
 
-#define MAX_PLAYER_VX 5
 #define PLAYER_ACCEL 1
 #define MAX_FRAMES 13
-
 
 struct playerType player;
 
@@ -45,42 +42,41 @@ struct animeItem {
 BITMAP* sp_coche[COCHE_FRAMES];
 BITMAP* sp_martin[MARTIN_FRAMES];
 
-
 struct animeItem car_animations[14] = {
-    { 0, {0},0, -1 }, // NONE
-    { 1, {0},1, 60 }, // STOP 
-    { 12, {0,1},2, 2 }, // MOVE_LEFT
-    { 12, {0,1},2, 2 }, // MOVE_RIGHT
-    { 16, {2},1, 2 }, // BREAKING
-    { 60, {0,1},2, 1 }, // JUMP_UP
-    { 60, {0,1},2, 1 }, // JUMP_DOWN
-    { 16, {0,1},2, 1 }, // JUMP_HIT
-    { 1, {0},1, 1 }, // FALL
-    { 1, {0},1, 1 }, // FALL2
-    { 30, {0},1, 30 }, // DEAD
-    { 60, {0},1, 60 }, // FALL_END
-    { 70, {0},1, 70 }, // DEAD_END
-    { 20, {0, 2},2, 30 }, // BOUNCING
+    { 0, { 0 }, 0, -1 },     // NONE
+    { 1, { 0 }, 1, 60 },     // STOP
+    { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
+    { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
+    { 16, { 2 }, 1, 2 },     // BREAKING
+    { 60, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
+    { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
+    { 1, { 0 }, 1, 1 },      // FALL
+    { 1, { 0 }, 1, 1 },      // FALL2
+    { 30, { 0 }, 1, 30 },    // DEAD
+    { 60, { 0 }, 1, 60 },    // FALL_END
+    { 70, { 0 }, 1, 70 },    // DEAD_END
+    { 20, { 0, 2 }, 2, 30 }, // BOUNCING
 };
 
 struct animeItem martin_animations[14] = {
-    { 0, {0},0, -1 }, // NONE
-    { 1, {0},1, 60 }, // STOP 
-    { 12, {0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12}, 13, 2 }, // MOVE_LEFT
-    { 12, {0,1,2,3,4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 2}, // MOVE_RIGHT
-    { 16, {9},1, 2 }, // BREAKING
-    { 60, {13},1, 1 }, // JUMP_UP
-    { 60, {13},1, 1 }, // JUMP_DOWN
-    { 16, {13},1, 1 }, // JUMP_HIT
-    { 1, {13},1, 1 }, // FALL
-    { 1, {13},1, 1 }, // FALL2
-    { 30, {0},1, 30 }, // DEAD
-    { 60, {14},1, 60 }, // FALL_END
-    { 70, {0},1, 70 }, // DEAD_END
-    { 20, {0, 2},2, 30 }, // BOUNCING
+    { 0, { 0 }, 0, -1 },                                          // NONE
+    { 1, { 0 }, 1, 60 },                                          // STOP
+    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
+    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
+    { 16, { 9 }, 1, 2 },                                          // BREAKING
+    { 60, { 13 }, 1, 1 },                                         // JUMP_UP
+    { 60, { 13 }, 1, 1 },                                         // JUMP_DOWN
+    { 16, { 13 }, 1, 1 },                                         // JUMP_HIT
+    { 1, { 13 }, 1, 1 },                                          // FALL
+    { 1, { 13 }, 1, 1 },                                          // FALL2
+    { 30, { 0 }, 1, 30 },                                         // DEAD
+    { 60, { 14 }, 1, 60 },                                        // FALL_END
+    { 70, { 0 }, 1, 70 },                                         // DEAD_END
+    { 20, { 0, 2 }, 2, 30 },                                      // BOUNCING
 };
 
-void player_init(int x, int y, int current_level) {
+void player_init(int x, int y, int current_level, int max_vx) {
     player.pos.x = x;
     player.pos.y = y;
     player.vx = 0;
@@ -91,6 +87,7 @@ void player_init(int x, int y, int current_level) {
     player.anime_index = 0;
     player.flip = FALSE;
     player.move_count = 0;
+    player.max_vx = max_vx;
     player.animations = current_level == 1 ? car_animations : martin_animations;
 }
 
@@ -99,7 +96,7 @@ void load_coche_spritesheet() {
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
     player.width = frame_width;
     player.height = coche_spritesheet->h;
-    //player.current_sprite = create_video_bitmap(player.width, player.height);
+    // player.current_sprite = create_video_bitmap(player.width, player.height);
 
     for (int i = 0; i < COCHE_FRAMES; i++) {
         sp_coche[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
@@ -119,7 +116,7 @@ void load_martin_spritesheet() {
     int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
     player.width = frame_width;
     player.height = martin_spritesheet->h;
-    //player.current_sprite = create_video_bitmap(player.width, player.height);
+    // player.current_sprite = create_video_bitmap(player.width, player.height);
 
     for (int i = 0; i < MARTIN_FRAMES; i++) {
         sp_martin[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
@@ -134,7 +131,6 @@ void destroy_martin_spritesheet() {
     }
 }
 
-
 void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
@@ -146,7 +142,7 @@ int jump_key_freed() {
     if (!space_was_pressed && key[KEY_SPACE]) {
         space_was_pressed = 1;
         return TRUE;
-    } else if(space_was_pressed && !key[KEY_SPACE]) {
+    } else if (space_was_pressed && !key[KEY_SPACE]) {
         space_was_pressed = 0;
     }
     return FALSE;
@@ -217,7 +213,6 @@ struct collisionType foot_area2() {
     return ret;
 }
 
-
 /**
  * @brief Checks vy for hits
  */
@@ -265,13 +260,16 @@ void player_update_position() {
 /**
  * @brief Counts how much movement is done per action
  *
- * @param dx 
- * @param dy 
+ * @param dx
+ * @param dy
  *
  * @return FINISHED/NOT_FINISHED
-*/
+ */
 unsigned int player_count_move(int dx, int dy) {
-    player.move_count--;
+    if (player.move_count >= 0) {
+        player.move_count--;
+    }
+
     if (player.move_count < 0) {
         return FINISHED;
     }
@@ -341,7 +339,7 @@ void player_action_move_left() {
         player_move_left();
     } else if (player.prev_state == STOP) {
         player_stop();
-    } else { 
+    } else {
         player.vx = -1;
         player_change_state(BREAKING);
     }
@@ -354,11 +352,12 @@ void player_action_move_right() {
     }
     if (player_count_move(1, 0) == NOT_FINISHED) {
         // accelerate up to MAX_PLAYER_VX
-        if (player.vx < MAX_PLAYER_VX) {
+        if (player.vx < player.max_vx) {
             player.vx += PLAYER_ACCEL;
-            if (player.vx > MAX_PLAYER_VX) player.vx = MAX_PLAYER_VX;
+            if (player.vx > player.max_vx)
+                player.vx = player.max_vx;
         } else {
-            player.vx = MAX_PLAYER_VX;
+            player.vx = player.max_vx;
         }
         return;
     }
@@ -366,7 +365,7 @@ void player_action_move_right() {
     if (player.vy > 0) {
         if (player.vx == 0)
             player_change_state(FALL);
-        else 
+        else
             player_change_state(FALL2);
     } else if (key[KEY_RIGHT]) {
         player_move_right();
@@ -382,7 +381,7 @@ void player_action_stop() {
     if (player.vy > 0) {
         if (player.vx == 0) {
             player_change_state(FALL);
-        } else  {
+        } else {
             player_change_state(FALL2);
         }
     } else if (key[KEY_LEFT]) {
@@ -392,14 +391,14 @@ void player_action_stop() {
     } else if (jump_key_freed()) {
         player_do_jump();
     } else {
-        player_count_move(0,0);
+        player_count_move(0, 0);
     }
 }
 
 void player_action_jump_up() {
     if (player.vy < 0) {
         // collides on up
-        //int ht = player.pushUpObj();
+        // int ht = player.pushUpObj();
 
         /*if (ht) {
             player.vy = 0;
@@ -436,7 +435,7 @@ void player_action_jump_down() {
         }
     } else if (player.vx < 0) {
         if (key[KEY_LEFT]) {
-            player_change_state(MOVE_LEFT);            
+            player_change_state(MOVE_LEFT);
         } else {
             player_change_state(BREAKING);
         }
@@ -446,7 +445,7 @@ void player_action_jump_down() {
 }
 
 void action_jump_hit() {
-    if (player_count_move(player.vx, -player.vy)== FINISHED) {
+    if (player_count_move(player.vx, -player.vy) == FINISHED) {
         player_change_state(JUMP_DOWN);
     }
 }
@@ -459,11 +458,11 @@ void player_action_breaking() {
 }
 
 void player_action_dead() {
-    if (player_count_move(0,0) == FINISHED) {
+    if (player_count_move(0, 0) == FINISHED) {
         player_change_state(FALL_END);
     }
 }
-    
+
 void player_action_fall_end() {
 }
 
@@ -495,23 +494,23 @@ REBORN: {move_count: 70, frames: [0], frame_interval: 70},
  */
 
 void player_anime_update() {
-        // player_animations
+    // player_animations
 
-        int * frames = player.animations[player.state].frames;
-        int frame_interval = player.animations[player.state].frame_interval;
+    int* frames = player.animations[player.state].frames;
+    int frame_interval = player.animations[player.state].frame_interval;
 
-        if (player.anime_count >= frame_interval) {
-            player.anime_index++;
-            player.anime_count = 0;
-        }
+    if (player.anime_count >= frame_interval) {
+        player.anime_index++;
+        player.anime_count = 0;
+    }
 
-        if (player.anime_index >= player.animations[player.state].length) {
-            player.anime_index = 0;
-        }
+    if (player.anime_index >= player.animations[player.state].length) {
+        player.anime_index = 0;
+    }
 
-        player.sprite_index = frames[player.anime_index];
-        //blit(sp_coche[player.sprite_index], player.current_sprite, 0, 0, 0, 0, player.width, player.height);
-        player.anime_count++;
+    player.sprite_index = frames[player.anime_index];
+    // blit(sp_coche[player.sprite_index], player.current_sprite, 0, 0, 0, 0, player.width, player.height);
+    player.anime_count++;
 }
 
 // LOOP
@@ -521,41 +520,40 @@ void player_update() {
     }
     player_update_position();
 
-    switch(player.state) {
-        case MOVE_LEFT:
-            player_action_move_left();
+    switch (player.state) {
+    case MOVE_LEFT:
+        player_action_move_left();
         break;
-        case MOVE_RIGHT:
-            player_action_move_right();
+    case MOVE_RIGHT:
+        player_action_move_right();
         break;
-        case FALL:
-        case FALL2:
-            player_action_fall();
+    case FALL:
+    case FALL2:
+        player_action_fall();
         break;
-        case STOP:
-            player_action_stop();
+    case STOP:
+        player_action_stop();
         break;
-        case JUMP_UP:
-            player_action_jump_up();
+    case JUMP_UP:
+        player_action_jump_up();
         break;
-        case JUMP_DOWN:
-            player_action_jump_down();
+    case JUMP_DOWN:
+        player_action_jump_down();
         break;
-        case BREAKING:
-            player_action_breaking();
+    case BREAKING:
+        player_action_breaking();
         break;
-        case DEAD:
-            player_action_dead();
+    case DEAD:
+        player_action_dead();
         break;
-        case FALL_END:
-            player_action_fall_end();
+    case FALL_END:
+        player_action_fall_end();
         break;
-
     }
     player_anime_update();
-    
+
     /**
-        if (this.pause) 
+        if (this.pause)
             return;
         this.update_position();
         const action_func = `action_${this.state.toLowerCase()}`;

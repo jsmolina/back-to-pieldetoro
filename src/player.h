@@ -16,6 +16,7 @@ struct playerType {
     struct coordsType pos;
     int vx;
     int vy;
+    int max_vx;
     int width;
     int height;
     int flip;
@@ -35,7 +36,7 @@ struct playerType {
 /**
  * @brief __init__ :)
  */
-void player_init(int x, int y, int current_level);
+void player_init(int x, int y, int current_level, int max_vx);
 
 /**
  * @brief Apply a force over player
