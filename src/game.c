@@ -1,6 +1,8 @@
 #include "game.h"
 #include "allegro/color.h"
 #include "allegro/gfx.h"
+#include "enemy.h"
+#include "dat_manager.h"
 #include "object.h"
 #include "player.h"
 #include "stage1.h"
@@ -20,13 +22,13 @@
 #define MAX_MARTIN_VX 1
 #define MAX_CAR_VX 5
 
-
 // gravedad
 float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
 int GROUND_Y = LEVEL1_GROUND_Y;
 int game_pause = 0;
+int scroll_x;
 
 int current_level = 0;
 short world_state = 0;
@@ -59,8 +61,16 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
+    scroll_x = player.pos.x - SCREEN_W / 3;
+    if (scroll_x < 0)
+        scroll_x = 0;
+
+    if (scroll_x > map_pixel_width - SCREEN_W) {
+        scroll_x = map_pixel_width - SCREEN_W;
+    }
+
     switch (current_level) {
-    case 1:        
+    case 1:
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
         // this.attackEnemy(this.player);
@@ -98,10 +108,11 @@ void update_game_run() {
             }
         }
          */
+
         if (next_x < 320) {
             // next_x++;
         }
-    break;
+        break;
     case 2:
         if (key[KEY_8_PAD]) {
             player.state = 1;
@@ -115,7 +126,10 @@ void update_game_run() {
         }
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
-    break;
+
+        enemy_pool_update(scroll_x);
+
+        break;
     }
 }
 
@@ -140,13 +154,7 @@ void repaint_dirty_tiles() {
 }
 
 inline void draw_game() {
-    int scroll_x = player.pos.x - SCREEN_W / 3;
-    if (scroll_x < 0)
-        scroll_x = 0;
-
-    if (scroll_x > map_pixel_width - SCREEN_W) {
-        scroll_x = map_pixel_width - SCREEN_W;
-    }
+    
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
     if (key[KEY_F1]) {
         world_state = STAGE_CLEAR;
@@ -157,14 +165,6 @@ inline void draw_game() {
     switch (current_level) {
 
     case 1:
-
-        // blit(current_background, screen, player.pos.x + next_x - 6, player.pos.y - 15, player.pos.x + next_x - 6, player.pos.y - 15, 141, 63);
-        //  TODO: player should be responsible of drawing himself!!
-        // draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x + next_x, player.pos.y);
-
-        // rectfill(scroller, next_x, 201, next_x + 320, 240, makecol(25, 25, 25));
-        // textprintf_ex(scroller, font, 10 , 10, makecol(255, 255, 255), makecol(1, 1, 1), "vy:%d,vx:%d,s:%d,w:%d,m:%d", player.vy, player.vx, player.state, world_state, player.move_count);
-
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
         draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
@@ -182,7 +182,11 @@ inline void draw_game() {
         } else {
             draw_sprite(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         }
-        textprintf_ex(screen, font, 10 , SCREEN_H - 10, 103, 16, "vy:%d,vx:%d,s:%d,w:%d,m:%04d", player.vy, player.vx, player.state, world_state, player.move_count);
+        draw_enemies(scroll_x);
+        //draw_sprite(screen, enemy_data[0].sprites[0], player.pos.x - scroll_x + 30, player.pos.y);
+        
+        
+        textprintf_ex(screen, font, 10, SCREEN_H - 10, 103, 16, "vy:%d,vx:%d,s:%d,w:%d,m:%04d", player.vy, player.vx, player.state, world_state, player.move_count);
         break;
     }
 }
@@ -200,6 +204,10 @@ void start_stage() {
         load_martin_spritesheet();
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
+        // initializes level enemies
+        init_enemy(0, ENEMY_BIRD, 400, GROUND_Y);
+        init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y);
+        enemy_pool_init();
         break;
     }
 }
@@ -209,7 +217,7 @@ void advance_stage() {
     switch (current_level) {
     case 2:
         if (current_background) {
-            destroy_coche_spritesheet();
+            //destroy_coche_spritesheet();
             destroy_bitmap(current_background);
         }
         // player_init(10, GROUND_Y);

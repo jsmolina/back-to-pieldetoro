@@ -43,6 +43,11 @@ struct collisionType {
     int h;
 };
 
+struct coordsType {
+    int x;
+    int y;
+};
+
 int checkOverObj();
 int checkHitObj();
 int wheels_on_tiles();

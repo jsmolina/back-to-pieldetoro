@@ -65,13 +65,13 @@ static int rect_over_harmful_tiles(struct collisionType r) {
 int wheels_on_tiles() {
     int result;
 
-    struct collisionType f1 = foot_area();
+    struct collisionType f1 = rear_wheels_area();
     result = rect_over_harmful_tiles(f1);
     if (result != ROAD) {
         return result;
     }
 
-    struct collisionType f2 = foot_area2();
+    struct collisionType f2 = front_wheels_area();
     result = rect_over_harmful_tiles(f2);
     if (result != ROAD) {
         return result;

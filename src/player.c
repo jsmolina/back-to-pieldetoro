@@ -21,6 +21,7 @@
 #define FALL_END 11
 #define DEAD_END 12
 #define BOUNCING 13
+#define CROUCHING 14
 
 #define JUMP_VY -8
 
@@ -42,7 +43,7 @@ struct animeItem {
 BITMAP* sp_coche[COCHE_FRAMES];
 BITMAP* sp_martin[MARTIN_FRAMES];
 
-struct animeItem car_animations[14] = {
+struct animeItem car_animations[15] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -57,23 +58,25 @@ struct animeItem car_animations[14] = {
     { 60, { 0 }, 1, 60 },    // FALL_END
     { 70, { 0 }, 1, 70 },    // DEAD_END
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
+    { 0, {}, 0, 0 }          // CROUCHING (cars don't crouch)
 };
 
-struct animeItem martin_animations[14] = {
-    { 0, { 0 }, 0, -1 },                                          // NONE
-    { 1, { 0 }, 1, 60 },                                          // STOP
+struct animeItem martin_animations[15] = {
+    { 0, { 0 }, 0, -1 },                                         // NONE
+    { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 16, { 9 }, 1, 2 },                                          // BREAKING
-    { 60, { 13 }, 1, 1 },                                         // JUMP_UP
-    { 60, { 13 }, 1, 1 },                                         // JUMP_DOWN
-    { 16, { 13 }, 1, 1 },                                         // JUMP_HIT
-    { 1, { 13 }, 1, 1 },                                          // FALL
-    { 1, { 13 }, 1, 1 },                                          // FALL2
-    { 30, { 0 }, 1, 30 },                                         // DEAD
-    { 60, { 14 }, 1, 60 },                                        // FALL_END
-    { 70, { 0 }, 1, 70 },                                         // DEAD_END
-    { 20, { 0, 2 }, 2, 30 },                                      // BOUNCING
+    { 16, { 9 }, 1, 2 },                                         // BREAKING
+    { 60, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 60, { 13 }, 1, 1 },                                        // JUMP_DOWN
+    { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
+    { 1, { 13 }, 1, 1 },                                         // FALL
+    { 1, { 13 }, 1, 1 },                                         // FALL2
+    { 30, { 0 }, 1, 30 },                                        // DEAD
+    { 60, { 14 }, 1, 60 },                                       // FALL_END
+    { 70, { 0 }, 1, 70 },                                        // DEAD_END
+    { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
+    { 1, { 14 }, 1, 30 },                                        // CROUCHING
 };
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -187,7 +190,7 @@ int is_on_obj() {
     return checkOverObj();
 }
 
-struct collisionType foot_area() {
+struct collisionType rear_wheels_area() {
     // should consist in wheel area
     int y = player.pos.y + player.height - 13;
 
@@ -200,7 +203,7 @@ struct collisionType foot_area() {
     return ret;
 }
 
-struct collisionType foot_area2() {
+struct collisionType front_wheels_area() {
     // should consist in wheel area
     int y = player.pos.y + player.height - 13;
 
@@ -377,6 +380,10 @@ void player_action_move_right() {
     }
 }
 
+void player_do_crouch() {
+    player_change_state(CROUCHING);
+}
+
 void player_action_stop() {
     if (player.vy > 0) {
         if (player.vx == 0) {
@@ -390,6 +397,16 @@ void player_action_stop() {
         player_move_right();
     } else if (jump_key_freed()) {
         player_do_jump();
+    } else if (key[KEY_DOWN]) {
+        player_do_crouch();
+    } else {
+        player_count_move(0, 0);
+    }
+}
+
+void player_crouch() {
+    if (!key[KEY_DOWN]) {
+        player_change_state(STOP);
     } else {
         player_count_move(0, 0);
     }
@@ -548,6 +565,9 @@ void player_update() {
         break;
     case FALL_END:
         player_action_fall_end();
+        break;
+    case CROUCHING:
+        player_crouch();
         break;
     }
     player_anime_update();

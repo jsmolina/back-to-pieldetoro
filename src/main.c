@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "allegro/gfx.h"
-#include "errors.h"
+#include "enemy.h"
 #include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "game.h"
@@ -77,8 +77,6 @@ int main(void) {
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
-    /*coche_spritesheet->w
-    coche_spritesheet->h*/
     short exit_game = 0;
 
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
@@ -87,6 +85,7 @@ int main(void) {
         blit(menu, screen, 0, i, 0, 0, 320, 200);
         vsync();
     }
+    load_enemy_spritesheets();
     
     gfx_init_timer();
     do {

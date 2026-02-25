@@ -1,16 +1,13 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <allegro.h>
+#include "object.h"
 
 #define COCHE_FRAMES 3
 #define MARTIN_FRAMES 15
 
 typedef int (*CheckHitFn)();
 
-struct coordsType {
-    int x;
-    int y;
-};
 
 struct playerType {
     struct coordsType pos;
@@ -27,9 +24,9 @@ struct playerType {
     int sprite_index;
     unsigned int state;
     unsigned int prev_state;
-    BITMAP* current_sprite;
-    CheckHitFn checkHitObj; // should be injected during player initialization
-    CheckHitFn checkOverObj;
+    //BITMAP* current_sprite;
+    //CheckHitFn checkHitObj; // should be injected during player initialization
+    //CheckHitFn checkOverObj;
     struct animeItem * animations; // pointer to current level animations, should be injected during player initialization
 };
 
@@ -100,8 +97,8 @@ void player_killed();
  *
  * @return collisionType struct representing the foot collision area
  */
-struct collisionType foot_area();
-struct collisionType foot_area2();
+struct collisionType front_wheels_area();
+struct collisionType rear_wheels_area();
 
 extern struct playerType player;
 extern BITMAP* sp_coche[COCHE_FRAMES];
