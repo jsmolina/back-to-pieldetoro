@@ -3,8 +3,9 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg0.tmx",
+    "activeFile": "bg1.tmx",
     "expandedProjectPaths": [
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -13,27 +14,35 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 159.91547580674046,
-                "y": 100.1038644747681
+                "y": 99.92478779413347
             }
         },
         "bg0.tmx": {
-            "scale": 1.71,
+            "scale": 2.2578,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 347.36842105263156,
-                "y": 103.50877192982458
+                "x": 1279.7856320311807,
+                "y": 100.09743998582691
+            }
+        },
+        "bg1.tmx": {
+            "scale": 2.8204,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 420.50772940008517,
+                "y": 113.28180399943271
             }
         },
         "level1.tmx": {
             "scale": 1.4336,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 268.5546875,
-                "y": 131.13839285714283
+                "x": 1321.8470982142858,
+                "y": 132.88225446428572
             }
         },
         "tiles.tsx": {
-            "scaleInDock": 1.4085,
+            "scaleInDock": 2,
             "scaleInEditor": 1
         }
     },
@@ -44,15 +53,15 @@
     "map.tileWidth": 8,
     "map.width": 378,
     "openFiles": [
-        "level1.tmx",
-        "bg0.tmx",
-        "bg0 copia.tmx"
+        "bg1.tmx",
+        "bg0.tmx"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "bg0.tmx",
+        "bg1.tmx",
         "level1.tmx",
         "bg0 copia.tmx",
-        "bg0.tmx",
         "tiles.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",

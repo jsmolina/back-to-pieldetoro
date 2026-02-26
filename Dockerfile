@@ -1,14 +1,12 @@
 # Usar imagen base de Ubuntu Noble
-FROM --platform=linux/amd64 ubuntu:noble
+FROM --platform=linux/amd64 ubuntu:noble-20251013
 
 # Establecer directorio de trabajo
 WORKDIR /app
-
 # Instalar dependencias necesarias
 RUN apt update && \
     apt install -y wget build-essential bzip2 bison flex curl gcc g++ make texinfo unzip zlib1g-dev imagemagick git liballegro4-dev && \
     rm -rf /var/lib/apt/lists/*
-
 # Crear directorio vendor
 RUN mkdir -p vendor
 
