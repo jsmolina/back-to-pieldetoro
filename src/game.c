@@ -1,14 +1,16 @@
 #include "game.h"
 #include "allegro/color.h"
 #include "allegro/gfx.h"
+#include "allegro/inline/draw.inl"
 #include "enemy.h"
-#include "dat_manager.h"
+#include "helpers.h"
 #include "object.h"
 #include "player.h"
 #include "stage1.h"
 #include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
+#include <string.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -154,39 +156,46 @@ void repaint_dirty_tiles() {
 }
 
 inline void draw_game() {
-    
+
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
     if (key[KEY_F1]) {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
     }
+    collisionType f2;
 
     switch (current_level) {
 
     case 1:
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
-        draw_sprite(screen, sp_coche[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
-        // rectfill(screen, 0, 201, SCREEN_W, SCREEN_H, 32);
-        // struct collisionType f = foot_area();
-        // rect(screen, f.x - scroll_x, f.y, f.x + f.w - scroll_x, f.y + f.h, makecol(255, 0, 0));
-        // struct collisionType f2 = foot_area2();
-        // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
+        if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
+            draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        } else {
+            textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
+        }
         // draw objects, player, enemies
         break;
     case 2:
+        /* Draw background and player sprite first. Only call player_foot_area
+           if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
-        if (player.flip == TRUE) {
-            draw_sprite_h_flip(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
+            if (player.flip == TRUE) {
+                draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            } else {
+                draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            }
         } else {
-            draw_sprite(screen, sp_martin[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
         }
         draw_enemies(scroll_x);
-        //draw_sprite(screen, enemy_data[0].sprites[0], player.pos.x - scroll_x + 30, player.pos.y);
-        
-        
-        textprintf_ex(screen, font, 10, SCREEN_H - 10, 103, 16, "vy:%d,vx:%d,s:%d,w:%d,m:%04d", player.vy, player.vx, player.state, world_state, player.move_count);
+        f2 = player_foot_area();
+        rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
+        rectfill(screen, 10, 190, 290, 200, 16);
+        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", player.state, player.pos.y, player.vy, player.vx);
+
         break;
     }
 }
@@ -195,20 +204,18 @@ void start_stage() {
     switch (current_level) {
     case 1:
         level1_intro();
-        load_coche_spritesheet();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_init(10, GROUND_Y, current_level, MAX_CAR_VX);
         break;
     case 2:
         level2_intro();
-        load_martin_spritesheet();
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         // initializes level enemies
         init_enemy(0, ENEMY_BIRD, 400, GROUND_Y);
         init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y);
         enemy_pool_init();
-        break;
+    break;
     }
 }
 
@@ -217,7 +224,6 @@ void advance_stage() {
     switch (current_level) {
     case 2:
         if (current_background) {
-            //destroy_coche_spritesheet();
             destroy_bitmap(current_background);
         }
         // player_init(10, GROUND_Y);
@@ -279,7 +285,7 @@ inline void update_game() {
         // dead fall
         player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
-        if (player.pos.y > GROUND_Y + player.height) {
+        if (player.pos.y > GROUND_Y + player.data->height) {
             player.lives--;
             world_state = RESTART_STAGE;
         }

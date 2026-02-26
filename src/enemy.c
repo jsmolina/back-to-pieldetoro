@@ -73,7 +73,19 @@ void destroy_enemy_spritesheets() {
 void enemy_pool_init() {
     for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
         active_enemies[i].active = FALSE;
+        active_enemies[i].killed = FALSE;
         active_enemies[i].origin = -1;
+        active_enemies[i].type = ENEMY_BIRD;
+        active_enemies[i].pos.x = 0;
+        active_enemies[i].pos.y = 0;
+        active_enemies[i].flip = 0;
+        active_enemies[i].move_count = 0;
+        active_enemies[i].anime_count = 0;
+        active_enemies[i].anime_index = 0;
+        active_enemies[i].sprite_index = 0;
+        active_enemies[i].state = 0;
+        active_enemies[i].prev_state = 0;        
+        active_enemies[i].data = &enemy_data[ENEMY_BIRD];
     }
 }
 

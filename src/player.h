@@ -5,17 +5,29 @@
 
 #define COCHE_FRAMES 3
 #define MARTIN_FRAMES 15
+#define MAX_FRAMES 13
 
 typedef int (*CheckHitFn)();
 
+typedef struct {
+    int move_count;
+    int frames[MAX_FRAMES];
+    uint8_t length;
+    int frame_interval;
+} animeItem;
+
+typedef struct {
+    int width;
+    int height;
+    int total_frames;
+    BITMAP* sprites[MARTIN_FRAMES];
+} PlayerData;
 
 struct playerType {
-    struct coordsType pos;
+    coordsType pos;
     int vx;
     int vy;
     int max_vx;
-    int width;
-    int height;
     int flip;
     int lives;
     int move_count;
@@ -24,11 +36,11 @@ struct playerType {
     int sprite_index;
     unsigned int state;
     unsigned int prev_state;
-    //BITMAP* current_sprite;
-    //CheckHitFn checkHitObj; // should be injected during player initialization
-    //CheckHitFn checkOverObj;
-    struct animeItem * animations; // pointer to current level animations, should be injected during player initialization
+    PlayerData * data; // pointer to static data for current player type (car or martin)
+    animeItem * animations; // pointer to current level animations, should be injected during player initialization
 };
+
+
 
 /**
  * @brief __init__ :)
@@ -97,11 +109,10 @@ void player_killed();
  *
  * @return collisionType struct representing the foot collision area
  */
-struct collisionType front_wheels_area();
-struct collisionType rear_wheels_area();
+collisionType front_wheels_area();
+collisionType rear_wheels_area();
+collisionType player_foot_area();
 
 extern struct playerType player;
-extern BITMAP* sp_coche[COCHE_FRAMES];
-extern BITMAP* sp_martin[MARTIN_FRAMES];
 
 #endif

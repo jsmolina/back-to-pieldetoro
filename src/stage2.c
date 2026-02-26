@@ -1,8 +1,4 @@
 #include "stage2.h"
-#include "allegro/color.h"
-#include "allegro/gfx.h"
-#include "allegro/inline/draw.inl"
-#include "enemy.h"
 #include "helpers.h"
 #include "dat_manager.h"
 #include "statics.h"

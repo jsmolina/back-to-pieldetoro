@@ -4,7 +4,7 @@
 #include "tiles.h"
 
 // simple AABB collision detection
-int collision(struct collisionType obj1, struct collisionType obj2) {
+int collision(collisionType obj1, collisionType obj2) {
     int flg = obj1.x >= obj2.x + obj2.w
         || obj2.x >= obj1.x + obj1.w
         || obj1.y >= obj2.y + obj2.h
@@ -17,20 +17,24 @@ int tiles_at_positions[4];
 void check_tiles_around_player(int* tiles_at_pos) {
     // Obtén los 4 tiles de las esquinas del jugador
     tiles_at_pos[0] = get_tile_at_position(player.pos.x, player.pos.y);                                    // Superior izquierda
-    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.width, player.pos.y);                     // Superior derecha
-    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.height - 4);                // Inferior izquierda
-    tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height - 4); // Inferior derecha
+    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.data->width, player.pos.y);                     // Superior derecha
+    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.data->height - 4);                // Inferior izquierda
+    tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.data->width, player.pos.y + player.data->height - 4); // Inferior derecha
 }
 
-inline int is_harmful_tile(int id) {
+static inline int is_harmful_tile(int id) {
     return id == HARMFUL_TILE_1 || id == HARMFUL_TILE_2;
 }
 
-inline int is_back_in_time_tile(int id) {
+static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
 
-static int rect_over_harmful_tiles(struct collisionType r) {
+static inline int is_a_platform(int id) {
+    return id == 920 || id == 921 || id == 922;
+}
+
+static int rect_over_tile_types(collisionType r) {
     if (r.w <= 0 || r.h <= 0)
         return 0;
 
@@ -55,6 +59,8 @@ static int rect_over_harmful_tiles(struct collisionType r) {
                 return HARMFUL;
             if (is_back_in_time_tile(tile_id))
                 return BACK_IN_TIME;
+            if (is_a_platform(tile_id))
+                return PLATFORM;
         }
     }
     return ROAD;
@@ -65,14 +71,14 @@ static int rect_over_harmful_tiles(struct collisionType r) {
 int wheels_on_tiles() {
     int result;
 
-    struct collisionType f1 = rear_wheels_area();
-    result = rect_over_harmful_tiles(f1);
+    collisionType f1 = rear_wheels_area();
+    result = rect_over_tile_types(f1);
     if (result != ROAD) {
         return result;
     }
 
-    struct collisionType f2 = front_wheels_area();
-    result = rect_over_harmful_tiles(f2);
+    collisionType f2 = front_wheels_area();
+    result = rect_over_tile_types(f2);
     if (result != ROAD) {
         return result;
     }
@@ -93,6 +99,13 @@ int checkOverObj() {
     if (player.pos.y > GROUND_Y) {
         return TRUE;
     }
+
+    collisionType f1 = player_foot_area();
+    int result = rect_over_tile_types(f1);
+    if (result == PLATFORM) {
+        return TRUE;
+    }
+
     return FALSE;
 }
 

@@ -67,7 +67,7 @@ enum EnemyType {
 typedef struct {
     enum EnemyType type;
     EnemyData * data; // pointer to static data for this enemy type
-    struct coordsType pos;
+    coordsType pos;
     int flip;
     int move_count;
     int anime_count;

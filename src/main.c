@@ -2,6 +2,7 @@
 
 #include "allegro/gfx.h"
 #include "enemy.h"
+#include "player.h"
 #include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "game.h"
@@ -86,6 +87,8 @@ int main(void) {
         vsync();
     }
     load_enemy_spritesheets();
+    load_coche_spritesheet();
+    load_martin_spritesheet();
     
     gfx_init_timer();
     do {

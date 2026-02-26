@@ -29,21 +29,15 @@
 #define NOT_FINISHED 0
 
 #define PLAYER_ACCEL 1
-#define MAX_FRAMES 13
 
 struct playerType player;
 
-struct animeItem {
-    int move_count;
-    int frames[MAX_FRAMES];
-    uint8_t length;
-    int frame_interval;
-};
+// BITMAP* sp_coche[COCHE_FRAMES];
+// BITMAP* sp_martin[MARTIN_FRAMES];
+PlayerData coche;
+PlayerData martin;
 
-BITMAP* sp_coche[COCHE_FRAMES];
-BITMAP* sp_martin[MARTIN_FRAMES];
-
-struct animeItem car_animations[15] = {
+animeItem car_animations[15] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -61,7 +55,7 @@ struct animeItem car_animations[15] = {
     { 0, {}, 0, 0 }          // CROUCHING (cars don't crouch)
 };
 
-struct animeItem martin_animations[15] = {
+animeItem martin_animations[15] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
@@ -91,18 +85,25 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.flip = FALSE;
     player.move_count = 0;
     player.max_vx = max_vx;
+    // Ensure size/sprite indices are initialized to safe defaults. Width/height
+    // are normally set when loading the spritesheet; initialize to 0 to
+    // detect misuse before they contain garbage.
+    player.sprite_index = 0;
+    player.lives = 3;
     player.animations = current_level == 1 ? car_animations : martin_animations;
+    player.data = current_level == 1 ? &coche : &martin;
 }
 
 void load_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
-    player.width = frame_width;
-    player.height = coche_spritesheet->h;
+    coche.width = frame_width;
+    coche.height = coche_spritesheet->h;
+    coche.total_frames = COCHE_FRAMES;
     // player.current_sprite = create_video_bitmap(player.width, player.height);
 
     for (int i = 0; i < COCHE_FRAMES; i++) {
-        sp_coche[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
+        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
     }
 }
 
@@ -110,19 +111,19 @@ void destroy_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
     int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
     for (int i = 0; i < COCHE_FRAMES; i++) {
-        destroy_bitmap(sp_coche[i]);
+        destroy_bitmap(coche.sprites[i]);
     }
 }
 
 void load_martin_spritesheet() {
     BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
     int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
-    player.width = frame_width;
-    player.height = martin_spritesheet->h;
-    // player.current_sprite = create_video_bitmap(player.width, player.height);
+    martin.width = frame_width;
+    martin.height = martin_spritesheet->h;
+    martin.total_frames = MARTIN_FRAMES;
 
     for (int i = 0; i < MARTIN_FRAMES; i++) {
-        sp_martin[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
+        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
     }
 }
 
@@ -130,7 +131,7 @@ void destroy_martin_spritesheet() {
     BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
     int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
     for (int i = 0; i < MARTIN_FRAMES; i++) {
-        destroy_bitmap(sp_martin[i]);
+        destroy_bitmap(martin.sprites[i]);
     }
 }
 
@@ -190,11 +191,14 @@ int is_on_obj() {
     return checkOverObj();
 }
 
-struct collisionType rear_wheels_area() {
+collisionType rear_wheels_area() {
+    if (!player.data) {
+        return (collisionType){ 0, 0, 0, 0 };
+    }
     // should consist in wheel area
-    int y = player.pos.y + player.height - 13;
+    int y = player.pos.y + player.data->height - 13;
 
-    struct collisionType ret = {
+    collisionType ret = {
         .x = player.pos.x + 16,
         .y = y,
         .w = 12,
@@ -203,15 +207,35 @@ struct collisionType rear_wheels_area() {
     return ret;
 }
 
-struct collisionType front_wheels_area() {
+collisionType front_wheels_area() {
+    if (!player.data) {
+        return (collisionType){ 0, 0, 0, 0 };
+    }
     // should consist in wheel area
-    int y = player.pos.y + player.height - 13;
+    int y = player.pos.y + player.data->height - 13;
 
-    struct collisionType ret = {
-        .x = player.pos.x + player.width - 26,
+    collisionType ret = {
+        .x = player.pos.x + player.data->width - 26,
         .y = y,
         .w = 12,
         .h = 12
+    };
+    return ret;
+}
+
+inline collisionType player_foot_area() {
+    if (player.data == NULL || player.data->height == 0 || player.data->width == 0
+        || player.pos.x == 0 || player.pos.y == 0) {
+        return (collisionType){ 0, 0, 0, 0 };
+    }
+    int y1 = player.pos.y + player.data->height - 5;
+    // player.pos.x - scroll_x +4, y1, player.pos.x + player.width - scroll_x-2, y1 + 5
+
+    collisionType ret = {
+        .x = player.pos.x + 4,
+        .y = y1,
+        .w = 16,
+        .h = 5
     };
     return ret;
 }
@@ -309,7 +333,7 @@ void player_action_fall() {
         } else {
             player_change_state(BREAKING);
         }
-    } else if (player.pos.y > SCREEN_H - player.height) {
+    } else if (player.pos.y > SCREEN_H - player.data->height) {
         player_change_state(FALL_END);
     }
 }
@@ -422,7 +446,11 @@ void player_action_jump_up() {
             player_change_state(JUMP_HIT);
             return;
         }*/
-        if (player.vx == 0) {
+        if (player.vx < 0) {
+            player.flip = TRUE;
+        } else if (player.vx > 0) {
+            player.flip = FALSE;
+        } else {
             if (key[KEY_LEFT]) {
                 player.flip = TRUE;
                 player.vx = -1;
@@ -435,6 +463,9 @@ void player_action_jump_up() {
     if (player.vy > 0) {
         player_change_state(JUMP_DOWN);
         return;
+    }
+    if (player.vy == 0) {
+        player_change_state(JUMP_DOWN);
     }
     player_count_move(player.vx, 0);
 }
@@ -512,21 +543,27 @@ REBORN: {move_count: 70, frames: [0], frame_interval: 70},
 
 void player_anime_update() {
     // player_animations
-
-    int* frames = player.animations[player.state].frames;
-    int frame_interval = player.animations[player.state].frame_interval;
+    animeItem* anim = &player.animations[player.state];
+    int* frames = anim->frames;
+    int frame_interval = anim->frame_interval;
 
     if (player.anime_count >= frame_interval) {
         player.anime_index++;
         player.anime_count = 0;
     }
 
-    if (player.anime_index >= player.animations[player.state].length) {
+    if (anim->length == 0) {
+        player.anime_index = 0;
+    } else if (player.anime_index >= anim->length) {
         player.anime_index = 0;
     }
 
-    player.sprite_index = frames[player.anime_index];
-    // blit(sp_coche[player.sprite_index], player.current_sprite, 0, 0, 0, 0, player.width, player.height);
+    int sprite_index = frames[player.anime_index];
+    if (player.data != NULL && sprite_index >= 0 && sprite_index < player.data->total_frames) {
+        player.sprite_index = sprite_index;
+    } else {
+        player.sprite_index = 0;
+    }
     player.anime_count++;
 }
 

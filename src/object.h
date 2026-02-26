@@ -8,6 +8,7 @@
 #define ROAD 0
 #define HARMFUL 1
 #define BACK_IN_TIME 2
+#define PLATFORM 3
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
@@ -36,17 +37,17 @@
  * @note TODO: remove from global scope
  */
 
-struct collisionType {
+typedef struct {
     int x;
     int y;
     int w;
     int h;
-};
+} collisionType;
 
-struct coordsType {
+typedef struct {
     int x;
     int y;
-};
+} coordsType;
 
 int checkOverObj();
 int checkHitObj();

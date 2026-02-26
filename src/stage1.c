@@ -2,13 +2,16 @@
 #include "allegro/color.h"
 #include "allegro/gfx.h"
 #include "allegro/inline/draw.inl"
+#include "allegro/palette.h"
 #include "helpers.h"
 #include "dat_manager.h"
 #include "statics.h"
 
 
 void level1_intro() {
-    BITMAP * intro_bmp = dat_file[PIELDETORO_INTRO_BMP].dat;
+    BITMAP * intro_bmp = dat_file[PIELDETORO_INTRO3_BMP].dat;    
+    set_palette((RGB*) dat_file[PALETE_INTRO_BMP].dat);
+    
     blit(intro_bmp, screen, 0, 0, 0, 0, 320, 200);
     destroy_bitmap(intro_bmp);
     rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
@@ -24,4 +27,5 @@ void level1_intro() {
     wait_for_space();
     print_at(10, 160, "Cuidao que esta la carretera hecha un cisco", makecol(255, 255, 255));
     wait_for_space();
+    set_palette(default_palette);
 }
