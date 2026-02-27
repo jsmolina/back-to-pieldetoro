@@ -8,6 +8,10 @@ dat datos.dat -a ./bird_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./joven_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./bg*.tmx -h statics.h
+dat datos.dat -a ./jordi_logo.bmp -h statics.h -t BMP
+dat datos.dat -a ./palete_jordi_logo.bmp -h statics.h -t PAL
+dat datos.dat -a ./msdosclub.bmp -h statics.h -t BMP
+dat datos.dat -a ./intro.mid -h statics.h -t MIDI
 
 dat -l datos.dat
 cp statics.h /src

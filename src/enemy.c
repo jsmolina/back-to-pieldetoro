@@ -5,7 +5,9 @@
 #include "statics.h"
 
 #define GRAVITY 1
-EnemyData enemy_data[2]; // static data for each enemy type
+EnemyData enemy_data[2] = {
+    {0, 0, 0, 0, 0, 0, NULL, NULL}, 
+    {0, 0, 0, 0, 0, 0, NULL, NULL}}; // static data for each enemy type
 Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
 Enemy active_enemies[MAX_ACTIVE_ENEMIES];
 

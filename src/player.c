@@ -34,8 +34,8 @@ struct playerType player;
 
 // BITMAP* sp_coche[COCHE_FRAMES];
 // BITMAP* sp_martin[MARTIN_FRAMES];
-PlayerData coche;
-PlayerData martin;
+PlayerData coche = {0, 0, 0, {NULL}}; // static data for car player type
+PlayerData martin = {0, 0, 0, {NULL}}; // static data for martin player type
 
 animeItem car_animations[15] = {
     { 0, { 0 }, 0, -1 },     // NONE

@@ -1,19 +1,18 @@
 #include "tiles.h"
-#include "allegro/gfx.h"
-#include "errors.h"
 #include "allegro/datafile.h"
+#include "allegro/gfx.h"
+#include "dat_manager.h"
+#include "errors.h"
+#include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "dat_manager.h"
-#include "statics.h"
-
 
 PALETTE palette;
-BITMAP *tiles;
-//width="80" height="25"
-char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
-int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = {0};
+BITMAP* tiles;
+// width="80" height="25"
+char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
+int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
 int curr_tiles_width = 0;
 int map_width = 0;
@@ -42,21 +41,19 @@ int get_tile_at_position(int x, int y) {
 inline void load_tiles() {
     tiles = dat_file[TILES_BMP].dat;
 
-    if(!tiles) {
+    if (!tiles) {
         die("cannot load tiles");
     }
 }
 
-
-
-BITMAP * load_background(int id, int screen_w) {
-    char *in_file = dat_file[id].dat;
+BITMAP* load_background(int id) {
+    char* in_file = dat_file[id].dat;
     if (in_file == NULL) {
         die("cannot load %s", id);
     }
-    //BITMAP * background = create_bitmap(screen_w, SCREEN_H);
-    //rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
-    char current;
+    // BITMAP * background = create_bitmap(screen_w, SCREEN_H);
+    // rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
+    unsigned char current;
 
     // skip xml data
     int start_csv = 0;
@@ -66,12 +63,13 @@ BITMAP * load_background(int id, int screen_w) {
 
     // Find the first '>' and extract width before skipping header
     do {
-        current = in_file[i++];
+        current = (unsigned char)in_file[i++];
         if (current == '>') {
             // Read whole header line
             int header_start = i - 1;
-            while (header_start > 0 && in_file[header_start] != '<') header_start--;
-            char header_line[256] = {0};
+            while (header_start > 0 && in_file[header_start] != '<')
+                header_start--;
+            char header_line[256] = { 0 };
             int hlen = 0;
             while (in_file[header_start + hlen] != '>' && hlen < 255) {
                 header_line[hlen] = in_file[header_start + hlen];
@@ -79,11 +77,11 @@ BITMAP * load_background(int id, int screen_w) {
             }
             header_line[hlen] = '\0';
             // search for width="
-            const char *wptr = strstr(header_line, "width=\"");
+            const char* wptr = strstr(header_line, "width=\"");
             if (wptr) {
                 // skip width=": we just want the number
                 wptr += 7;
-                char numbuf[16] = {0};
+                char numbuf[16] = { 0 };
                 int ni = 0;
                 while (wptr[ni] && wptr[ni] != '"' && ni < 15) {
                     numbuf[ni] = wptr[ni];
@@ -95,19 +93,29 @@ BITMAP * load_background(int id, int screen_w) {
             start_csv += 1;
         }
     } while (start_csv < 5 && current != '\0');
+    if (curr_tiles_width <= 0) {
+        die("invalid tiles width: %d", curr_tiles_width);
+    }
+
     map_width = curr_tiles_width * TILES_SIZE - SCREEN_W;
     map_pixel_width = curr_tiles_width * TILES_SIZE;
-    BITMAP *background = create_bitmap(map_pixel_width, SCREEN_H);
+    if (map_pixel_width <= 0) {
+        die("invalid map pixel width: %d", map_pixel_width);
+    }
+    BITMAP* background = create_bitmap(map_pixel_width, SCREEN_H);
+    if (!background) {
+        die("cannot create background bitmap");
+    }
 
     // temporal data for csv
-    char current_tile[5] = "     ";
+    char current_tile[16] = { 0 };
     int charpos = 0;
-    char * output;
+    char* output;
     int iterations = 0;
     // current screen position
     struct coords screen_coords;
     screen_coords.x = screen_coords.y = 0;
-    int tiles_x, tiles_y = 0;
+    int tiles_x = 0, tiles_y = 0;
 
     do {
         current = in_file[i++];
@@ -124,7 +132,7 @@ BITMAP * load_background(int id, int screen_w) {
 
             // copies from tiles to background
             blit(tiles, background, coordinates.x, coordinates.y,
-                 screen_coords.x, screen_coords.y, TILES_SIZE, TILES_SIZE);
+                screen_coords.x, screen_coords.y, TILES_SIZE, TILES_SIZE);
             // store tile value
             tiles_values[tiles_y][tiles_x] = tile_number;
 
@@ -147,10 +155,8 @@ BITMAP * load_background(int id, int screen_w) {
         // if (iterations == 200) start_csv = -1; // Uncomment if needed
     } while (current != '\0' && start_csv != -1);
 
-
     return background;
 }
-
 
 void mark_dirty_tiles(int x, int y, int width, int height) {
     int sx, sy, ex, ey;
@@ -158,13 +164,20 @@ void mark_dirty_tiles(int x, int y, int width, int height) {
     sx = x / TILES_SIZE;
     sy = y / TILES_SIZE;
     ex = (x + width - 1) / TILES_SIZE;
-    ex = (y + height - 1) / TILES_SIZE;
+    ey = (y + height - 1) / TILES_SIZE;
+
+    if (sx < 0)
+        sx = 0;
+    if (sy < 0)
+        sy = 0;
+    if (ex >= MAX_HORIZ_TILES)
+        ex = MAX_HORIZ_TILES - 1;
+    if (ey >= MAX_VERT_TILES)
+        ey = MAX_VERT_TILES - 1;
 
     for (int ty = sy; ty <= ey; ++ty) {
         for (int tx = sx; tx <= ex; ++tx) {
-            if (x >= 0 && x < TILES_SIZE && y >= 0 && y < TILES_SIZE) {
-                dirty_tiles[ty][tx] = 1;
-            }
+            dirty_tiles[ty][tx] = 1;
         }
     }
 }

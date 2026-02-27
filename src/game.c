@@ -42,7 +42,7 @@ PALETTE pal_flash;
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
-    current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
+    current_background = load_background(BG0_TMX);
     current_level = 1;
     world_state = START_STAGE;
 
@@ -58,6 +58,7 @@ void start_new_game() {
     pal_flash[44].r = 243;
     pal_flash[44].g = 156;
     pal_flash[44].b = 0;
+
 }
 
 void update_game_run() {
@@ -227,7 +228,7 @@ void advance_stage() {
             destroy_bitmap(current_background);
         }
         // player_init(10, GROUND_Y);
-        current_background = load_background(BG1_TMX, SCREEN_VIRTUAL);
+        current_background = load_background(BG1_TMX);
         world_state = START_STAGE;
         break;
     default:
