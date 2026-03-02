@@ -30,8 +30,15 @@ static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
 
+static const int platform_ids[] = {920,921,922,906,907,908,253,254,255, 1016};
+
 static inline int is_a_platform(int id) {
-    return id == 920 || id == 921 || id == 922;
+    for (int i = 0; i < sizeof(platform_ids) / sizeof(platform_ids[0]); i++) {
+        if (platform_ids[i] == id) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 static int rect_over_tile_types(collisionType r) {

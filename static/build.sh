@@ -1,6 +1,7 @@
 dat datos.dat -a ./pieldetoro_intro3.bmp -h statics.h -t BMP
 dat datos.dat -a ./palete_intro.bmp -h statics.h -t PAL
 dat datos.dat -a ./menu2.bmp -h statics.h -t BMP
+dat datos.dat -a ./book.bmp -h statics.h -t BMP
 dat datos.dat -a ./tiles.bmp -h statics.h -t BMP
 dat datos.dat -a ./coche_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./martin_spritesheet.bmp -h statics.h -t BMP

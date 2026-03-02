@@ -6,8 +6,8 @@
 
 #define MAX_SPAWNABLE_ENEMIES 4
 #define MAX_ACTIVE_ENEMIES 4
-#define ENEMY_FRAMES 15
-#define JOVEN_FRAMES 15
+#define ENEMY_FRAMES 16
+#define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2
 
 

@@ -3,8 +3,9 @@
 #include <allegro.h>
 #include "object.h"
 
+
 #define COCHE_FRAMES 3
-#define MARTIN_FRAMES 15
+#define MARTIN_FRAMES 16
 #define MAX_FRAMES 13
 
 typedef int (*CheckHitFn)();
