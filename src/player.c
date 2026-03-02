@@ -241,9 +241,9 @@ inline collisionType player_foot_area() {
     // player.pos.x - scroll_x +4, y1, player.pos.x + player.width - scroll_x-2, y1 + 5
 
     collisionType ret = {
-        .x = player.pos.x + 4,
+        .x = player.pos.x + 6,
         .y = y1,
-        .w = 16,
+        .w = 14,
         .h = 5
     };
     return ret;
