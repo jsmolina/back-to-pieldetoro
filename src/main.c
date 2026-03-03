@@ -1,11 +1,13 @@
 #include <stdio.h>
 
 #include "allegro/gfx.h"
+#include "allegro/midi.h"
 #include "enemy.h"
 #include "player.h"
 #include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "game.h"
+#include "helpers.h"
 #include "tiles.h"
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -16,7 +18,7 @@
 #define GAME_OVER 2
 // screen scroll size
 
-short game_state = 0;
+short game_state = TITLE;
 
 static volatile int update_count, frame_count, fps = 0;
 
@@ -72,14 +74,24 @@ int main(void) {
     palette[0].b = 10;
     set_pallete(palette);*/
     get_pallete(palette);
-
     set_color(0, &black);
+    gfx_init_timer();
+
+    if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, "./allegro.cfg") != 0) {
+        allegro_message("Error: cannot enable sound\n%s\n", allegro_error);
+        return 1;
+    }
+    play_midi(dat_file[INTRO_MID].dat, 0);
+
+    set_palette((RGB*) dat_file[PALETE_JORDI_LOGO_BMP].dat);    
+    blit(dat_file[JORDI_LOGO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    wait_for_space();
+    set_palette(palette);
+    blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    wait_for_space();
 
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     BITMAP* menu = dat_file[MENU2_BMP].dat;
-
-    short exit_game = 0;
-
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
     for (int i = 0; i < 40 ; i++) {
@@ -89,8 +101,9 @@ int main(void) {
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
-    
-    gfx_init_timer();
+
+
+    short exit_game = 0;
     do {
         switch (game_state) {
         case TITLE:

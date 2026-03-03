@@ -5,6 +5,7 @@
 #include "object.h"
 #include "player.h"
 #include "statics.h"
+#include "book.h"
 #include <allegro.h>
 #include <math.h>
 
@@ -22,6 +23,7 @@
 #define DEAD_END 12
 #define BOUNCING 13
 #define CROUCHING 14
+#define THROWING 15
 
 #define JUMP_VY -8
 
@@ -34,10 +36,10 @@ struct playerType player;
 
 // BITMAP* sp_coche[COCHE_FRAMES];
 // BITMAP* sp_martin[MARTIN_FRAMES];
-PlayerData coche;
-PlayerData martin;
+PlayerData coche = {0, 0, 0, {NULL}}; // static data for car player type
+PlayerData martin = {0, 0, 0, {NULL}}; // static data for martin player type
 
-animeItem car_animations[15] = {
+static animeItem car_animations[16] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -52,17 +54,18 @@ animeItem car_animations[15] = {
     { 60, { 0 }, 1, 60 },    // FALL_END
     { 70, { 0 }, 1, 70 },    // DEAD_END
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
-    { 0, {}, 0, 0 }          // CROUCHING (cars don't crouch)
+    { 0, {}, 0, 0 },          // CROUCHING (cars don't crouch)
+    { 0, {}, 0, 0 },       // UNUSED
 };
 
-animeItem martin_animations[15] = {
+static animeItem martin_animations[16] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 16, { 9 }, 1, 2 },                                         // BREAKING
-    { 60, { 13 }, 1, 1 },                                        // JUMP_UP
-    { 60, { 13 }, 1, 1 },                                        // JUMP_DOWN
+    { 4, { 9 }, 1, 2 },                                         // BREAKING
+    { 12, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL
     { 1, { 13 }, 1, 1 },                                         // FALL2
@@ -71,6 +74,7 @@ animeItem martin_animations[15] = {
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
+    { 5, {15}, 0, 0 },                                           // THROWING OBJECT
 };
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -135,38 +139,34 @@ void destroy_martin_spritesheet() {
     }
 }
 
-void player_change_state(unsigned int state) {
+static void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
     player.move_count = player.animations[player.state].move_count;
 }
 
-uint8_t space_was_pressed = 0;
-int jump_key_freed() {
-    if (!space_was_pressed && key[KEY_SPACE]) {
-        space_was_pressed = 1;
+static uint8_t jump_was_pressed = 0;
+static int jump_key_freed() {
+    if (!jump_was_pressed && key[KEY_UP]) {
+        jump_was_pressed = 1;
         return TRUE;
-    } else if (space_was_pressed && !key[KEY_SPACE]) {
-        space_was_pressed = 0;
+    } else if (jump_was_pressed && !key[KEY_UP]) {
+        jump_was_pressed = 0;
     }
     return FALSE;
 }
 
-/**
- * @brief Player performs a jump, that could be diagonal
- */
-void player_do_jump() {
-    if (key[KEY_LEFT]) {
-        player.vx = -4;
-        player.flip = 1;
+static uint8_t action_was_pressed = 0;
+static int action_key_freed() {
+    if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL] )) {
+        action_was_pressed = 1;
+        return TRUE;
+    } else if (action_was_pressed && !key[KEY_RCONTROL] && !key[KEY_LCONTROL]) {
+        action_was_pressed = 0;
     }
-    if (key[KEY_RIGHT]) {
-        player.vx = 4;
-        player.flip = 0;
-    }
-    player.vy = JUMP_VY;
-    player_change_state(JUMP_UP);
+    return FALSE;
 }
+
 
 /**
  * @brief Applies a force (vy or vx) over player
@@ -175,7 +175,7 @@ void player_do_jump() {
  * @param vy vert velocity
  *
  */
-void player_affect_force(int vx, int vy) {
+static void player_affect_force(int vx, int vy) {
     player.vy += vy;
     player.vx += vx;
 }
@@ -191,6 +191,9 @@ int is_on_obj() {
     return checkOverObj();
 }
 
+/**
+* @brief defines the area of the rear car wheels for collision detection
+*/
 collisionType rear_wheels_area() {
     if (!player.data) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -207,6 +210,9 @@ collisionType rear_wheels_area() {
     return ret;
 }
 
+/**
+* @brief defines the area of the front car wheels for collision detection
+*/
 collisionType front_wheels_area() {
     if (!player.data) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -223,18 +229,21 @@ collisionType front_wheels_area() {
     return ret;
 }
 
+/**
+* @brief defines the area of the main player feet for collision detection
+*/
 inline collisionType player_foot_area() {
     if (player.data == NULL || player.data->height == 0 || player.data->width == 0
         || player.pos.x == 0 || player.pos.y == 0) {
         return (collisionType){ 0, 0, 0, 0 };
     }
-    int y1 = player.pos.y + player.data->height - 5;
+    int y1 = player.pos.y + player.data->height - 3;
     // player.pos.x - scroll_x +4, y1, player.pos.x + player.width - scroll_x-2, y1 + 5
 
     collisionType ret = {
-        .x = player.pos.x + 4,
+        .x = player.pos.x + 6,
         .y = y1,
-        .w = 16,
+        .w = 14,
         .h = 5
     };
     return ret;
@@ -277,7 +286,7 @@ void check_vx() {
 /**
  * @brief Updates player position based on velocities
  */
-void player_update_position() {
+static void player_update_position() {
     check_vx();
     check_vy();
     player.pos.x = round(player.pos.x + player.vx);
@@ -303,19 +312,20 @@ unsigned int player_count_move(int dx, int dy) {
     return NOT_FINISHED;
 }
 
-void player_move_left() {
+// DOERS: CALLED ON KEY PRESS TO CHANGE STATE
+void player_do_move_left() {
     player.vx = -1;
     player_change_state(MOVE_LEFT);
     player.flip = TRUE;
 }
 
-void player_move_right() {
+inline void player_do_move_right() {
     player.vx = 1;
     player_change_state(MOVE_RIGHT);
     player.flip = FALSE;
 }
 
-void player_stop() {
+inline void player_do_stop() {
     player.vx = 0;
     player.vy = 0;
     player_change_state(STOP);
@@ -346,6 +356,48 @@ void player_traveling() {
     player_change_state(BOUNCING);
 }
 
+/**
+* @brief called on crouch key press, changes player state to CROUCHING
+*/
+inline void player_do_crouch() {
+    player_change_state(CROUCHING);
+}
+
+/**
+* @brief called on throw key press, changes player state to THROWING
+*/
+inline void player_do_throw() {
+    player_change_state(THROWING);
+    // throw logic, create throwable object (book), set its position and velocity based on player state and direction
+    init_book(
+        player.pos.x + (player.flip ? -6 : 6),
+        player.pos.y + 5,
+        player.flip
+    );
+}
+
+// ACTIONS: called on update loop to perform current action and transitions
+
+/**
+ * @brief Player performs a jump, that could be diagonal
+ */
+inline void player_do_jump() {
+    if (key[KEY_LEFT]) {
+        player.vx = -1;
+        player.flip = 1;
+    }
+    if (key[KEY_RIGHT]) {
+        player.vx = 1;
+        player.flip = 0;
+    }
+    player.vy = JUMP_VY;
+    player_change_state(JUMP_UP);
+}
+
+
+/** 
+* @brief moves player to the left, with possible jump if up is pressed. Called on update loop when state is MOVE_LEFT
+*/
 void player_action_move_left() {
     if (jump_key_freed()) {
         player_do_jump();
@@ -363,15 +415,18 @@ void player_action_move_left() {
             player_change_state(FALL2);
         }
     } else if (key[KEY_LEFT]) {
-        player_move_left();
+        player_do_move_left();
     } else if (player.prev_state == STOP) {
-        player_stop();
+        player_do_stop();
     } else {
         player.vx = -1;
         player_change_state(BREAKING);
     }
 }
 
+/**
+ * @brief moves player to the right, with possible jump if up is pressed. Called on update loop when state is MOVE_RIGHT
+ */
 void player_action_move_right() {
     if (jump_key_freed()) {
         player_do_jump();
@@ -395,18 +450,15 @@ void player_action_move_right() {
         else
             player_change_state(FALL2);
     } else if (key[KEY_RIGHT]) {
-        player_move_right();
+        player_do_move_right();
     } else if (player.prev_state == STOP) {
-        player_stop();
+        player_do_stop();
     } else {
         player.vx = 1;
         player_change_state(BREAKING);
     }
 }
 
-void player_do_crouch() {
-    player_change_state(CROUCHING);
-}
 
 void player_action_stop() {
     if (player.vy > 0) {
@@ -416,19 +468,21 @@ void player_action_stop() {
             player_change_state(FALL2);
         }
     } else if (key[KEY_LEFT]) {
-        player_move_left();
+        player_do_move_left();
     } else if (key[KEY_RIGHT]) {
-        player_move_right();
+        player_do_move_right();
     } else if (jump_key_freed()) {
         player_do_jump();
     } else if (key[KEY_DOWN]) {
         player_do_crouch();
+    } else if (action_key_freed()) {
+        player_do_throw();
     } else {
         player_count_move(0, 0);
     }
 }
 
-void player_crouch() {
+void player_action_crouch() {
     if (!key[KEY_DOWN]) {
         player_change_state(STOP);
     } else {
@@ -502,12 +556,19 @@ void player_action_breaking() {
     if (player_count_move(player.vx, 0) == NOT_FINISHED) {
         return;
     }
-    player_stop();
+    player_do_stop();
 }
 
 void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player_change_state(FALL_END);
+    }
+}
+
+void player_action_throw() {
+    // TODO: implement throwing action and pass to stop
+    if (player_count_move(0, 0) == FINISHED) {
+        player_change_state(STOP);
     }
 }
 
@@ -523,24 +584,9 @@ int player_is_deading() {
     }
 }
 
-// ANIMATION
-/*
-STOP: {move_count: 1, frames: [0], frame_interval: 60},
-MOVE_LEFT: {move_count: 12, frames: [1,2,3,1,5,4], frame_interval: 2},
-MOVE_RIGHT: {move_count: 12, frames: [1,2,3,1,5,4], frame_interval: 2},
-TURN_LEFT: {move_count: 8, frames: [0], frame_interval: 2},
-TURN_RIGHT: {move_count: 8, frames: [0], frame_interval: 2},
-BREAKING: {move_count: 16, frames: [7,10,11], frame_interval: 2},
-JUMP_UP: {move_count: 60, frames: [6], frame_interval: 1},
-JUMP_DOWN: {move_count: 60, frames: [6], frame_interval: 1},
-JUMP_HIT: {move_count: 16, frames: [6], frame_interval: 1},
-FALL: {move_count: 1, frames: [3], frame_interval: 1},
-FALL2: {move_count: 1, frames: [7], frame_interval: 1},
-DEAD: {move_count: 30, frames: [8], frame_interval: 30},
-FALL_END: {move_count: 60, frames: [9], frame_interval: 60},
-REBORN: {move_count: 70, frames: [0], frame_interval: 70},
- */
-
+/**
+Anime update will take the current state and update the sprite index based on the animation defined for that state.
+*/
 void player_anime_update() {
     // player_animations
     animeItem* anim = &player.animations[player.state];
@@ -567,11 +613,12 @@ void player_anime_update() {
     player.anime_count++;
 }
 
-// LOOP
+// FSM LOOP for player, called on game loop when world_state is GAME_RUN
 void player_update() {
     if (game_pause) {
         return;
     }
+    player_affect_force(0, (player.anime_index & 1) == 0);
     player_update_position();
 
     switch (player.state) {
@@ -604,7 +651,10 @@ void player_update() {
         player_action_fall_end();
         break;
     case CROUCHING:
-        player_crouch();
+        player_action_crouch();
+        break;
+    case THROWING:
+        player_action_throw();
         break;
     }
     player_anime_update();

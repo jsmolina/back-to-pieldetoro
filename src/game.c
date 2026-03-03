@@ -1,15 +1,13 @@
 #include "game.h"
-#include "allegro/color.h"
-#include "allegro/gfx.h"
-#include "allegro/inline/draw.inl"
+#include "book.h"
 #include "enemy.h"
-#include "helpers.h"
 #include "object.h"
 #include "player.h"
 #include "stage1.h"
 #include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
+#include <allegro.h>
 #include <string.h>
 
 #define START_STAGE 0
@@ -42,7 +40,7 @@ PALETTE pal_flash;
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
-    current_background = load_background(BG0_TMX, SCREEN_VIRTUAL);
+    current_background = load_background(BG0_TMX);
     current_level = 1;
     world_state = START_STAGE;
 
@@ -73,7 +71,6 @@ void update_game_run() {
 
     switch (current_level) {
     case 1:
-        player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
         // this.attackEnemy(this.player);
         // this.warp_if_outside(this.player);
@@ -95,22 +92,6 @@ void update_game_run() {
         // this.world.checkHitObj(this.foot_area(0, dy));
         // player_attack();
 
-        /**
-        this.create_enemy();
-        for (let e of this.enemy_list) {
-            e.affectForce(0, GRAVITY);
-            e.update();
-            if (e.offensive()) {
-                this.player.attack(e)
-            }
-            this.warp_if_outside2(e);
-            if (e.y > this.h * MAP_ELEM_SIZE) {
-                dead_enemies.push(e);
-                this.num_of_dead_enemies++;
-            }
-        }
-         */
-
         if (next_x < 320) {
             // next_x++;
         }
@@ -126,11 +107,27 @@ void update_game_run() {
         } else if (key[KEY_6_PAD]) {
             player.pos.x++;
         }
-        player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
 
         enemy_pool_update(scroll_x);
+        throwable_update(scroll_x);
+        // TDOO: enemies update and attack player
 
+        /**
+        this.create_enemy();
+        for (let e of this.enemy_list) {
+            e.affectForce(0, GRAVITY);
+            e.update();
+            if (e.offensive()) {
+                this.player.attack(e)
+            }
+            this.warp_if_outside2(e);
+            if (e.y > this.h * MAP_ELEM_SIZE) {
+                dead_enemies.push(e);
+                this.num_of_dead_enemies++;
+            }
+        }
+         */
         break;
     }
 }
@@ -156,7 +153,6 @@ void repaint_dirty_tiles() {
 }
 
 inline void draw_game() {
-
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
     if (key[KEY_F1]) {
         world_state = STAGE_CLEAR;
@@ -191,8 +187,9 @@ inline void draw_game() {
             textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
         }
         draw_enemies(scroll_x);
-        f2 = player_foot_area();
-        rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
+        draw_throwable(scroll_x);
+        // f2 = player_foot_area();
+        // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         rectfill(screen, 10, 190, 290, 200, 16);
         textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", player.state, player.pos.y, player.vy, player.vx);
 
@@ -215,7 +212,7 @@ void start_stage() {
         init_enemy(0, ENEMY_BIRD, 400, GROUND_Y);
         init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y);
         enemy_pool_init();
-    break;
+        break;
     }
 }
 
@@ -227,7 +224,7 @@ void advance_stage() {
             destroy_bitmap(current_background);
         }
         // player_init(10, GROUND_Y);
-        current_background = load_background(BG1_TMX, SCREEN_VIRTUAL);
+        current_background = load_background(BG1_TMX);
         world_state = START_STAGE;
         break;
     default:
@@ -283,7 +280,6 @@ inline void update_game() {
         break;
     case PLAYER_FALL:
         // dead fall
-        player_affect_force(0, (player.anime_index & 1) == 0);
         player_update();
         if (player.pos.y > GROUND_Y + player.data->height) {
             player.lives--;

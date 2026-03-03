@@ -5,9 +5,11 @@
 #include "statics.h"
 
 #define GRAVITY 1
-EnemyData enemy_data[2]; // static data for each enemy type
-Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
-Enemy active_enemies[MAX_ACTIVE_ENEMIES];
+static EnemyData enemy_data[2] = {
+    {0, 0, 0, 0, 0, 0, NULL, NULL}, 
+    {0, 0, 0, 0, 0, 0, NULL, NULL}}; // static data for each enemy type
+static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
+static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
 
 // called on stage init to load bitmaps and initialize static data for enemy types
 void init_enemy(int index, enum EnemyType type, int x, int y) {
@@ -30,7 +32,7 @@ void init_enemy(int index, enum EnemyType type, int x, int y) {
 }
 
 // load bitmaps and initialize static data for enemy types
-void load_enemy_generic(enum EnemyType type, int frame_count, int bitmap_id) {
+static void load_enemy_generic(enum EnemyType type, int frame_count, int bitmap_id) {
     EnemyData* enem = &enemy_data[type];
     BITMAP* enemy_spritesheet = dat_file[bitmap_id].dat;
     int frame_width = (int)enemy_spritesheet->w / frame_count;
@@ -89,7 +91,7 @@ void enemy_pool_init() {
     }
 }
 
-inline int get_enemy_bitmap_id(enum EnemyType type) {
+static inline int get_enemy_bitmap_id(enum EnemyType type) {
     switch (type) {
     case ENEMY_BIRD:
         return BIRD_SPRITESHEET_BMP;
@@ -127,7 +129,7 @@ static int is_spawned(int spawn_index) {
     return 0;
 }
 
-static void spawn_from_static(int spawn_index) {
+static inline void spawn_from_static(int spawn_index) {
     if (spawn_index < 0 || spawn_index >= MAX_SPAWNABLE_ENEMIES) {
         return;
     }

@@ -3,8 +3,9 @@
 #include <allegro.h>
 #include "object.h"
 
+
 #define COCHE_FRAMES 3
-#define MARTIN_FRAMES 15
+#define MARTIN_FRAMES 16
 #define MAX_FRAMES 13
 
 typedef int (*CheckHitFn)();
@@ -48,25 +49,11 @@ struct playerType {
 void player_init(int x, int y, int current_level, int max_vx);
 
 /**
- * @brief Apply a force over player
- * @param vx Horizontal force
- * @param vy Vertical force
- *
- */
-void player_affect_force(int vx, int vy);
-
-/**
  * @brief Does a jump for the player
  *
  */
 void player_do_jump();
 
-/**
- * @brief Changes player state machine
- *
- * @param state new state
- */
-void player_change_state(unsigned int state);
 
 /**
  * @brief Checks if player is over an object

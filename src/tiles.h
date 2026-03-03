@@ -7,7 +7,7 @@
 #define TILES_SIZE 8
 #define MAX_HORIZ_TILES 325
 #define MAX_VERT_TILES 25
-#define SCREEN_VIRTUAL 640
+#define SCREEN_VIRTUAL 320
 
 
 struct coords {
@@ -30,7 +30,7 @@ extern int map_pixel_width;
 Preloads all tiles as a bitmap to blit them to screen
 */
 inline void load_tiles();
-BITMAP * load_background(int id, int screen_w);
+BITMAP * load_background(int id);
 
 /**
 Returns x and y positions from a tile number

@@ -6,8 +6,8 @@
 
 #define MAX_SPAWNABLE_ENEMIES 4
 #define MAX_ACTIVE_ENEMIES 4
-#define ENEMY_FRAMES 15
-#define JOVEN_FRAMES 15
+#define ENEMY_FRAMES 16
+#define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2
 
 
@@ -81,9 +81,9 @@ typedef struct {
 } Enemy;
 
 
-extern Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
-extern Enemy active_enemies[MAX_ACTIVE_ENEMIES];
-extern EnemyData enemy_data[2]; // static data for each enemy type
+//static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
+//static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
+//static EnemyData enemy_data[2]; // static data for each enemy type
 
 /* Initialize static spawnable enemy (level data) */
 void init_enemy(int index, enum EnemyType type, int x, int y);
