@@ -39,7 +39,7 @@ struct playerType player;
 PlayerData coche = {0, 0, 0, {NULL}}; // static data for car player type
 PlayerData martin = {0, 0, 0, {NULL}}; // static data for martin player type
 
-animeItem car_animations[16] = {
+static animeItem car_animations[16] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -58,7 +58,7 @@ animeItem car_animations[16] = {
     { 0, {}, 0, 0 },       // UNUSED
 };
 
-animeItem martin_animations[16] = {
+static animeItem martin_animations[16] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
@@ -139,14 +139,14 @@ void destroy_martin_spritesheet() {
     }
 }
 
-void player_change_state(unsigned int state) {
+static void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
     player.move_count = player.animations[player.state].move_count;
 }
 
-uint8_t jump_was_pressed = 0;
-int jump_key_freed() {
+static uint8_t jump_was_pressed = 0;
+static int jump_key_freed() {
     if (!jump_was_pressed && key[KEY_UP]) {
         jump_was_pressed = 1;
         return TRUE;
@@ -156,8 +156,8 @@ int jump_key_freed() {
     return FALSE;
 }
 
-uint8_t action_was_pressed = 0;
-int action_key_freed() {
+static uint8_t action_was_pressed = 0;
+static int action_key_freed() {
     if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL] )) {
         action_was_pressed = 1;
         return TRUE;
@@ -175,7 +175,7 @@ int action_key_freed() {
  * @param vy vert velocity
  *
  */
-void player_affect_force(int vx, int vy) {
+static void player_affect_force(int vx, int vy) {
     player.vy += vy;
     player.vx += vx;
 }
@@ -286,7 +286,7 @@ void check_vx() {
 /**
  * @brief Updates player position based on velocities
  */
-void player_update_position() {
+static void player_update_position() {
     check_vx();
     check_vy();
     player.pos.x = round(player.pos.x + player.vx);
@@ -370,8 +370,8 @@ inline void player_do_throw() {
     player_change_state(THROWING);
     // throw logic, create throwable object (book), set its position and velocity based on player state and direction
     init_book(
-        player.pos.x + (player.flip ? -20 : player.data->width + 20),
-        player.pos.y + player.data->height / 2,
+        player.pos.x + (player.flip ? -6 : 6),
+        player.pos.y + 5,
         player.flip
     );
 }
@@ -618,6 +618,7 @@ void player_update() {
     if (game_pause) {
         return;
     }
+    player_affect_force(0, (player.anime_index & 1) == 0);
     player_update_position();
 
     switch (player.state) {
