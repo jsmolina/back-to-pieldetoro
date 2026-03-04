@@ -144,6 +144,41 @@ static inline void spawn_from_static(int spawn_index) {
     spawnable_enemies[spawn_index].active = TRUE;
 }
 
+void enemy_get_all_aabb(collisionType* enemies) {
+    for (int i = 0; i < MAX_ACTIVE_ENEMIES; i++) {
+        if (active_enemies[i].active == TRUE) {
+            enemies[i].x = active_enemies[i].pos.x;
+            enemies[i].y = active_enemies[i].pos.y;
+            EnemyData* data = active_enemies[i].data;
+            if (data) {
+                enemies[i].w = data->width;
+                enemies[i].h = data->height;
+            } else {
+                enemies[i].w = 0;
+                enemies[i].h = 0;
+            }
+        } else {
+            enemies[i].x = 0;
+            enemies[i].y = 0;
+            enemies[i].w = 0;
+            enemies[i].h = 0;
+        }
+    }
+}
+
+void enemy_on_hit(int enemy_id) {
+    if (enemy_id < 0 || enemy_id >= MAX_ACTIVE_ENEMIES) {
+        return;
+    }
+    active_enemies[enemy_id].killed = TRUE;
+    int origin_index = active_enemies[enemy_id].origin;
+    if (origin_index >= 0 && origin_index < MAX_SPAWNABLE_ENEMIES) {
+        spawnable_enemies[origin_index].killed = TRUE; // mark static as killed so it won't respawn
+    }
+    active_enemies[enemy_id].active = FALSE;
+    active_enemies[enemy_id].origin = -1;
+}
+
 void enemy_pool_update(int camera_x) {
     int spawn_margin = 32;
     int despawn_left = 128;
@@ -162,6 +197,8 @@ void enemy_pool_update(int camera_x) {
     }
 
     // Update active enemies
+    // TODO: enemies update and attack player
+
     /*for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
         Enemy* e = &active_enemies[i];
         if (!e->active)

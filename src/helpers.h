@@ -1,6 +1,21 @@
 
 #ifndef HELPERS_H
 #define HELPERS_H
+// helpers define common types and functions used across multiple modules, such as player, enemy, and game management.
+
+typedef struct {
+    int x;
+    int y;
+} coordsType;
+
+
+typedef struct {
+    int x;
+    int y;
+    int w;
+    int h;
+} collisionType;
+
 /**
  * @brief Emits a beep sound at the specified frequency and duration.
  *

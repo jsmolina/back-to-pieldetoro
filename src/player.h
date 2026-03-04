@@ -2,7 +2,7 @@
 #define PLAYER_H
 #include <allegro.h>
 #include "object.h"
-
+#include "helpers.h"
 
 #define COCHE_FRAMES 3
 #define MARTIN_FRAMES 16

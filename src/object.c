@@ -1,6 +1,8 @@
 #include "object.h"
+#include "enemy.h"
 #include "game.h"
 #include "player.h"
+#include "book.h"
 #include "tiles.h"
 
 // simple AABB collision detection
@@ -118,4 +120,23 @@ int checkOverObj() {
 
 int checkHitObj() {
     return FALSE;
+}
+
+void collision_check_throwable_vs_enemy() {
+    collisionType boxes[MAX_THROWABLE_OBJECTS];
+    collisionType enemies[MAX_ACTIVE_ENEMIES];
+    book_get_all_aabb(boxes);
+    enemy_get_all_aabb(enemies);
+    for (int throw_id = 0; throw_id < MAX_THROWABLE_OBJECTS; throw_id++) {
+        if (boxes[throw_id].w == 0) continue;
+
+        for (int enemy_id = 0; enemy_id < MAX_ACTIVE_ENEMIES; enemy_id++) {
+            if (enemies[enemy_id].w == 0) continue;
+
+            if (collision(boxes[throw_id], enemies[enemy_id])) {
+                book_on_hit(throw_id);
+                enemy_on_hit(enemy_id);
+            }
+        }
+    }
 }

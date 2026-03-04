@@ -1,4 +1,6 @@
 #include "game.h"
+#include <allegro.h>
+#include <string.h>
 #include "book.h"
 #include "enemy.h"
 #include "object.h"
@@ -7,8 +9,7 @@
 #include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
-#include <allegro.h>
-#include <string.h>
+
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -40,6 +41,7 @@ PALETTE pal_flash;
 
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
+    stop_midi();
     current_background = load_background(BG0_TMX);
     current_level = 1;
     world_state = START_STAGE;
@@ -111,23 +113,7 @@ void update_game_run() {
 
         enemy_pool_update(scroll_x);
         throwable_update(scroll_x);
-        // TDOO: enemies update and attack player
 
-        /**
-        this.create_enemy();
-        for (let e of this.enemy_list) {
-            e.affectForce(0, GRAVITY);
-            e.update();
-            if (e.offensive()) {
-                this.player.attack(e)
-            }
-            this.warp_if_outside2(e);
-            if (e.y > this.h * MAP_ELEM_SIZE) {
-                dead_enemies.push(e);
-                this.num_of_dead_enemies++;
-            }
-        }
-         */
         break;
     }
 }
@@ -188,6 +174,7 @@ inline void draw_game() {
         }
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
+        collision_check_throwable_vs_enemy();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         rectfill(screen, 10, 190, 290, 200, 16);

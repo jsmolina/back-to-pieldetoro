@@ -101,8 +101,7 @@ int main(void) {
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
-
-
+    
     short exit_game = 0;
     do {
         switch (game_state) {

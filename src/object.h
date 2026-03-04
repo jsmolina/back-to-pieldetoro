@@ -37,17 +37,6 @@
  * @note TODO: remove from global scope
  */
 
-typedef struct {
-    int x;
-    int y;
-    int w;
-    int h;
-} collisionType;
-
-typedef struct {
-    int x;
-    int y;
-} coordsType;
 
 int checkOverObj();
 int checkHitObj();
@@ -55,5 +44,9 @@ int wheels_on_tiles();
 
 // TODO: remove from global
 extern int tiles_at_positions[4];
+
+/** @brief Checks for collisions between throwable objects and enemies.
+ */
+void collision_check_throwable_vs_enemy();
 
 #endif
