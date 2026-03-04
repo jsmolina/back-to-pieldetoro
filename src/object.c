@@ -105,6 +105,7 @@ int checkOverObj() {
         return TRUE;
     }
     return FALSE;*/
+    // TODO: remove this protection and remove double dependency with player.c
     if (player.pos.y > GROUND_Y) {
         return TRUE;
     }

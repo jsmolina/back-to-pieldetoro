@@ -196,8 +196,8 @@ void start_stage() {
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         // initializes level enemies
-        init_enemy(0, ENEMY_BIRD, 400, GROUND_Y);
-        init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y);
+        init_enemy(0, ENEMY_BIRD, 400, GROUND_Y-5, TRUE);
+        init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y, TRUE);
         enemy_pool_init();
         break;
     }

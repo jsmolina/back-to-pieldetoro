@@ -10,12 +10,6 @@
 
 typedef int (*CheckHitFn)();
 
-typedef struct {
-    int move_count;
-    int frames[MAX_FRAMES];
-    uint8_t length;
-    int frame_interval;
-} animeItem;
 
 typedef struct {
     int width;
@@ -47,34 +41,6 @@ struct playerType {
  * @brief __init__ :)
  */
 void player_init(int x, int y, int current_level, int max_vx);
-
-/**
- * @brief Does a jump for the player
- *
- */
-void player_do_jump();
-
-
-/**
- * @brief Checks if player is over an object
- *
- * @param vy player velocity
- * @return True
- */
-int is_on_obj();
-
-/**
- * @brief Checks player speed
- *
- * @param vy player velocity
- */
-void check_vy();
-
-/**
- * @brief Updates player position checking collisions
- *
- */
-void update_position();
 
 /**
  * @brief Updates player from main loop

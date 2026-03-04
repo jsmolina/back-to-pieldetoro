@@ -49,14 +49,12 @@ caiga por un precipicio mientras no lo ves.
 
  // static enemy data for each type, to avoid reloading sprites and data for each instance
  typedef struct {
-    int vx;
-    int vy;
     int max_vx;
     int width;
     int height;
     int total_frames;
     BITMAP* sprites[ENEMY_FRAMES];
-    struct animeItem * animations; // pointer to sprite animations
+    animeItem * animations; // pointer to sprite animations
 } EnemyData;
 
 enum EnemyType {
@@ -68,6 +66,8 @@ typedef struct {
     enum EnemyType type;
     EnemyData * data; // pointer to static data for this enemy type
     coordsType pos;
+    int vx;
+    int vy;
     int flip;
     int move_count;
     int anime_count;
@@ -88,8 +88,9 @@ typedef struct {
  * @param type The type of the enemy.
  * @param x The horizontal position of the enemy.
  * @param y The vertical position of the enemy.
+ * @param flip The flip direction of the enemy.
  */
-void init_enemy(int index, enum EnemyType type, int x, int y);
+void init_enemy(int index, enum EnemyType type, int x, int y, int flip);
 
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *
@@ -118,15 +119,9 @@ void draw_enemies(int scroll_x);
  *
  * @param enemy The enemy to update.
  */
-void update_enemy(Enemy* enemy);
+void update_enemy();
 
-/** @brief Applies a force to the enemy, affecting its position.
- *
- * @param enemy The enemy to which the force will be applied.
- * @param vx The horizontal velocity to apply.
- * @param vy The vertical velocity to apply.
- */
-void enemy_affect_force(Enemy* enemy, int vx, int vy);
+
 
 /** @brief Loads the spritesheets for all enemy types.
  */

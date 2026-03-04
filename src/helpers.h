@@ -2,6 +2,17 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 // helpers define common types and functions used across multiple modules, such as player, enemy, and game management.
+#include <allegro.h>
+
+// this is the maximum number of frames an animation can have, not the total number of frames across all animations
+#define MAX_FRAMES 13
+
+typedef struct {
+    int move_count;
+    int frames[MAX_FRAMES];
+    uint8_t length;
+    int frame_interval;
+} animeItem;
 
 typedef struct {
     int x;
