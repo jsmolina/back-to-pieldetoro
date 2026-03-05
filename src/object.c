@@ -1,6 +1,6 @@
 #include "object.h"
 #include "enemy.h"
-#include "game.h"
+#include "helpers.h"
 #include "player.h"
 #include "book.h"
 #include "tiles.h"
@@ -96,22 +96,8 @@ int wheels_on_tiles() {
 }
 
 // will check if player is over a walkable thing
-int checkOverObj() {
-    // find tile from player.pos.x to player.pos.x + player.width, at player.pos.y + player.height +1
-    /*check_tiles_around_player(tiles_at_positions);
-    // 874 is skewers, 1 is hole, 875 is oil
-    // > 832 is ground (in general)
-    if (tiles_at_positions[2] >= 832 && tiles_at_positions[3] >= 832) {
-        return TRUE;
-    }
-    return FALSE;*/
-    // TODO: remove this protection and remove double dependency with player.c
-    if (player.pos.y > GROUND_Y) {
-        return TRUE;
-    }
-
-    collisionType f1 = player_foot_area();
-    int result = rect_over_tile_types(f1);
+int checkOverObj(collisionType area) {   
+    int result = rect_over_tile_types(area);
     if (result == PLATFORM) {
         return TRUE;
     }

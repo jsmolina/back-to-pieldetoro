@@ -1,5 +1,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
+#include "helpers.h"
 
 #define HARMFUL_TILE_1 852
 #define HARMFUL_TILE_2 923
@@ -12,41 +13,34 @@
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
- * 
- * @struct collisionType
- * @brief Represents a collision bounding box with position and dimensions
- * @var collisionType::x - X coordinate of the collision box
- * @var collisionType::y - Y coordinate of the collision box
- * @var collisionType::w - Width of the collision box
- * @var collisionType::h - Height of the collision box
- * 
- * @function checkOverObj()
- * @brief Checks if objects are overlapping
- * @return int - Result of overlap check (FALSE = no overlap, TRUE = overlap detected)
- * 
- * @function checkHitObj()
- * @brief Checks if a collision/hit has occurred between objects
- * @return int - Result of hit check (FALSE = no hit, TRUE = hit detected)
- * 
- * @function wheels_on_tiles()
- * @brief Checks if any wheels are positioned on harmful tile types
- * @return int - Result of check (FALSE = no wheels on harmful tiles, TRUE = wheels detected on harmful tiles)
- * 
- * @var tiles_at_positions
- * @brief Global array storing tile information at 4 specific positions
- * @note TODO: remove from global scope
- */
+*/
 
+/**
+* @brief Checks if objects are overlapping
+* @param area The collision box area to check for overlaps
+* @return int - Result of overlap check (FALSE = no overlap, TRUE = overlap detected)
+*/
+int checkOverObj(collisionType area);
 
-int checkOverObj();
+/**
+* @brief Checks a head hit, TODO: implement
+* @return int - Result of hit check (FALSE = no hit, TRUE = hit detected
+*/
 int checkHitObj();
+
+/**
+* @brief Checks if any wheels are positioned on harmful tile types. Equivalent of checkOverObj for car.
+* @return int - Result of check (FALSE = no wheels on harmful tiles, TRUE = wheels detected on harmful tiles)
+*/
 int wheels_on_tiles();
 
-// TODO: remove from global
-extern int tiles_at_positions[4];
+// extern int tiles_at_positions[4];
 
-/** @brief Checks for collisions between throwable objects and enemies.
- */
+/** 
+* @brief Checks for collisions between throwable objects and enemies.
+* This function retrieves the bounding boxes of all active throwable objects and enemies, and checks for overlaps between them. 
+*If a collision is detected, it calls the appropriate functions to handle the hit logic for both the throwable object and the enemy.
+*/
 void collision_check_throwable_vs_enemy();
 
 #endif

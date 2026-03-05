@@ -185,10 +185,14 @@ static void player_affect_force(int vx, int vy) {
  *
  * @return TRUE if player is in top of object
  */
-static int is_on_obj() {
+static int player_is_on_obj() {
     // returns true if sprite is over a walkable tile
     // todo foot_area collision
-    return checkOverObj();
+    if (player.pos.y > GROUND_Y) {
+        return TRUE;
+    }
+    collisionType f1 = player_foot_area();
+    return checkOverObj(f1);
 }
 
 /**
@@ -253,9 +257,8 @@ inline collisionType player_foot_area() {
 /**
  * @brief Checks player speed
  *
- * @param vy player velocity
  */
-static void check_vy() {
+static void player_check_vy() {
     if (player.state == DEAD) {
         return;
     }
@@ -269,7 +272,7 @@ static void check_vy() {
         return;
 
     if (player.vy > 0) {
-        if (is_on_obj()) {
+        if (player_is_on_obj()) {
             player.vy = 0;
         }
     }
@@ -278,7 +281,7 @@ static void check_vy() {
 /**
  * @brief Checks vx for hits
  */
-static void check_vx() {
+static void player_check_vx() {
     if (player.vx != 0) {
         if (checkHitObj()) {
             player.vx = -player.vx;
@@ -290,8 +293,8 @@ static void check_vx() {
  * @brief Updates player position based on velocities
  */
 static void player_update_position() {
-    check_vx();
-    check_vy();
+    player_check_vx();
+    player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
     player.pos.y = round(player.pos.y + player.vy);
 }
