@@ -177,8 +177,8 @@ inline void draw_game() {
         collision_check_throwable_vs_enemy();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
-        rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", player.state, player.pos.y, player.vy, player.vx);
+       // rectfill(screen, 10, 190, 290, 200, 16);
+       // textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", player.state, player.pos.y, player.vy, player.vx);
 
         break;
     }

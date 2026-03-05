@@ -4,6 +4,7 @@
 #include "dat_manager.h"
 #include "game.h"
 #include "errors.h"
+#include "helpers.h"
 #include "statics.h"
 
 #define ESTOP 1
@@ -63,7 +64,13 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx) {
     spawnable_enemies[index].anime_count = 0;
     spawnable_enemies[index].anime_index = 0;
     spawnable_enemies[index].sprite_index = 0;
-    spawnable_enemies[index].state = 0;
+    if (type == ENEMY_BIRD) {
+        spawnable_enemies[index].state = BMOVE_LEFT;
+        spawnable_enemies[index].flip = TRUE;
+    } else {
+        spawnable_enemies[index].state = ESTOP;
+        spawnable_enemies[index].flip = FALSE;
+    }
     spawnable_enemies[index].prev_state = 0;
     spawnable_enemies[index].killed = FALSE;
     spawnable_enemies[index].origin = index;
@@ -200,18 +207,19 @@ static int enemy_is_on_obj(int index) {
  *
  */
 static void enemy_check_vy(int index) {
-    Enemy *enemy = &active_enemies[index];
-    if (enemy->state == EDEAD) {
-        enemy->vy = 0;
+    if (active_enemies[index].state == EDEAD) {
+        active_enemies[index].vy = 0;
         return;
     }
 
-    if (enemy->state == EFALL_END)
+    if (active_enemies[index].state == EFALL_END) {
+        active_enemies[index].vy = 0;
         return;
+    }
 
-    if (enemy->vy > 0) {
+    if (active_enemies[index].vy > 0) {
         if (enemy_is_on_obj(index)) {
-            enemy->vy = 0;
+            active_enemies[index].vy = 0;
         }
     }
 }
@@ -221,8 +229,16 @@ static inline void _enemy_update_position(int index) {
     // TODO: apply enemy-specific logic and forces here, for now just apply gravity and simple movement
     //enemy_heck_vx();
     enemy_check_vy(index);
+    if (index == 1) {
+        rectfill(screen, 10, 190, 290, 200, 16);
+        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", active_enemies[1].state, active_enemies[1].pos.y, active_enemies[1].vy, active_enemies[1].vx);
+    }    
+    
+    if (active_enemies[index].active == FALSE)
+        return;
+
     active_enemies[index].pos.x = round(active_enemies[index].pos.x + active_enemies[index].vx);
-    //active_enemies[index].pos.y = round(active_enemies[index].pos.y + active_enemies[index].vy);
+    active_enemies[index].pos.y = round(active_enemies[index].pos.y + active_enemies[index].vy);
 }
 
 /** @brief Applies a force to the enemy, affecting its position.
@@ -232,13 +248,11 @@ static inline void _enemy_update_position(int index) {
  * @param vy The vertical velocity to apply.
  */
 static inline void _enemy_affect_force(int index, int vx, int vy) {
-    // Simplified: store velocities in x/y as movement deltas would be needed
-    // For now, use x/y as positions and apply vertical force only
     if (active_enemies[index].type == ENEMY_BIRD) {
         return; // birds are not affected by gravity or forces, they just move horizontally
     }
-    active_enemies[index].pos.y += vy;
-    active_enemies[index].pos.x += vx;
+    active_enemies[index].vx += vx;
+    active_enemies[index].vy += vy;
 }
 
 static inline void _update_specific_enemy(int index) {
@@ -322,11 +336,7 @@ static inline void _spawn_from_static(int spawn_index) {
         return; // no room
     active_enemies[slot] = spawnable_enemies[spawn_index];
     active_enemies[slot].active = TRUE;
-    active_enemies[slot].origin = spawn_index;
-    if (active_enemies[slot].type == ENEMY_BIRD) {
-        active_enemies[slot].state = BMOVE_LEFT;
-        active_enemies[slot].flip = TRUE;
-    }
+    active_enemies[slot].origin = spawn_index;    
     /* Mark the static spawn as active so it won't be spawned repeatedly */
     spawnable_enemies[spawn_index].active = TRUE;
 }
@@ -442,6 +452,6 @@ void draw_enemies(int scroll_x) {
                 );
             }
         }
-       
+        
     }
 }
