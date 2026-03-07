@@ -2,7 +2,7 @@
 #define PLAYER_H
 #include <allegro.h>
 #include "object.h"
-
+#include "helpers.h"
 
 #define COCHE_FRAMES 3
 #define MARTIN_FRAMES 16
@@ -10,12 +10,6 @@
 
 typedef int (*CheckHitFn)();
 
-typedef struct {
-    int move_count;
-    int frames[MAX_FRAMES];
-    uint8_t length;
-    int frame_interval;
-} animeItem;
 
 typedef struct {
     int width;
@@ -31,6 +25,7 @@ struct playerType {
     int max_vx;
     int flip;
     int lives;
+    int energy;
     int move_count;
     int anime_count;
     int anime_index;
@@ -49,34 +44,6 @@ struct playerType {
 void player_init(int x, int y, int current_level, int max_vx);
 
 /**
- * @brief Does a jump for the player
- *
- */
-void player_do_jump();
-
-
-/**
- * @brief Checks if player is over an object
- *
- * @param vy player velocity
- * @return True
- */
-int is_on_obj();
-
-/**
- * @brief Checks player speed
- *
- * @param vy player velocity
- */
-void check_vy();
-
-/**
- * @brief Updates player position checking collisions
- *
- */
-void update_position();
-
-/**
  * @brief Updates player from main loop
  *
  */
@@ -87,18 +54,44 @@ void player_update();
  * @return TRUE if dead or falling
  */
 int player_is_deading();
-
+/** @brief Loads the spritesheet for the car player
+ *
+ */ 
 void load_coche_spritesheet(); void destroy_coche_spritesheet();
+/** @brief Loads the spritesheet for the martin player
+ *
+ */
 void load_martin_spritesheet(); void destroy_martin_spritesheet();
+
+/** @brief Handles player death
+ *
+ */
 void player_killed();
+
 /**
  * @brief Gets the collision area for the player's foot
  *
  * @return collisionType struct representing the foot collision area
  */
 collisionType front_wheels_area();
+/** @brief Gets the collision area for the player's rear wheels
+ *
+ * @return collisionType struct representing the rear wheels collision area
+ */
 collisionType rear_wheels_area();
+
+/** @brief Gets the collision area for the player's foot
+ *
+ * @return collisionType struct representing the foot collision area
+ */
 collisionType player_foot_area();
+
+/** @brief Gets the axis-aligned bounding box for the player
+ *
+ * @return collisionType struct representing the AABB
+ */
+collisionType player_aabb();
+void player_on_hit();
 
 extern struct playerType player;
 

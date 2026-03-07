@@ -2,7 +2,7 @@
 #define ENEMY_H
 
 #include <allegro.h>
-#include "object.h"
+#include "helpers.h"
 
 #define MAX_SPAWNABLE_ENEMIES 4
 #define MAX_ACTIVE_ENEMIES 4
@@ -49,14 +49,12 @@ caiga por un precipicio mientras no lo ves.
 
  // static enemy data for each type, to avoid reloading sprites and data for each instance
  typedef struct {
-    int vx;
-    int vy;
     int max_vx;
     int width;
     int height;
     int total_frames;
     BITMAP* sprites[ENEMY_FRAMES];
-    struct animeItem * animations; // pointer to sprite animations
+    animeItem * animations; // pointer to sprite animations
 } EnemyData;
 
 enum EnemyType {
@@ -68,6 +66,9 @@ typedef struct {
     enum EnemyType type;
     EnemyData * data; // pointer to static data for this enemy type
     coordsType pos;
+    int screen_spawn_x; // the scroll amount when this enemy should be spawned, used for spawn logic
+    int vx;
+    int vy;
     int flip;
     int move_count;
     int anime_count;
@@ -81,29 +82,64 @@ typedef struct {
 } Enemy;
 
 
-//static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
-//static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
-//static EnemyData enemy_data[2]; // static data for each enemy type
+/** @brief Initializes an enemy at the specified index with the given type and position for a new level. 
+ *  The enemy is added to the spawnable enemies list and will be activated when the camera reaches its position.
+ *
+ * @param index The index in the spawnable enemies array.
+ * @param type The type of the enemy.
+ * @param x The horizontal position of the enemy.
+ * @param y The vertical position of the enemy.
+ * @param vx The horizontal velocity of the enemy.
+ * @param screen_spawn_x The horizontal scroll position at which the enemy should be spawned.
+ */
+void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x);
 
-/* Initialize static spawnable enemy (level data) */
-void init_enemy(int index, enum EnemyType type, int x, int y);
-
-/* reset the enemy pool */
+/** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
+ *
+ */
 void reset_spawnable_enemies();
 
-/* Initialize the active enemy pool */
+/** @brief Initializes the enemy pool, sets all the variables to default values and assigns static data to each enemy instance.
+ *
+ */
 void enemy_pool_init();
 
-/* Update pool: spawn/despawn/update active enemies using camera x */
+/** @brief Updates the enemy pool based on the camera position.
+ *
+ * @param camera_x The horizontal position of the camera.
+ */
 void enemy_pool_update(int camera_x);
 
-/* Draw active enemies using scroll_x */
+/** @brief Draws all active enemies using the specified scroll x.
+ *
+ * @param scroll_x The horizontal scroll position.
+ */
 void draw_enemies(int scroll_x);
 
-/* Per-enemy operations */
-void update_enemy(Enemy* enemy);
-void enemy_affect_force(Enemy* enemy, int vx, int vy);
-// loadspritesheets and initializes static data for enemy types
+
+/** @brief Updates the state of the specified enemy.
+ *
+ * @param enemy The enemy to update.
+ */
+void enemy_update();
+
+
+
+/** @brief Loads the spritesheets for all enemy types.
+ */
 void load_enemy_spritesheets();
 
+/** @brief Fills the provided boxes array with the bounding boxes of all active enemies.
+ *
+ * @param enemies An array of collisionType to be filled with the bounding boxes of active enemies.
+ */
+void enemy_get_all_aabb(collisionType* enemies);
+
+/** @brief Marks the enemy at the given index as hit (inactive) and resets its position.
+ *
+ * @param enemy_id The index of the enemy to be marked as hit.
+ */
+void enemy_on_hit(int enemy_id);
+
+//collisionType enemy_get_aabb(const Enemy* e);
 #endif // ENEMY_H

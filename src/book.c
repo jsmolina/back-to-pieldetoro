@@ -1,8 +1,7 @@
 #include "book.h"
-#include "allegro/gfx.h"
-#include "allegro/inline/draw.inl"
-#include "object.h"
-#define MAX_THROWABLE_OBJECTS 3
+#include <allegro.h>
+#include "dat_manager.h"
+#include "statics.h"
 
 typedef struct {
     int x;
@@ -12,7 +11,6 @@ typedef struct {
 } ThrowableObject;
 
 static ThrowableObject throwable_objects[] = {
-    { 0, 0, FALSE, FALSE },
     { 0, 0, FALSE, FALSE },
     { 0, 0, FALSE, FALSE },
 };
@@ -61,12 +59,8 @@ void throwable_update(int scroll_x) {
     }
 }
 
-/**
- * @brief Checks collision of active throwable objects and fills the provided boxes array with their positions and sizes.
- *
- * @param boxes An array of collisionType to be filled with the bounding boxes of three active throwable objects.
- */
-void book_collision_box(collisionType* boxes) {
+
+void book_get_all_aabb(collisionType* boxes) {
     for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
             boxes[i].x = throwable_objects[i].x;
@@ -79,5 +73,13 @@ void book_collision_box(collisionType* boxes) {
             boxes[i].w = 0;
             boxes[i].h = 0;
         }
+    }
+}
+
+void book_on_hit(int index) {
+    if (index >= 0 && index < MAX_THROWABLE_OBJECTS) {
+        throwable_objects[index].active = FALSE;
+        throwable_objects[index].x = 0;
+        throwable_objects[index].y = 0;
     }
 }

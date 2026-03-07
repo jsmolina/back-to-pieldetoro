@@ -9,6 +9,8 @@
 #include <allegro.h>
 #include <math.h>
 
+#define LEVEL_ID_INTRO 1
+
 #define STOP 1
 #define MOVE_LEFT 2
 #define MOVE_RIGHT 3
@@ -24,6 +26,8 @@
 #define BOUNCING 13
 #define CROUCHING 14
 #define THROWING 15
+#define PLAYER_DEFAULT_ENERGY 5
+#define PLAYER_DEFAULT_LIVES 3
 
 #define JUMP_VY -8
 
@@ -89,13 +93,14 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.flip = FALSE;
     player.move_count = 0;
     player.max_vx = max_vx;
+    player.energy = PLAYER_DEFAULT_ENERGY;
     // Ensure size/sprite indices are initialized to safe defaults. Width/height
     // are normally set when loading the spritesheet; initialize to 0 to
     // detect misuse before they contain garbage.
     player.sprite_index = 0;
-    player.lives = 3;
-    player.animations = current_level == 1 ? car_animations : martin_animations;
-    player.data = current_level == 1 ? &coche : &martin;
+    player.lives = PLAYER_DEFAULT_LIVES;
+    player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
+    player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
 }
 
 void load_coche_spritesheet() {
@@ -167,6 +172,16 @@ static int action_key_freed() {
     return FALSE;
 }
 
+void player_on_hit() {
+    if (player.state == DEAD || player.state == FALL_END || player.state == DEAD_END) {
+        return; // already in dying/dead state, ignore further hits
+    }
+    player.energy--;
+    if (player.energy <= 0) {
+        player_change_state(DEAD);
+    }
+    // TODO: redraw energy bar
+}
 
 /**
  * @brief Applies a force (vy or vx) over player
@@ -185,10 +200,14 @@ static void player_affect_force(int vx, int vy) {
  *
  * @return TRUE if player is in top of object
  */
-int is_on_obj() {
+static int player_is_on_obj() {
     // returns true if sprite is over a walkable tile
     // todo foot_area collision
-    return checkOverObj();
+    if (player.pos.y > GROUND_Y) {
+        return TRUE;
+    }
+    collisionType f1 = player_foot_area();
+    return checkOverObj(f1);
 }
 
 /**
@@ -249,10 +268,37 @@ inline collisionType player_foot_area() {
     return ret;
 }
 
+inline collisionType player_aabb() {
+    if (player.data == NULL || player.data->height == 0 || player.data->width == 0
+        || player.pos.x == 0 || player.pos.y == 0) {
+        return (collisionType){ 0, 0, 0, 0 };
+    }
+    int y1 = player.pos.y + player.data->height - 3;
+    // player.pos.x - scroll_x +4, y1, player.pos.x + player.width - scroll_x-2, y1 + 5
+
+    if (player.state == CROUCHING) {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y+14,
+            .w = 20,
+            .h = 26
+        };
+    } else {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y,
+            .w = 18,
+            .h = 40
+        };
+    }
+}
+
+
 /**
- * @brief Checks vy for hits
+ * @brief Checks player speed
+ *
  */
-void check_vy() {
+static void player_check_vy() {
     if (player.state == DEAD) {
         return;
     }
@@ -266,7 +312,7 @@ void check_vy() {
         return;
 
     if (player.vy > 0) {
-        if (is_on_obj()) {
+        if (player_is_on_obj()) {
             player.vy = 0;
         }
     }
@@ -275,7 +321,7 @@ void check_vy() {
 /**
  * @brief Checks vx for hits
  */
-void check_vx() {
+static void player_check_vx() {
     if (player.vx != 0) {
         if (checkHitObj()) {
             player.vx = -player.vx;
@@ -287,8 +333,8 @@ void check_vx() {
  * @brief Updates player position based on velocities
  */
 static void player_update_position() {
-    check_vx();
-    check_vy();
+    player_check_vx();
+    player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
     player.pos.y = round(player.pos.y + player.vy);
 }
@@ -301,7 +347,7 @@ static void player_update_position() {
  *
  * @return FINISHED/NOT_FINISHED
  */
-unsigned int player_count_move(int dx, int dy) {
+static unsigned int player_count_move(int dx, int dy) {
     if (player.move_count >= 0) {
         player.move_count--;
     }
@@ -313,61 +359,30 @@ unsigned int player_count_move(int dx, int dy) {
 }
 
 // DOERS: CALLED ON KEY PRESS TO CHANGE STATE
-void player_do_move_left() {
+static void player_do_move_left() {
     player.vx = -1;
     player_change_state(MOVE_LEFT);
     player.flip = TRUE;
 }
 
-inline void player_do_move_right() {
+static void player_do_move_right() {
     player.vx = 1;
     player_change_state(MOVE_RIGHT);
     player.flip = FALSE;
 }
 
-inline void player_do_stop() {
+static inline void player_do_stop() {
     player.vx = 0;
     player.vy = 0;
     player_change_state(STOP);
 }
 
-// ACTIONS
-void player_action_fall() {
-    if (player.vy == 0) {
-        if (player.vx == 0) {
-            player_change_state(STOP);
-        } else if (player.vx > 0 && key[KEY_RIGHT]) {
-            player_change_state(MOVE_RIGHT);
-        } else if (player.vx < 0 && key[KEY_LEFT]) {
-            player_change_state(MOVE_LEFT);
-        } else {
-            player_change_state(BREAKING);
-        }
-    } else if (player.pos.y > SCREEN_H - player.data->height) {
-        player_change_state(FALL_END);
-    }
-}
-
-void player_killed() {
-    player_change_state(DEAD);
-}
-
-void player_traveling() {
-    player_change_state(BOUNCING);
-}
-
-/**
-* @brief called on crouch key press, changes player state to CROUCHING
-*/
-inline void player_do_crouch() {
-    player_change_state(CROUCHING);
-}
-
 /**
 * @brief called on throw key press, changes player state to THROWING
 */
-inline void player_do_throw() {
+static inline void player_do_throw() {
     player_change_state(THROWING);
+    player.vx = 0;
     // throw logic, create throwable object (book), set its position and velocity based on player state and direction
     init_book(
         player.pos.x + (player.flip ? -6 : 6),
@@ -376,12 +391,11 @@ inline void player_do_throw() {
     );
 }
 
-// ACTIONS: called on update loop to perform current action and transitions
 
 /**
  * @brief Player performs a jump, that could be diagonal
  */
-inline void player_do_jump() {
+static inline void player_do_jump() {
     if (key[KEY_LEFT]) {
         player.vx = -1;
         player.flip = 1;
@@ -395,12 +409,55 @@ inline void player_do_jump() {
 }
 
 
+
+// ACTIONS
+static void player_action_fall() {
+    if (player.vy == 0) {
+        if (player.vx == 0) {
+            player_change_state(STOP);
+        } else if (player.vx > 0 && key[KEY_RIGHT]) {
+            player_change_state(MOVE_RIGHT);
+        } else if (player.vx < 0 && key[KEY_LEFT]) {
+            player_change_state(MOVE_LEFT);
+        } else {
+            player_change_state(BREAKING);
+        }
+    } else if (player.pos.y > SCREEN_H - player.data->height) {
+        player_change_state(FALL_END);
+    }
+
+    if (action_key_freed()) {
+        player_do_throw();
+    }
+}
+
+void player_killed() {
+    player_change_state(DEAD);
+}
+
+static void player_traveling() {
+    player_change_state(BOUNCING);
+}
+
+/**
+* @brief called on crouch key press, changes player state to CROUCHING
+*/
+static inline void player_do_crouch() {
+    player_change_state(CROUCHING);
+}
+
+// ACTIONS: called on update loop to perform current action and transitions
+
+
 /** 
 * @brief moves player to the left, with possible jump if up is pressed. Called on update loop when state is MOVE_LEFT
 */
-void player_action_move_left() {
+static void player_action_move_left() {
     if (jump_key_freed()) {
         player_do_jump();
+        return;
+    } else if (action_key_freed()) {
+        player_do_throw();
         return;
     }
 
@@ -427,11 +484,15 @@ void player_action_move_left() {
 /**
  * @brief moves player to the right, with possible jump if up is pressed. Called on update loop when state is MOVE_RIGHT
  */
-void player_action_move_right() {
+static void player_action_move_right() {
     if (jump_key_freed()) {
         player_do_jump();
         return;
+    } else if (action_key_freed()) {
+        player_do_throw();
+        return;
     }
+
     if (player_count_move(1, 0) == NOT_FINISHED) {
         // accelerate up to MAX_PLAYER_VX
         if (player.vx < player.max_vx) {
@@ -460,7 +521,7 @@ void player_action_move_right() {
 }
 
 
-void player_action_stop() {
+static void player_action_stop() {
     if (player.vy > 0) {
         if (player.vx == 0) {
             player_change_state(FALL);
@@ -482,7 +543,7 @@ void player_action_stop() {
     }
 }
 
-void player_action_crouch() {
+static void player_action_crouch() {
     if (!key[KEY_DOWN]) {
         player_change_state(STOP);
     } else {
@@ -490,7 +551,7 @@ void player_action_crouch() {
     }
 }
 
-void player_action_jump_up() {
+static void player_action_jump_up() {
     if (player.vy < 0) {
         // collides on up
         // int ht = player.pushUpObj();
@@ -521,10 +582,15 @@ void player_action_jump_up() {
     if (player.vy == 0) {
         player_change_state(JUMP_DOWN);
     }
+
+    if (action_key_freed()) {
+        player_do_throw();
+    }
+
     player_count_move(player.vx, 0);
 }
 
-void player_action_jump_down() {
+static void player_action_jump_down() {
     if (player.vy != 0) {
         player_count_move(player.vx, 0);
         return;
@@ -546,26 +612,36 @@ void player_action_jump_down() {
     }
 }
 
-void action_jump_hit() {
+static void action_jump_hit() {
     if (player_count_move(player.vx, -player.vy) == FINISHED) {
         player_change_state(JUMP_DOWN);
     }
 }
 
-void player_action_breaking() {
+static void player_action_breaking() {
     if (player_count_move(player.vx, 0) == NOT_FINISHED) {
         return;
     }
     player_do_stop();
 }
 
-void player_action_dead() {
+static int player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
-        player_change_state(FALL_END);
+        player.energy = PLAYER_DEFAULT_ENERGY;
+        player.lives--;
+        if (player.lives <= 0) {
+            return FALSE;
+        }
+                              
+        player.pos.y = GROUND_Y;
+        player.vx = 0;
+        player.vy = 0;            
+        
+        return TRUE;
     }
 }
 
-void player_action_throw() {
+static void player_action_throw() {
     // TODO: implement throwing action and pass to stop
     if (player_count_move(0, 0) == FINISHED) {
         player_change_state(STOP);

@@ -1,5 +1,7 @@
 #include "object.h"
-#include "game.h"
+#include "book.h"
+#include "enemy.h"
+#include "helpers.h"
 #include "player.h"
 #include "tiles.h"
 
@@ -16,9 +18,9 @@ int collision(collisionType obj1, collisionType obj2) {
 int tiles_at_positions[4];
 void check_tiles_around_player(int* tiles_at_pos) {
     // Obtén los 4 tiles de las esquinas del jugador
-    tiles_at_pos[0] = get_tile_at_position(player.pos.x, player.pos.y);                                    // Superior izquierda
-    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.data->width, player.pos.y);                     // Superior derecha
-    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.data->height - 4);                // Inferior izquierda
+    tiles_at_pos[0] = get_tile_at_position(player.pos.x, player.pos.y);                                                // Superior izquierda
+    tiles_at_pos[1] = get_tile_at_position(player.pos.x + player.data->width, player.pos.y);                           // Superior derecha
+    tiles_at_pos[2] = get_tile_at_position(player.pos.x, player.pos.y + player.data->height - 4);                      // Inferior izquierda
     tiles_at_pos[3] = get_tile_at_position(player.pos.x + player.data->width, player.pos.y + player.data->height - 4); // Inferior derecha
 }
 
@@ -30,7 +32,7 @@ static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
 
-static const int platform_ids[] = {920,921,922,906,907,908,253,254,255, 1016};
+static const int platform_ids[] = { 920, 921, 922, 906, 907, 908, 253, 254, 255, 1016 };
 
 static inline int is_a_platform(int id) {
     for (int i = 0; i < sizeof(platform_ids) / sizeof(platform_ids[0]); i++) {
@@ -94,21 +96,8 @@ int wheels_on_tiles() {
 }
 
 // will check if player is over a walkable thing
-int checkOverObj() {
-    // find tile from player.pos.x to player.pos.x + player.width, at player.pos.y + player.height +1
-    /*check_tiles_around_player(tiles_at_positions);
-    // 874 is skewers, 1 is hole, 875 is oil
-    // > 832 is ground (in general)
-    if (tiles_at_positions[2] >= 832 && tiles_at_positions[3] >= 832) {
-        return TRUE;
-    }
-    return FALSE;*/
-    if (player.pos.y > GROUND_Y) {
-        return TRUE;
-    }
-
-    collisionType f1 = player_foot_area();
-    int result = rect_over_tile_types(f1);
+int checkOverObj(collisionType area) {
+    int result = rect_over_tile_types(area);
     if (result == PLATFORM) {
         return TRUE;
     }
@@ -118,4 +107,56 @@ int checkOverObj() {
 
 int checkHitObj() {
     return FALSE;
+}
+
+void collision_check_throwable_vs_enemy() {
+    collisionType boxes[MAX_THROWABLE_OBJECTS];
+    collisionType enemies[MAX_ACTIVE_ENEMIES];
+    book_get_all_aabb(boxes);
+    enemy_get_all_aabb(enemies);
+    for (int throw_id = 0; throw_id < MAX_THROWABLE_OBJECTS; throw_id++) {
+        if (boxes[throw_id].w == 0)
+            continue;
+
+        for (int enemy_id = 0; enemy_id < MAX_ACTIVE_ENEMIES; enemy_id++) {
+            if (enemies[enemy_id].w == 0)
+                continue;
+
+            if (collision(boxes[throw_id], enemies[enemy_id])) {
+                book_on_hit(throw_id);
+                enemy_on_hit(enemy_id);
+            }
+        }
+    }
+}
+
+/** @brief Checks for collisions between enemies and the player.
+ * If an enemy collides with the player, it marks the enemy as killed and removes a life from the player.
+ *
+ * TODO: Add damage cooldown to prevent multiple hits in successive frames.
+ */
+void collision_check_enemy_vs_player(int scroll_x) {
+    // Get player collision area (using foot area for main body collision)
+    collisionType player_area = player_aabb();
+    rect(screen, player_area.x - scroll_x, player_area.y, player_area.x + player_area.w - scroll_x, player_area.y + player_area.h, makecol(0, 255, 0)); // Debug: draw player collision box
+
+    // Get all enemy bounding boxes
+    collisionType enemies[MAX_ACTIVE_ENEMIES];
+    enemy_get_all_aabb(enemies);
+
+    // Check collision between player and each enemy
+    for (int enemy_id = 0; enemy_id < MAX_ACTIVE_ENEMIES; enemy_id++) {
+        // Skip inactive enemies
+        if (enemies[enemy_id].w == 0)
+            continue;
+
+        // Check for collision
+        if (collision(player_area, enemies[enemy_id])) {
+            // Enemy hits player
+            player_on_hit();
+
+            // Mark enemy as killed
+            enemy_on_hit(enemy_id);
+        }
+    }
 }
