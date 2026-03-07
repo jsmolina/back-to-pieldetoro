@@ -25,6 +25,7 @@ struct playerType {
     int max_vx;
     int flip;
     int lives;
+    int energy;
     int move_count;
     int anime_count;
     int anime_index;
@@ -53,18 +54,44 @@ void player_update();
  * @return TRUE if dead or falling
  */
 int player_is_deading();
-
+/** @brief Loads the spritesheet for the car player
+ *
+ */ 
 void load_coche_spritesheet(); void destroy_coche_spritesheet();
+/** @brief Loads the spritesheet for the martin player
+ *
+ */
 void load_martin_spritesheet(); void destroy_martin_spritesheet();
+
+/** @brief Handles player death
+ *
+ */
 void player_killed();
+
 /**
  * @brief Gets the collision area for the player's foot
  *
  * @return collisionType struct representing the foot collision area
  */
 collisionType front_wheels_area();
+/** @brief Gets the collision area for the player's rear wheels
+ *
+ * @return collisionType struct representing the rear wheels collision area
+ */
 collisionType rear_wheels_area();
+
+/** @brief Gets the collision area for the player's foot
+ *
+ * @return collisionType struct representing the foot collision area
+ */
 collisionType player_foot_area();
+
+/** @brief Gets the axis-aligned bounding box for the player
+ *
+ * @return collisionType struct representing the AABB
+ */
+collisionType player_aabb();
+void player_on_hit();
 
 extern struct playerType player;
 

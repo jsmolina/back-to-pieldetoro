@@ -2,8 +2,13 @@
 #define BOOK_H
 
 #include "helpers.h"
-#define MAX_THROWABLE_OBJECTS 3
+#define MAX_THROWABLE_OBJECTS 2
+/**
+ * @file book.h
+ * @brief Header file for managing throwable objects (books) in the game
+ */
 
+ 
 /** @brief Initializes a new throwable object.
  *
  * @param x The x-coordinate of the object.

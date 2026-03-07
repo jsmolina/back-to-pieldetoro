@@ -1,6 +1,4 @@
 #include "game.h"
-#include <allegro.h>
-#include <string.h>
 #include "book.h"
 #include "enemy.h"
 #include "object.h"
@@ -9,7 +7,8 @@
 #include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
-
+#include <allegro.h>
+#include <string.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -110,7 +109,7 @@ void update_game_run() {
             player.pos.x++;
         }
         player_update();
-        update_enemy();
+        enemy_update();
         enemy_pool_update(scroll_x);
         throwable_update(scroll_x);
 
@@ -175,10 +174,11 @@ inline void draw_game() {
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         collision_check_throwable_vs_enemy();
+        collision_check_enemy_vs_player(scroll_x);
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
-       // rectfill(screen, 10, 190, 290, 200, 16);
-       // textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", player.state, player.pos.y, player.vy, player.vx);
+        rectfill(screen, 10, 190, 290, 200, 16);
+        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, s:%d", player.state, player.pos.y, player.vy, scroll_x);
 
         break;
     }
@@ -196,8 +196,8 @@ void start_stage() {
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         // initializes level enemies
-        init_enemy(0, ENEMY_BIRD, 400, GROUND_Y-5, -1);
-        init_enemy(1, ENEMY_JOVEN, 500, GROUND_Y, 0);
+        init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
+        init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         enemy_pool_init();
         break;
     }

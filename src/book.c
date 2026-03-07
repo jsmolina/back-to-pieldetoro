@@ -2,8 +2,6 @@
 #include <allegro.h>
 #include "dat_manager.h"
 #include "statics.h"
-#include "object.h"
-#define MAX_THROWABLE_OBJECTS 3
 
 typedef struct {
     int x;
@@ -13,7 +11,6 @@ typedef struct {
 } ThrowableObject;
 
 static ThrowableObject throwable_objects[] = {
-    { 0, 0, FALSE, FALSE },
     { 0, 0, FALSE, FALSE },
     { 0, 0, FALSE, FALSE },
 };

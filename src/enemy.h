@@ -66,6 +66,7 @@ typedef struct {
     enum EnemyType type;
     EnemyData * data; // pointer to static data for this enemy type
     coordsType pos;
+    int screen_spawn_x; // the scroll amount when this enemy should be spawned, used for spawn logic
     int vx;
     int vy;
     int flip;
@@ -88,9 +89,10 @@ typedef struct {
  * @param type The type of the enemy.
  * @param x The horizontal position of the enemy.
  * @param y The vertical position of the enemy.
- * @param flip The flip direction of the enemy.
+ * @param vx The horizontal velocity of the enemy.
+ * @param screen_spawn_x The horizontal scroll position at which the enemy should be spawned.
  */
-void init_enemy(int index, enum EnemyType type, int x, int y, int flip);
+void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x);
 
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *
@@ -119,7 +121,7 @@ void draw_enemies(int scroll_x);
  *
  * @param enemy The enemy to update.
  */
-void update_enemy();
+void enemy_update();
 
 
 

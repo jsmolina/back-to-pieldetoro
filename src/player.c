@@ -9,6 +9,8 @@
 #include <allegro.h>
 #include <math.h>
 
+#define LEVEL_ID_INTRO 1
+
 #define STOP 1
 #define MOVE_LEFT 2
 #define MOVE_RIGHT 3
@@ -24,6 +26,8 @@
 #define BOUNCING 13
 #define CROUCHING 14
 #define THROWING 15
+#define PLAYER_DEFAULT_ENERGY 5
+#define PLAYER_DEFAULT_LIVES 3
 
 #define JUMP_VY -8
 
@@ -89,13 +93,14 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.flip = FALSE;
     player.move_count = 0;
     player.max_vx = max_vx;
+    player.energy = PLAYER_DEFAULT_ENERGY;
     // Ensure size/sprite indices are initialized to safe defaults. Width/height
     // are normally set when loading the spritesheet; initialize to 0 to
     // detect misuse before they contain garbage.
     player.sprite_index = 0;
-    player.lives = 3;
-    player.animations = current_level == 1 ? car_animations : martin_animations;
-    player.data = current_level == 1 ? &coche : &martin;
+    player.lives = PLAYER_DEFAULT_LIVES;
+    player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
+    player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
 }
 
 void load_coche_spritesheet() {
@@ -167,6 +172,16 @@ static int action_key_freed() {
     return FALSE;
 }
 
+void player_on_hit() {
+    if (player.state == DEAD || player.state == FALL_END || player.state == DEAD_END) {
+        return; // already in dying/dead state, ignore further hits
+    }
+    player.energy--;
+    if (player.energy <= 0) {
+        player_change_state(DEAD);
+    }
+    // TODO: redraw energy bar
+}
 
 /**
  * @brief Applies a force (vy or vx) over player
@@ -251,6 +266,31 @@ inline collisionType player_foot_area() {
         .h = 5
     };
     return ret;
+}
+
+inline collisionType player_aabb() {
+    if (player.data == NULL || player.data->height == 0 || player.data->width == 0
+        || player.pos.x == 0 || player.pos.y == 0) {
+        return (collisionType){ 0, 0, 0, 0 };
+    }
+    int y1 = player.pos.y + player.data->height - 3;
+    // player.pos.x - scroll_x +4, y1, player.pos.x + player.width - scroll_x-2, y1 + 5
+
+    if (player.state == CROUCHING) {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y+14,
+            .w = 20,
+            .h = 26
+        };
+    } else {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y,
+            .w = 18,
+            .h = 40
+        };
+    }
 }
 
 
@@ -585,9 +625,19 @@ static void player_action_breaking() {
     player_do_stop();
 }
 
-static void player_action_dead() {
+static int player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
-        player_change_state(FALL_END);
+        player.energy = PLAYER_DEFAULT_ENERGY;
+        player.lives--;
+        if (player.lives <= 0) {
+            return FALSE;
+        }
+                              
+        player.pos.y = GROUND_Y;
+        player.vx = 0;
+        player.vy = 0;            
+        
+        return TRUE;
     }
 }
 

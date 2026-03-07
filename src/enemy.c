@@ -1,11 +1,12 @@
 #include "enemy.h"
+#include "dat_manager.h"
+#include "errors.h"
+#include "game.h"
+#include "helpers.h"
+#include "player.h"
+#include "statics.h"
 #include <allegro.h>
 #include <math.h>
-#include "dat_manager.h"
-#include "game.h"
-#include "errors.h"
-#include "helpers.h"
-#include "statics.h"
 
 #define ESTOP 1
 #define EMOVE_LEFT 2
@@ -22,10 +23,14 @@
 #define BMOVE_LEFT 2
 #define BMOVE_RIGHT 3
 
+// Attack threshold: if close enough, throw objects
+#define ATTACK_DISTANCE 80
+
 #define GRAVITY 1
 static EnemyData enemy_data[2] = {
-    {0, 0, 0, 0, 0, 0, NULL, NULL}, 
-    {0, 0, 0, 0, 0, 0, NULL, NULL}}; // static data for each enemy type
+    { 0, 0, 0, 0, 0, 0, NULL, NULL },
+    { 0, 0, 0, 0, 0, 0, NULL, NULL }
+}; // static data for each enemy type
 static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
 static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
 
@@ -40,23 +45,24 @@ static animeItem joven_animations[11] = {
     { 60, { 14 }, 1, 60 },                                       // EFALL_END
     { 70, { 0 }, 1, 70 },                                        // EDEAD_END
     { 1, { 14 }, 1, 30 },                                        // ECROUCHING
-    { 5, {15}, 0, 0 },                                           // ETHROWING OBJECT
+    { 5, { 15 }, 0, 0 },                                         // ETHROWING OBJECT
 };
 
 static animeItem bird_animations[4] = {
-    { 0, { 0 }, 0, -1 },                                         // NONE
-    { 1, { 0 }, 1, 60 },                                         // BSTOP
+    { 0, { 0 }, 0, -1 },                                        // NONE
+    { 1, { 0 }, 1, 60 },                                        // BSTOP
     { 2, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 4 }, // BMOVE_LEFT
     { 2, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 4 }, // BMOVE_RIGHT
 };
 
 // called on stage init to load bitmaps and initialize static data for enemy types
-void init_enemy(int index, enum EnemyType type, int x, int y, int vx) {
+void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x) {
     if (index < 0 || index >= MAX_SPAWNABLE_ENEMIES)
         return;
     spawnable_enemies[index].type = type;
     spawnable_enemies[index].pos.x = x;
     spawnable_enemies[index].pos.y = y;
+    spawnable_enemies[index].screen_spawn_x = screen_spawn_x;
     spawnable_enemies[index].vx = vx;
     spawnable_enemies[index].vy = 0;
     spawnable_enemies[index].active = FALSE;
@@ -137,7 +143,7 @@ void enemy_pool_init() {
         active_enemies[i].anime_index = 0;
         active_enemies[i].sprite_index = 0;
         active_enemies[i].state = 0;
-        active_enemies[i].prev_state = 0;        
+        active_enemies[i].prev_state = 0;
         active_enemies[i].data = &enemy_data[ENEMY_BIRD];
     }
 }
@@ -155,11 +161,11 @@ static inline int _get_enemy_bitmap_id(enum EnemyType type) {
 
 static inline void _enemy_anime_update(int index) {
     // enemy animations
-    Enemy *enemy = &active_enemies[index];
+    Enemy* enemy = &active_enemies[index];
     if (enemy->type == ENEMY_BIRD && enemy->state > BMOVE_RIGHT) {
         die("error: bird in invalid state %d", enemy->state);
     }
-    
+
     EnemyData* enemydata = enemy->data;
     animeItem* anim = &enemydata->animations[enemy->state];
     int* frames = anim->frames;
@@ -191,14 +197,14 @@ static inline void _enemy_anime_update(int index) {
  * @return TRUE if enemy is in top of object
  */
 static int enemy_is_on_obj(int index) {
-    Enemy *enemy = &active_enemies[index];
+    Enemy* enemy = &active_enemies[index];
     // returns true if sprite is over a walkable tile
     // todo foot_area collision
     if (enemy->pos.y > GROUND_Y) {
         return TRUE;
     }
-    //collisionType f1 = enemy_foot_area();
-    //return checkOverObj(f1);
+    // collisionType f1 = enemy_foot_area();
+    // return checkOverObj(f1);
     return FALSE;
 }
 
@@ -224,21 +230,53 @@ static void enemy_check_vy(int index) {
     }
 }
 
-
 static inline void _enemy_update_position(int index) {
     // TODO: apply enemy-specific logic and forces here, for now just apply gravity and simple movement
-    //enemy_heck_vx();
-    enemy_check_vy(index);
-    if (index == 1) {
-        rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, vx:%d", active_enemies[1].state, active_enemies[1].pos.y, active_enemies[1].vy, active_enemies[1].vx);
-    }    
-    
+    // enemy_heck_vx();
+    enemy_check_vy(index);    
+
     if (active_enemies[index].active == FALSE)
         return;
 
     active_enemies[index].pos.x = round(active_enemies[index].pos.x + active_enemies[index].vx);
     active_enemies[index].pos.y = round(active_enemies[index].pos.y + active_enemies[index].vy);
+}
+
+/** @brief Joven enemy AI for Shinobi-like movement. Moves toward player and attacks when close.
+ *
+ * @param index The index of the active enemy
+ */
+void joven_action_stop(int index) {
+    // Only process if this is a valid active joven enemy
+    if (index < 0 || index >= MAX_ACTIVE_ENEMIES)
+        return;
+    if (active_enemies[index].type != ENEMY_JOVEN)
+        return;
+
+    // Calculate distance to player
+    int enemy_x = active_enemies[index].pos.x;
+    int player_x = player.pos.x;
+    int distance = abs(enemy_x - player_x);
+
+    if (distance < ATTACK_DISTANCE) {
+        active_enemies[index].state = ETHROWING;
+        active_enemies[index].prev_state = ESTOP;
+        return;
+    }
+
+    // Move toward player
+    if (player_x < enemy_x) {
+        // Player is to the left, move left
+        active_enemies[index].state = EMOVE_LEFT;
+        active_enemies[index].vx = -2; // Move left
+        active_enemies[index].flip = TRUE;
+    } else if (player_x > enemy_x) {
+        // Player is to the right, move right
+        active_enemies[index].state = EMOVE_RIGHT;
+        active_enemies[index].vx = 2; // Move right
+        active_enemies[index].flip = FALSE;
+    }
+    // Otherwise maintain current position (player directly above/below)
 }
 
 /** @brief Applies a force to the enemy, affecting its position.
@@ -259,47 +297,47 @@ static inline void _update_specific_enemy(int index) {
     _enemy_affect_force(index, 0, (active_enemies[index].anime_index & 1) == 0);
     _enemy_update_position(index);
     if (active_enemies[index].type == ENEMY_BIRD) {
-        switch(active_enemies[index].state) {
+        switch (active_enemies[index].state) {
         case BMOVE_LEFT:
-            //bird_action_move_left(index);
+            // bird_action_move_left(index);
             break;
         case BMOVE_RIGHT:
-            //bird_action_move_right(index);
-            break;        
+            // bird_action_move_right(index);
+            break;
         }
     } else if (active_enemies[index].type == ENEMY_JOVEN) {
-    switch (active_enemies[index].state) {
+        switch (active_enemies[index].state) {
         case EMOVE_LEFT:
-            //joven_action_move_left();
+            // joven_action_move_left();
             break;
         case EMOVE_RIGHT:
-            //joven_action_move_right();
+            // joven_action_move_right();
             break;
         case EFALL:
         case EFALL2:
-            //joven_action_fall();
+            // joven_action_fall();
             break;
         case ESTOP:
-            //joven_action_stop();
+            joven_action_stop(index);
             break;
         case EDEAD:
-        // joven_action_dead();
+            // joven_action_dead();
             break;
         case EFALL_END:
-            //joven_action_fall_end();
+            // joven_action_fall_end();
             break;
         case ECROUCHING:
-            //joven_action_crouch();
+            // joven_action_crouch();
             break;
         case ETHROWING:
-            //joven_action_throw();
+            // joven_action_throw();
             break;
         }
     }
     _enemy_anime_update(index);
 }
 
-void update_enemy() {
+void enemy_update() {
     // Update enemy logic here
     for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
         if (active_enemies[i].active == TRUE) {
@@ -307,8 +345,6 @@ void update_enemy() {
         }
     }
 }
-
-
 
 static inline int _find_free_active_slot() {
     for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
@@ -336,7 +372,7 @@ static inline void _spawn_from_static(int spawn_index) {
         return; // no room
     active_enemies[slot] = spawnable_enemies[spawn_index];
     active_enemies[slot].active = TRUE;
-    active_enemies[slot].origin = spawn_index;    
+    active_enemies[slot].origin = spawn_index;
     /* Mark the static spawn as active so it won't be spawned repeatedly */
     spawnable_enemies[spawn_index].active = TRUE;
 }
@@ -387,8 +423,7 @@ void enemy_pool_update(int camera_x) {
         if (spawnable_enemies[i].data == NULL)
             continue;
 
-        int ex = spawnable_enemies[i].pos.x;
-        if (ex < camera_x + SCREEN_W + spawn_margin && ex > camera_x - spawn_margin) {
+        if (spawnable_enemies[i].screen_spawn_x == camera_x) {
             _spawn_from_static(i);
         }
     }
@@ -441,17 +476,14 @@ void draw_enemies(int scroll_x) {
                     screen,
                     data->sprites[e->sprite_index],
                     e->pos.x - scroll_x,
-                    e->pos.y
-                );
-            } else {    
+                    e->pos.y);
+            } else {
                 draw_sprite(
                     screen,
                     data->sprites[e->sprite_index],
                     e->pos.x - scroll_x,
-                    e->pos.y
-                );
+                    e->pos.y);
             }
         }
-        
     }
 }
