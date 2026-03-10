@@ -1,12 +1,14 @@
 #include "enemy.h"
+#include <allegro.h>
+#include <math.h>
+#include <stdio.h>
 #include "dat_manager.h"
 #include "errors.h"
 #include "game.h"
 #include "helpers.h"
 #include "player.h"
 #include "statics.h"
-#include <allegro.h>
-#include <math.h>
+
 
 #define ESTOP 1
 #define EMOVE_LEFT 2
@@ -83,6 +85,67 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen
     spawnable_enemies[index].data = &enemy_data[type];
 }
 
+// resets up the pool
+void enemy_pool_init() {
+    for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
+        active_enemies[i].active = FALSE;
+        active_enemies[i].killed = FALSE;
+        active_enemies[i].origin = -1;
+        active_enemies[i].type = ENEMY_BIRD;
+        active_enemies[i].pos.x = 0;
+        active_enemies[i].pos.y = 0;
+        active_enemies[i].flip = 0;
+        active_enemies[i].move_count = 0;
+        active_enemies[i].anime_count = 0;
+        active_enemies[i].anime_index = 0;
+        active_enemies[i].sprite_index = 0;
+        active_enemies[i].state = 0;
+        active_enemies[i].prev_state = 0;
+        active_enemies[i].data = &enemy_data[ENEMY_BIRD];
+    }
+}
+
+void load_level_enemies(int level_id) {
+    char* data = dat_file[STAGE_ENEMIES_DEF].dat;
+    if (data == NULL) {
+        die("cannot load stage_enemies.def");
+    }
+
+    int current_level, enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x;
+    int enemy_index = 0;
+    int offset = 0;
+
+    // Skip the header line (level,type,x,y,vx,spawn_at)
+    while (data[offset] != '\0' && data[offset] != '\n') {
+        offset++;
+    }
+    if (data[offset] == '\n') {
+        offset++;
+    }
+
+    // Parse each line
+    while (data[offset] != '\0' && enemy_index < MAX_SPAWNABLE_ENEMIES) {
+        int parsed = sscanf(&data[offset], "%d,%d,%d,%d,%d,%d", &current_level, &enemy_type, &enemy_x, &enemy_y, &enemy_vx, &enemy_spawn_x);
+
+        // Move to next line
+        while (data[offset] != '\0' && data[offset] != '\n') {
+            offset++;
+        }
+        if (data[offset] == '\n') {
+            offset++;
+        }
+
+        // If this line matches the level_id, initialize the enemy
+        if (parsed == 6 && current_level == level_id) {
+            init_enemy(enemy_index, (enum EnemyType)enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x);
+            enemy_index++;
+        } else if (parsed > 1) {
+            die("invalid line in stage_enemies.def: %s", &data[offset]);
+        }
+    }
+    enemy_pool_init();
+}
+
 // load bitmaps and initialize static data for enemy types
 static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap_id) {
     EnemyData* enem = &enemy_data[type];
@@ -118,6 +181,7 @@ void reset_spawnable_enemies() {
     }
 }
 
+
 // clean up bitmaps for enemy type
 void destroy_enemy_spritesheets() {
     for (int i = 0; i < 2; i++) {
@@ -128,25 +192,6 @@ void destroy_enemy_spritesheets() {
     }
 }
 
-// resets up the pool
-void enemy_pool_init() {
-    for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
-        active_enemies[i].active = FALSE;
-        active_enemies[i].killed = FALSE;
-        active_enemies[i].origin = -1;
-        active_enemies[i].type = ENEMY_BIRD;
-        active_enemies[i].pos.x = 0;
-        active_enemies[i].pos.y = 0;
-        active_enemies[i].flip = 0;
-        active_enemies[i].move_count = 0;
-        active_enemies[i].anime_count = 0;
-        active_enemies[i].anime_index = 0;
-        active_enemies[i].sprite_index = 0;
-        active_enemies[i].state = 0;
-        active_enemies[i].prev_state = 0;
-        active_enemies[i].data = &enemy_data[ENEMY_BIRD];
-    }
-}
 
 static inline int _get_enemy_bitmap_id(enum EnemyType type) {
     switch (type) {
@@ -233,7 +278,7 @@ static void enemy_check_vy(int index) {
 static inline void _enemy_update_position(int index) {
     // TODO: apply enemy-specific logic and forces here, for now just apply gravity and simple movement
     // enemy_heck_vx();
-    enemy_check_vy(index);    
+    enemy_check_vy(index);
 
     if (active_enemies[index].active == FALSE)
         return;
