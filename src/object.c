@@ -7,7 +7,7 @@
 
 #define GAME_PLATFORMS_SIZE1 16
 #define GAME_PLATFORMS_SIZE2 18
-#define CAR_PLATFORM_SIZE 8
+#define CAR_PLATFORM_SIZE 9
 
 // simple AABB collision detection
 int collision(collisionType obj1, collisionType obj2) {
@@ -63,7 +63,7 @@ static inline int is_a_platform(int id) {
     }
 }
 
-static const int car_platform_ids[CAR_PLATFORM_SIZE] = { 906, 907, 908, 865, 866, 864, 867, 832};
+static const int car_platform_ids[CAR_PLATFORM_SIZE] = { 906, 907, 908, 909, 865, 866, 864, 867, 832};
 
 static inline int is_a_car_platform(int id) {
     for (int i = 0; i < CAR_PLATFORM_SIZE; i++) {

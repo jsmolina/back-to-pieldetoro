@@ -240,7 +240,7 @@ collisionType rear_wheels_area() {
         .x = player.pos.x + 16,
         .y = y,
         .w = 12,
-        .h = 12
+        .h = 10
     };
     return ret;
 }
@@ -259,7 +259,7 @@ collisionType front_wheels_area() {
         .x = player.pos.x + player.data->width - 26,
         .y = y,
         .w = 12,
-        .h = 12
+        .h = 10
     };
     return ret;
 }
@@ -331,8 +331,9 @@ static void player_check_vy() {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
             player.vy = 0;
         }
-        if (player.type == CAR_TYPE && car_is_on_obj()) {
+        if (player.type == CAR_TYPE && player.pos.y >= GROUND_Y) {
             player.vy = 0;
+            player.pos.y = GROUND_Y;
         }
     }
 }

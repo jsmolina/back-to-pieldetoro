@@ -58,6 +58,8 @@ static animeItem bird_animations[4] = {
     { 2, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 4 }, // BMOVE_RIGHT
 };
 
+// TODO: dog enemy type
+
 // called on stage init to load bitmaps and initialize static data for enemy types
 void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x) {
     if (index < 0 || index >= MAX_SPAWNABLE_ENEMIES)
