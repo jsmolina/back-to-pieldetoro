@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Tue Mar 10 08:19:00 2026 */
+/* Date: Sun Mar 15 16:09:18 2026 */
 /* Do not hand edit! */
 
 #define BG0_TMX                          0        /* DATA */
@@ -14,10 +14,11 @@
 #define LEVEL2_INTRO_BMP                 8        /* BMP  */
 #define MARTIN_SPRITESHEET_BMP           9        /* BMP  */
 #define MENU2_BMP                        10       /* BMP  */
-#define MSDOSCLUB_BMP                    11       /* BMP  */
-#define PALETE_INTRO_BMP                 12       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            13       /* PAL  */
-#define PIELDETORO_INTRO3_BMP            14       /* BMP  */
-#define STAGE_ENEMIES_DEF                15       /* DATA */
-#define TILES_BMP                        16       /* BMP  */
+#define MSDOS_MID                        11       /* MIDI */
+#define MSDOSCLUB_BMP                    12       /* BMP  */
+#define PALETE_INTRO_BMP                 13       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            14       /* PAL  */
+#define PIELDETORO_INTRO3_BMP            15       /* BMP  */
+#define STAGE_ENEMIES_DEF                16       /* DATA */
+#define TILES_BMP                        17       /* BMP  */
 

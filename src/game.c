@@ -109,7 +109,7 @@ void update_game_run() {
             player.pos.x++;
         }
         player_update();
-        enemy_update();
+        enemy_update(scroll_x);
         enemy_pool_update(scroll_x);
         throwable_update(scroll_x);
 
@@ -151,26 +151,19 @@ inline void draw_game() {
     case 1:
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
-        if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
+        /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
             draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         } else {
             textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
-        }
+        }*/
+        player_draw(scroll_x);
         // draw objects, player, enemies
         break;
     case 2:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
-        if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
-            if (player.flip == TRUE) {
-                draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
-            } else {
-                draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
-            }
-        } else {
-            textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
-        }
+        player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         collision_check_throwable_vs_enemy();
@@ -178,7 +171,7 @@ inline void draw_game() {
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "s:%d, y:%d, vy:%d, s:%d", player.state, player.pos.y, player.vy, scroll_x);
+        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
 
         break;
     }
@@ -282,4 +275,5 @@ inline void update_game() {
 
 void unload_game_memory() {
     destroy_coche_spritesheet();
+    destroy_enemy_spritesheets();
 }

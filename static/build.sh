@@ -1,3 +1,4 @@
+rm datos.dat
 dat datos.dat -a ./pieldetoro_intro3.bmp -h statics.h -t BMP
 dat datos.dat -a ./palete_intro.bmp -h statics.h -t PAL
 dat datos.dat -a ./menu2.bmp -h statics.h -t BMP
@@ -13,6 +14,8 @@ dat datos.dat -a ./jordi_logo.bmp -h statics.h -t BMP
 dat datos.dat -a ./palete_jordi_logo.bmp -h statics.h -t PAL
 dat datos.dat -a ./msdosclub.bmp -h statics.h -t BMP
 dat datos.dat -a ./intro.mid -h statics.h -t MIDI
+dat datos.dat -a ./msdos.mid -h statics.h -t MIDI
+dat datos.dat -a ./stage_enemies.def -h statics.h 
 
 
 

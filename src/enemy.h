@@ -4,7 +4,7 @@
 #include "helpers.h"
 #include <allegro.h>
 
-#define MAX_SPAWNABLE_ENEMIES 4
+#define MAX_SPAWNABLE_ENEMIES 10
 #define MAX_ACTIVE_ENEMIES 4
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
@@ -125,8 +125,9 @@ void draw_enemies(int scroll_x);
 /** @brief Updates the state of the specified enemy.
  *
  * @param enemy The enemy to update.
+ * @param scroll_x The horizontal scroll position.
  */
-void enemy_update();
+void enemy_update(int scroll_x);
 
 /** @brief Loads the spritesheets for all enemy types.
  */
@@ -144,5 +145,8 @@ void enemy_get_all_aabb(collisionType* enemies);
  */
 void enemy_on_hit(int enemy_id);
 
+/** @brief Cleans up the spritesheets for all enemy types, freeing associated memory.
+ */
+void destroy_enemy_spritesheets();
 // collisionType enemy_get_aabb(const Enemy* e);
 #endif // ENEMY_H

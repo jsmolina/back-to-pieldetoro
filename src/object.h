@@ -49,4 +49,7 @@ void collision_check_throwable_vs_enemy();
  */
 void collision_check_enemy_vs_player(int scroll_x);
 
+int martin_is_on_obj();
+int car_is_on_obj();
+
 #endif

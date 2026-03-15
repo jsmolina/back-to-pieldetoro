@@ -86,6 +86,8 @@ int main(void) {
     set_palette((RGB*) dat_file[PALETE_JORDI_LOGO_BMP].dat);    
     blit(dat_file[JORDI_LOGO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     wait_for_space();
+    stop_midi();
+    play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     wait_for_space();
@@ -109,7 +111,8 @@ int main(void) {
             if (key[KEY_SPACE]) {
                 game_state = GAME;
                 do {} while(key[KEY_SPACE]);
-                start_new_game();
+                stop_midi();
+                start_new_game();                
             }
             break;
         case GAME:
@@ -130,7 +133,7 @@ int main(void) {
     //die("Exiting game...");
     
     //destroy_bitmap(scroller);
-    //unload_game_memory();
+    unload_game_memory();
     //unload_datafile(dat_file);
     printf("Enjoyed playing? See you soon!\n");
     clear_keybuf();

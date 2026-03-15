@@ -2,6 +2,7 @@
 #include <allegro.h>
 #include <math.h>
 #include <stdio.h>
+#include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "errors.h"
 #include "game.h"
@@ -27,7 +28,7 @@
 
 // Attack threshold: if close enough, throw objects
 #define ATTACK_DISTANCE 80
-
+FILE *enemy_log_file;
 #define GRAVITY 1
 static EnemyData enemy_data[2] = {
     { 0, 0, 0, 0, 0, 0, NULL, NULL },
@@ -106,43 +107,45 @@ void enemy_pool_init() {
 }
 
 void load_level_enemies(int level_id) {
-    char* data = dat_file[STAGE_ENEMIES_DEF].dat;
+    enemy_log_file = fopen("enemy_log.txt", "w");
+
+    char *data = dat_file[STAGE_ENEMIES_DEF].dat;
     if (data == NULL) {
         die("cannot load stage_enemies.def");
     }
 
-    int current_level, enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x;
+    // Skip header line
+    char *cursor = strchr(data, '\n');
+    if (cursor == NULL) {
+        die("stage_enemies.def has no header line");
+    }
+    cursor++; // move past the '\n'
+
     int enemy_index = 0;
-    int offset = 0;
+    int current_level, enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x;
 
-    // Skip the header line (level,type,x,y,vx,spawn_at)
-    while (data[offset] != '\0' && data[offset] != '\n') {
-        offset++;
-    }
-    if (data[offset] == '\n') {
-        offset++;
-    }
+    while (*cursor != '\0' && enemy_index < MAX_SPAWNABLE_ENEMIES) {
+        int parsed = sscanf(cursor, "%d,%d,%d,%d,%d,%d",
+            &current_level, &enemy_type,
+            &enemy_x, &enemy_y, &enemy_vx, &enemy_spawn_x);
 
-    // Parse each line
-    while (data[offset] != '\0' && enemy_index < MAX_SPAWNABLE_ENEMIES) {
-        int parsed = sscanf(&data[offset], "%d,%d,%d,%d,%d,%d", &current_level, &enemy_type, &enemy_x, &enemy_y, &enemy_vx, &enemy_spawn_x);
-
-        // Move to next line
-        while (data[offset] != '\0' && data[offset] != '\n') {
-            offset++;
-        }
-        if (data[offset] == '\n') {
-            offset++;
+        if (parsed != 6) {
+            die("invalid line in stage_enemies.def");
         }
 
-        // If this line matches the level_id, initialize the enemy
-        if (parsed == 6 && current_level == level_id) {
-            init_enemy(enemy_index, (enum EnemyType)enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x);
+        if (current_level == level_id) {
+            // enemy_x + enemy_spawn_x because enemies are defined relative to their spawn point, which allows us to reuse the same enemy definition 
+            // for multiple spawn points just by changing the spawn_x value
+            init_enemy(enemy_index, (enum EnemyType)enemy_type, enemy_x + enemy_spawn_x, enemy_y, enemy_vx, enemy_spawn_x);
             enemy_index++;
-        } else if (parsed > 1) {
-            die("invalid line in stage_enemies.def: %s", &data[offset]);
         }
+
+        // Advance cursor to next line
+        cursor = strchr(cursor, '\n');
+        if (cursor == NULL) break;
+        cursor++;
     }
+
     enemy_pool_init();
 }
 
@@ -186,9 +189,17 @@ void reset_spawnable_enemies() {
 void destroy_enemy_spritesheets() {
     for (int i = 0; i < 2; i++) {
         EnemyData* enem = &enemy_data[i];
-        for (int j = 0; j < enem->total_frames; j++) {
-            destroy_bitmap(enem->sprites[j]);
+        if (enem->sprites[0] == NULL) {
+            continue; // skip if no sprites loaded for this enemy type
         }
+        for (int j = 0; j < enem->total_frames; j++) {
+            if (enem->sprites[j] != NULL) {
+                destroy_bitmap(enem->sprites[j]);
+            }
+        }
+    }
+    if (enemy_log_file) {
+        fclose(enemy_log_file);
     }
 }
 
@@ -275,16 +286,29 @@ static void enemy_check_vy(int index) {
     }
 }
 
-static inline void _enemy_update_position(int index) {
+
+static inline void enemy_check_vx(int index, int scroll_x) {
+    if (active_enemies[index].pos.x < scroll_x - 50) {
+        active_enemies[index].vx = 2;
+        active_enemies[index].state = BMOVE_RIGHT;
+        active_enemies[index].flip = FALSE;
+    } else if (active_enemies[index].pos.x > scroll_x + SCREEN_W + 50) {
+        active_enemies[index].vx = -2;
+        active_enemies[index].state = BMOVE_LEFT;
+        active_enemies[index].flip = TRUE;
+    }
+}
+
+static inline void _enemy_update_position(int index, int scroll_x) {
     // TODO: apply enemy-specific logic and forces here, for now just apply gravity and simple movement
-    // enemy_heck_vx();
+    enemy_check_vx(index, scroll_x);
     enemy_check_vy(index);
 
     if (active_enemies[index].active == FALSE)
         return;
 
-    active_enemies[index].pos.x = round(active_enemies[index].pos.x + active_enemies[index].vx);
-    active_enemies[index].pos.y = round(active_enemies[index].pos.y + active_enemies[index].vy);
+    active_enemies[index].pos.x = active_enemies[index].pos.x + active_enemies[index].vx;
+    active_enemies[index].pos.y = active_enemies[index].pos.y + active_enemies[index].vy;
 }
 
 /** @brief Joven enemy AI for Shinobi-like movement. Moves toward player and attacks when close.
@@ -303,11 +327,6 @@ void joven_action_stop(int index) {
     int player_x = player.pos.x;
     int distance = abs(enemy_x - player_x);
 
-    if (distance < ATTACK_DISTANCE) {
-        active_enemies[index].state = ETHROWING;
-        active_enemies[index].prev_state = ESTOP;
-        return;
-    }
 
     // Move toward player
     if (player_x < enemy_x) {
@@ -324,6 +343,7 @@ void joven_action_stop(int index) {
     // Otherwise maintain current position (player directly above/below)
 }
 
+
 /** @brief Applies a force to the enemy, affecting its position.
  *
  * @param enemy The enemy to which the force will be applied.
@@ -338,9 +358,9 @@ static inline void _enemy_affect_force(int index, int vx, int vy) {
     active_enemies[index].vy += vy;
 }
 
-static inline void _update_specific_enemy(int index) {
+static inline void _update_specific_enemy(int index, int scroll_x) {
     _enemy_affect_force(index, 0, (active_enemies[index].anime_index & 1) == 0);
-    _enemy_update_position(index);
+    _enemy_update_position(index, scroll_x);
     if (active_enemies[index].type == ENEMY_BIRD) {
         switch (active_enemies[index].state) {
         case BMOVE_LEFT:
@@ -372,7 +392,7 @@ static inline void _update_specific_enemy(int index) {
             // joven_action_fall_end();
             break;
         case ECROUCHING:
-            // joven_action_crouch();
+            //enemy_action_crouch(index);
             break;
         case ETHROWING:
             // joven_action_throw();
@@ -382,11 +402,11 @@ static inline void _update_specific_enemy(int index) {
     _enemy_anime_update(index);
 }
 
-void enemy_update() {
+void enemy_update(int scroll_x) {
     // Update enemy logic here
     for (int i = 0; i < MAX_ACTIVE_ENEMIES; ++i) {
         if (active_enemies[i].active == TRUE) {
-            _update_specific_enemy(i);
+            _update_specific_enemy(i, scroll_x);
         }
     }
 }
@@ -413,8 +433,9 @@ static inline void _spawn_from_static(int spawn_index) {
     }
 
     int slot = _find_free_active_slot();
-    if (slot < 0)
+    if (slot < 0) {
         return; // no room
+    }
     active_enemies[slot] = spawnable_enemies[spawn_index];
     active_enemies[slot].active = TRUE;
     active_enemies[slot].origin = spawn_index;
@@ -463,10 +484,14 @@ void enemy_pool_update(int camera_x) {
 
     // Spawn: check static list
     for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; ++i) {
-        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE)
+        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {
+            fprintf(enemy_log_file, "* Enemy at static index %d is active=%d or killed=%d\n", i, 
+                spawnable_enemies[i].active, spawnable_enemies[i].killed);
             continue;
-        if (spawnable_enemies[i].data == NULL)
+        }
+        if (spawnable_enemies[i].data == NULL) {
             continue;
+        }
 
         if (spawnable_enemies[i].screen_spawn_x == camera_x) {
             _spawn_from_static(i);
