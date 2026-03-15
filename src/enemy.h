@@ -1,15 +1,14 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include <allegro.h>
 #include "helpers.h"
+#include <allegro.h>
 
-#define MAX_SPAWNABLE_ENEMIES 4
+#define MAX_SPAWNABLE_ENEMIES 10
 #define MAX_ACTIVE_ENEMIES 4
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2
-
 
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
@@ -47,14 +46,14 @@ pero fuera de pantalla, simplemente congelan su lógica para que no se
 caiga por un precipicio mientras no lo ves.
  */
 
- // static enemy data for each type, to avoid reloading sprites and data for each instance
- typedef struct {
+// static enemy data for each type, to avoid reloading sprites and data for each instance
+typedef struct {
     int max_vx;
     int width;
     int height;
     int total_frames;
     BITMAP* sprites[ENEMY_FRAMES];
-    animeItem * animations; // pointer to sprite animations
+    animeItem* animations; // pointer to sprite animations
 } EnemyData;
 
 enum EnemyType {
@@ -64,7 +63,7 @@ enum EnemyType {
 
 typedef struct {
     enum EnemyType type;
-    EnemyData * data; // pointer to static data for this enemy type
+    EnemyData* data; // pointer to static data for this enemy type
     coordsType pos;
     int screen_spawn_x; // the scroll amount when this enemy should be spawned, used for spawn logic
     int vx;
@@ -81,8 +80,7 @@ typedef struct {
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
 } Enemy;
 
-
-/** @brief Initializes an enemy at the specified index with the given type and position for a new level. 
+/** @brief Initializes an enemy at the specified index with the given type and position for a new level.
  *  The enemy is added to the spawnable enemies list and will be activated when the camera reaches its position.
  *
  * @param index The index in the spawnable enemies array.
@@ -98,6 +96,14 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen
  *
  */
 void reset_spawnable_enemies();
+
+/** @brief Loads and initializes all enemies for the specified level from stage_enemies.def.
+ *  Reads the stage_enemies.def file from the dat file and calls init_enemy for each enemy
+ *  entry where the level matches the provided level_id.
+ *
+ * @param level_id The level number to load enemies for.
+ */
+void load_level_enemies(int level_id);
 
 /** @brief Initializes the enemy pool, sets all the variables to default values and assigns static data to each enemy instance.
  *
@@ -116,14 +122,12 @@ void enemy_pool_update(int camera_x);
  */
 void draw_enemies(int scroll_x);
 
-
 /** @brief Updates the state of the specified enemy.
  *
  * @param enemy The enemy to update.
+ * @param scroll_x The horizontal scroll position.
  */
-void enemy_update();
-
-
+void enemy_update(int scroll_x);
 
 /** @brief Loads the spritesheets for all enemy types.
  */
@@ -141,5 +145,8 @@ void enemy_get_all_aabb(collisionType* enemies);
  */
 void enemy_on_hit(int enemy_id);
 
-//collisionType enemy_get_aabb(const Enemy* e);
+/** @brief Cleans up the spritesheets for all enemy types, freeing associated memory.
+ */
+void destroy_enemy_spritesheets();
+// collisionType enemy_get_aabb(const Enemy* e);
 #endif // ENEMY_H

@@ -26,6 +26,7 @@
 #define BOUNCING 13
 #define CROUCHING 14
 #define THROWING 15
+#define FALL_TO_FLOOR 16
 #define PLAYER_DEFAULT_ENERGY 5
 #define PLAYER_DEFAULT_LIVES 3
 
@@ -43,7 +44,7 @@ struct playerType player;
 PlayerData coche = {0, 0, 0, {NULL}}; // static data for car player type
 PlayerData martin = {0, 0, 0, {NULL}}; // static data for martin player type
 
-static animeItem car_animations[16] = {
+static animeItem car_animations[17] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -60,9 +61,11 @@ static animeItem car_animations[16] = {
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
     { 0, {}, 0, 0 },          // CROUCHING (cars don't crouch)
     { 0, {}, 0, 0 },       // UNUSED
+    { 0, {}, 0, 0 },      // UNUSED
+    
 };
 
-static animeItem martin_animations[16] = {
+static animeItem martin_animations[17] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
@@ -79,6 +82,7 @@ static animeItem martin_animations[16] = {
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
     { 5, {15}, 0, 0 },                                           // THROWING OBJECT
+    { 5, {13}, 0, 0 },                                          // FALL_TO_FLOOR
 };
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -101,6 +105,7 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.lives = PLAYER_DEFAULT_LIVES;
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
+    player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
 }
 
 void load_coche_spritesheet() {
@@ -199,16 +204,27 @@ static void player_affect_force(int vx, int vy) {
  * @brief Checks if player is over an object
  *
  * @return TRUE if player is in top of object
- */
+
 static int player_is_on_obj() {
     // returns true if sprite is over a walkable tile
     // todo foot_area collision
     if (player.pos.y > GROUND_Y) {
         return TRUE;
     }
-    collisionType f1 = player_foot_area();
-    return checkOverObj(f1);
-}
+    if (player.type == CAR_TYPE) {
+        collisionType f1 = rear_wheels_area();
+        if (checkOverObj(f1)) {
+            return TRUE;
+        }
+        collisionType f2 = front_wheels_area();
+        return checkOverObj(f2);
+    }
+    else {        
+        collisionType f1 = player_foot_area();
+        return checkOverObj(f1);
+    }
+    return FALSE;
+} */
 
 /**
 * @brief defines the area of the rear car wheels for collision detection
@@ -262,8 +278,8 @@ inline collisionType player_foot_area() {
     collisionType ret = {
         .x = player.pos.x + 6,
         .y = y1,
-        .w = 14,
-        .h = 5
+        .w = 12,
+        .h = 4
     };
     return ret;
 }
@@ -312,7 +328,10 @@ static void player_check_vy() {
         return;
 
     if (player.vy > 0) {
-        if (player_is_on_obj()) {
+        if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
+            player.vy = 0;
+        }
+        if (player.type == CAR_TYPE && car_is_on_obj()) {
             player.vy = 0;
         }
     }
@@ -322,6 +341,11 @@ static void player_check_vy() {
  * @brief Checks vx for hits
  */
 static void player_check_vx() {
+    if (player.pos.x <= 2 && player.vx < 0) {
+        player.vx = 0;
+        player.pos.x = 2;
+    }
+
     if (player.vx != 0) {
         if (checkHitObj()) {
             player.vx = -player.vx;
@@ -398,11 +422,19 @@ static inline void player_do_throw() {
 static inline void player_do_jump() {
     if (key[KEY_LEFT]) {
         player.vx = -1;
-        player.flip = 1;
+        player.flip = TRUE;
     }
     if (key[KEY_RIGHT]) {
-        player.vx = 1;
-        player.flip = 0;
+       // player.vx = 1;
+        player.flip = FALSE;
+
+        if (player.vx < player.max_vx) {
+            player.vx += PLAYER_ACCEL;
+            if (player.vx > player.max_vx)
+                player.vx = player.max_vx;
+        } else {
+            player.vx = player.max_vx;
+        }
     }
     player.vy = JUMP_VY;
     player_change_state(JUMP_UP);
@@ -544,6 +576,13 @@ static void player_action_stop() {
 }
 
 static void player_action_crouch() {
+    if ((key[KEY_RCONTROL] || key[KEY_LCONTROL])) {
+        if (player.pos.y < GROUND_Y) {
+            player_change_state(FALL_TO_FLOOR);
+            player.vy = 1;
+        } 
+    }
+
     if (!key[KEY_DOWN]) {
         player_change_state(STOP);
     } else {
@@ -688,6 +727,17 @@ void player_anime_update() {
     }
     player.anime_count++;
 }
+inline void player_draw(int scroll_x) {    
+    if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
+        if (player.flip == TRUE && player.type != CAR_TYPE) { // cars don't flip
+            draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        } else {
+            draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+        }
+    } else {
+        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
+    }
+}
 
 // FSM LOOP for player, called on game loop when world_state is GAME_RUN
 void player_update() {
@@ -731,6 +781,13 @@ void player_update() {
         break;
     case THROWING:
         player_action_throw();
+        break;
+    case FALL_TO_FLOOR:
+        player.pos.y += 1;
+         if (player.pos.y >= GROUND_Y) {
+            player.pos.y = GROUND_Y;
+            player_do_stop();
+        }
         break;
     }
     player_anime_update();

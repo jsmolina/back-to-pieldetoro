@@ -8,6 +8,11 @@
 #define MARTIN_FRAMES 16
 #define MAX_FRAMES 13
 
+typedef enum {
+    CAR_TYPE = 0,
+    MARTIN_TYPE = 1,
+} playerEnum;
+
 typedef int (*CheckHitFn)();
 
 
@@ -30,6 +35,7 @@ struct playerType {
     int anime_count;
     int anime_index;
     int sprite_index;
+    int type ; 
     unsigned int state;
     unsigned int prev_state;
     PlayerData * data; // pointer to static data for current player type (car or martin)
@@ -48,6 +54,12 @@ void player_init(int x, int y, int current_level, int max_vx);
  *
  */
 void player_update();
+
+/** @brief Draws the player on the screen
+ *
+ * @param scroll_x The current horizontal scroll amount for camera offset
+ */
+inline void player_draw(int scroll_x);
 
 /**
  * @brief returns TRUE if player is deading

@@ -5,6 +5,10 @@
 #include "player.h"
 #include "tiles.h"
 
+#define GAME_PLATFORMS_SIZE1 16
+#define GAME_PLATFORMS_SIZE2 18
+#define CAR_PLATFORM_SIZE 8
+
 // simple AABB collision detection
 int collision(collisionType obj1, collisionType obj2) {
     int flg = obj1.x >= obj2.x + obj2.w
@@ -32,25 +36,54 @@ static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
 
-static const int platform_ids[] = { 920, 921, 922, 906, 907, 908, 253, 254, 255, 1016 };
+static const int platform_ids1[GAME_PLATFORMS_SIZE1] = { 
+    39, 47, 48,49,  137, 141, 
+    174, 175, 176, 177,
+    178,137, 135, 253, 
+    254, 255};
+static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {  
+    296, 297,298, 299, 630, 631, 
+    906, 907, 908, 920, 921, 922, 
+    1016, 1017, 1018 };
 
 static inline int is_a_platform(int id) {
-    for (int i = 0; i < sizeof(platform_ids) / sizeof(platform_ids[0]); i++) {
-        if (platform_ids[i] == id) {
+    if (id < 296) {
+        for (int i = 0; i < GAME_PLATFORMS_SIZE1; i++) {
+            if (platform_ids1[i] == id) {
+                return TRUE;
+            }
+        }
+    } else {
+        for (int i = 0; i < GAME_PLATFORMS_SIZE2; i++) {
+            if (platform_ids2[i] == id) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+}
+
+static const int car_platform_ids[CAR_PLATFORM_SIZE] = { 906, 907, 908, 865, 866, 864, 867, 832};
+
+static inline int is_a_car_platform(int id) {
+    for (int i = 0; i < CAR_PLATFORM_SIZE; i++) {
+        if (car_platform_ids[i] == id) {
             return TRUE;
         }
     }
     return FALSE;
 }
 
-static int rect_over_tile_types(collisionType r) {
+static int rect_over_tile_types(collisionType r, int is_wheel) {
     if (r.w <= 0 || r.h <= 0)
         return 0;
 
     int sx = r.x / TILES_SIZE;
     int ex = (r.x + r.w - 1) / TILES_SIZE;
-    int sy = r.y / TILES_SIZE;
-    int ey = (r.y + r.h - 1) / TILES_SIZE;
+    /*int sy = r.y / TILES_SIZE;
+    int ey = (r.y + r.h - 1) / TILES_SIZE;*/
+    int sy = (r.y + r.h - 1) / TILES_SIZE;  // only inferior row for platform check
+    int ey = sy;
 
     if (sx < 0)
         sx = 0;
@@ -64,12 +97,17 @@ static int rect_over_tile_types(collisionType r) {
     for (int ty = sy; ty <= ey; ++ty) {
         for (int tx = sx; tx <= ex; ++tx) {
             int tile_id = tiles_values[ty][tx] - 1;
-            if (is_harmful_tile(tile_id))
-                return HARMFUL;
-            if (is_back_in_time_tile(tile_id))
-                return BACK_IN_TIME;
-            if (is_a_platform(tile_id))
-                return PLATFORM;
+            if (is_wheel) {
+                if (is_harmful_tile(tile_id))
+                    return HARMFUL;
+                if (is_back_in_time_tile(tile_id))
+                    return BACK_IN_TIME;
+                if (is_a_car_platform(tile_id))
+                    return PLATFORM;
+            } else {            
+                if (is_a_platform(tile_id))
+                    return PLATFORM;
+            }
         }
     }
     return ROAD;
@@ -81,13 +119,13 @@ int wheels_on_tiles() {
     int result;
 
     collisionType f1 = rear_wheels_area();
-    result = rect_over_tile_types(f1);
+    result = rect_over_tile_types(f1, TRUE);
     if (result != ROAD) {
         return result;
     }
 
     collisionType f2 = front_wheels_area();
-    result = rect_over_tile_types(f2);
+    result = rect_over_tile_types(f2, TRUE);
     if (result != ROAD) {
         return result;
     }
@@ -97,7 +135,7 @@ int wheels_on_tiles() {
 
 // will check if player is over a walkable thing
 int checkOverObj(collisionType area) {
-    int result = rect_over_tile_types(area);
+    int result = rect_over_tile_types(area, FALSE);
     if (result == PLATFORM) {
         return TRUE;
     }
@@ -138,7 +176,7 @@ void collision_check_throwable_vs_enemy() {
 void collision_check_enemy_vs_player(int scroll_x) {
     // Get player collision area (using foot area for main body collision)
     collisionType player_area = player_aabb();
-    rect(screen, player_area.x - scroll_x, player_area.y, player_area.x + player_area.w - scroll_x, player_area.y + player_area.h, makecol(0, 255, 0)); // Debug: draw player collision box
+    //rect(screen, player_area.x - scroll_x, player_area.y, player_area.x + player_area.w - scroll_x, player_area.y + player_area.h, makecol(0, 255, 0)); // Debug: draw player collision box
 
     // Get all enemy bounding boxes
     collisionType enemies[MAX_ACTIVE_ENEMIES];
@@ -159,4 +197,15 @@ void collision_check_enemy_vs_player(int scroll_x) {
             enemy_on_hit(enemy_id);
         }
     }
+}
+
+int martin_is_on_obj() {
+    collisionType f1 = player_foot_area();
+    return checkOverObj(f1);
+}
+
+int car_is_on_obj() {
+    collisionType rear = rear_wheels_area();
+    collisionType front = front_wheels_area();
+    return checkOverObj(rear) || checkOverObj(front);
 }

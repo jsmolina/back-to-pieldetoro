@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1.tmx",
+    "activeFile": "bg0.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -21,16 +21,16 @@
             "scale": 2.2578,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1279.7856320311807,
-                "y": 100.09743998582691
+                "x": 300.0708654442377,
+                "y": 102.97634865798565
             }
         },
         "bg1.tmx": {
             "scale": 2.8204,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 418.0258119415686,
-                "y": 110.44532690398526
+                "x": 1280.137569139129,
+                "y": 98.03573961140265
             }
         },
         "level1.tmx": {
@@ -58,8 +58,8 @@
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
-        "bg0.tmx",
         "bg1.tmx",
+        "bg0.tmx",
         "level1.tmx",
         "bg0 copia.tmx",
         "tiles.tsx"
