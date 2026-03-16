@@ -1,7 +1,9 @@
 #include <stdio.h>
 
+#include "allegro/fli.h"
 #include "allegro/gfx.h"
 #include "allegro/midi.h"
+#include "allegro/timer.h"
 #include "enemy.h"
 #include "player.h"
 #include "allegro/keyboard.h"
@@ -47,6 +49,14 @@ void increment_speed_counter() {
 }
 END_OF_FUNCTION(increment_speed_counter);
 
+static void wait_a_bit(int amount) {
+    clear_keybuf();
+    int start = retrace_count;
+    while (!key[KEY_SPACE] && (retrace_count - start) < amount) {
+        vsync();
+    }
+}
+
 int main(void) {
     RGB black = { 16, 16, 16, 0 };
 
@@ -85,21 +95,26 @@ int main(void) {
 
     set_palette((RGB*) dat_file[PALETE_JORDI_LOGO_BMP].dat);    
     blit(dat_file[JORDI_LOGO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
-    wait_for_space();
+    wait_a_bit(700);
     stop_midi();
     play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
-    wait_for_space();
-
+    wait_a_bit(200);
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     BITMAP* menu = dat_file[MENU2_BMP].dat;
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
+    play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, 0);
+    play_memory_fli(dat_file[INTRO_FLI].dat, screen, 0, 0);
+    wait_a_bit(200);
+    set_palette(palette);
+
     for (int i = 0; i < 40 ; i++) {
         blit(menu, screen, 0, i, 0, 0, 320, 200);
         vsync();
     }
+    
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
