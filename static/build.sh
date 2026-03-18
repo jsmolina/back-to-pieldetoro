@@ -7,6 +7,7 @@ dat datos.dat -a ./tiles.bmp -h statics.h -t BMP
 dat datos.dat -a ./coche_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./martin_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./bird_spritesheet.bmp -h statics.h -t BMP
+dat datos.dat -a ./dog_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./joven_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./bg*.tmx -h statics.h
