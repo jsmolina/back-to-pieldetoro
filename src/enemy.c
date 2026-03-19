@@ -1,7 +1,4 @@
 #include "enemy.h"
-#include <allegro.h>
-#include <math.h>
-#include <stdio.h>
 #include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "errors.h"
@@ -9,7 +6,9 @@
 #include "helpers.h"
 #include "player.h"
 #include "statics.h"
-
+#include <allegro.h>
+#include <math.h>
+#include <stdio.h>
 
 #define ESTOP 1
 #define EMOVE_LEFT 2
@@ -26,11 +25,14 @@
 #define BMOVE_LEFT 2
 #define BMOVE_RIGHT 3
 
+#define TOTAL_ENEMY_DATA 3
+
 // Attack threshold: if close enough, throw objects
 #define ATTACK_DISTANCE 80
-FILE *enemy_log_file;
+FILE* enemy_log_file;
 #define GRAVITY 1
-static EnemyData enemy_data[2] = {
+static EnemyData enemy_data[TOTAL_ENEMY_DATA] = {
+    { 0, 0, 0, 0, 0, 0, NULL, NULL },
     { 0, 0, 0, 0, 0, 0, NULL, NULL },
     { 0, 0, 0, 0, 0, 0, NULL, NULL }
 }; // static data for each enemy type
@@ -48,17 +50,22 @@ static animeItem joven_animations[11] = {
     { 60, { 14 }, 1, 60 },                                       // EFALL_END
     { 70, { 0 }, 1, 70 },                                        // EDEAD_END
     { 1, { 14 }, 1, 30 },                                        // ECROUCHING
-    { 5, { 15 }, 0, 0 },                                         // ETHROWING OBJECT
+    { 5, { 15 }, 1, 0 },                                         // ETHROWING OBJECT
 };
 
 static animeItem bird_animations[4] = {
-    { 0, { 0 }, 0, -1 },                                        // NONE
-    { 1, { 0 }, 1, 60 },                                        // BSTOP
-    { 2, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 4 }, // BMOVE_LEFT
-    { 2, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 4 }, // BMOVE_RIGHT
+    { 0, { 0 }, 0, -1 },    // NONE
+    { 1, { 0 }, 1, 60 },    // BSTOP
+    { 2, { 0, 1 }, 2, 4 }, // BMOVE_LEFT
+    { 2, { 0, 1 }, 2, 4 }, // BMOVE_RIGHT
 };
 
-// TODO: dog enemy type
+static animeItem dog_animations[4] = {
+    { 0, { 6 }, 0, -1 },               // NONE
+    { 1, { 0 }, 1, 60 },               // BSTOP
+    { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_LEFT
+    { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_RIGHT
+};
 
 // called on stage init to load bitmaps and initialize static data for enemy types
 void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x) {
@@ -75,7 +82,7 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen
     spawnable_enemies[index].anime_count = 0;
     spawnable_enemies[index].anime_index = 0;
     spawnable_enemies[index].sprite_index = 0;
-    if (type == ENEMY_BIRD) {
+    if (type == ENEMY_BIRD || type == ENEMY_DOG) {
         spawnable_enemies[index].state = BMOVE_LEFT;
         spawnable_enemies[index].flip = TRUE;
     } else {
@@ -111,13 +118,13 @@ void enemy_pool_init() {
 void load_level_enemies(int level_id) {
     enemy_log_file = fopen("enemy_log.txt", "w");
 
-    char *data = dat_file[STAGE_ENEMIES_DEF].dat;
+    char* data = dat_file[STAGE_ENEMIES_DEF].dat;
     if (data == NULL) {
         die("cannot load stage_enemies.def");
     }
 
     // Skip header line
-    char *cursor = strchr(data, '\n');
+    char* cursor = strchr(data, '\n');
     if (cursor == NULL) {
         die("stage_enemies.def has no header line");
     }
@@ -136,7 +143,7 @@ void load_level_enemies(int level_id) {
         }
 
         if (current_level == level_id) {
-            // enemy_x + enemy_spawn_x because enemies are defined relative to their spawn point, which allows us to reuse the same enemy definition 
+            // enemy_x + enemy_spawn_x because enemies are defined relative to their spawn point, which allows us to reuse the same enemy definition
             // for multiple spawn points just by changing the spawn_x value
             init_enemy(enemy_index, (enum EnemyType)enemy_type, enemy_x + enemy_spawn_x, enemy_y, enemy_vx, enemy_spawn_x);
             enemy_index++;
@@ -144,7 +151,8 @@ void load_level_enemies(int level_id) {
 
         // Advance cursor to next line
         cursor = strchr(cursor, '\n');
-        if (cursor == NULL) break;
+        if (cursor == NULL)
+            break;
         cursor++;
     }
 
@@ -166,6 +174,8 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap
         enem->animations = joven_animations;
     } else if (type == ENEMY_BIRD) {
         enem->animations = bird_animations;
+    } else if (type == ENEMY_DOG) {
+        enem->animations = dog_animations;
     }
 }
 
@@ -173,6 +183,7 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap
 void load_enemy_spritesheets() {
     _load_enemy_generic(ENEMY_JOVEN, JOVEN_FRAMES, JOVEN_SPRITESHEET_BMP);
     _load_enemy_generic(ENEMY_BIRD, BIRD_FRAMES, BIRD_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_DOG, DOG_FRAMES, DOG_SPRITESHEET_BMP);
 }
 
 void reset_spawnable_enemies() {
@@ -183,13 +194,21 @@ void reset_spawnable_enemies() {
         spawnable_enemies[i].pos.x = 0;
         spawnable_enemies[i].pos.y = 0;
         spawnable_enemies[i].data = NULL;
+        spawnable_enemies[i].type = -1;
+        spawnable_enemies[i].vx = 0;
+        spawnable_enemies[i].vy = 0;
+        spawnable_enemies[i].move_count = 0;
+        spawnable_enemies[i].anime_count = 0;
+        spawnable_enemies[i].anime_index = 0;
+        spawnable_enemies[i].sprite_index = 0;
+        spawnable_enemies[i].state = 0;
+        spawnable_enemies[i].prev_state = -1;
     }
 }
 
-
 // clean up bitmaps for enemy type
 void destroy_enemy_spritesheets() {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < TOTAL_ENEMY_DATA; i++) {
         EnemyData* enem = &enemy_data[i];
         if (enem->sprites[0] == NULL) {
             continue; // skip if no sprites loaded for this enemy type
@@ -205,22 +224,10 @@ void destroy_enemy_spritesheets() {
     }
 }
 
-
-static inline int _get_enemy_bitmap_id(enum EnemyType type) {
-    switch (type) {
-    case ENEMY_BIRD:
-        return BIRD_SPRITESHEET_BMP;
-    case ENEMY_JOVEN:
-        return JOVEN_SPRITESHEET_BMP;
-    default:
-        return BIRD_SPRITESHEET_BMP;
-    }
-}
-
 static inline void _enemy_anime_update(int index) {
     // enemy animations
     Enemy* enemy = &active_enemies[index];
-    if (enemy->type == ENEMY_BIRD && enemy->state > BMOVE_RIGHT) {
+    if ((enemy->type == ENEMY_BIRD || enemy->type == ENEMY_DOG) && enemy->state > BMOVE_RIGHT) {
         die("error: bird in invalid state %d", enemy->state);
     }
 
@@ -288,13 +295,12 @@ static void enemy_check_vy(int index) {
     }
 }
 
-
 static inline void enemy_check_vx(int index, int scroll_x) {
-    if (active_enemies[index].pos.x < scroll_x - 50) {
+    if (active_enemies[index].pos.x < (scroll_x - 50)) {
         active_enemies[index].vx = 2;
         active_enemies[index].state = BMOVE_RIGHT;
         active_enemies[index].flip = FALSE;
-    } else if (active_enemies[index].pos.x > scroll_x + SCREEN_W + 50) {
+    } else if (active_enemies[index].pos.x > (scroll_x + SCREEN_W + 50)) {
         active_enemies[index].vx = -2;
         active_enemies[index].state = BMOVE_LEFT;
         active_enemies[index].flip = TRUE;
@@ -329,7 +335,6 @@ void joven_action_stop(int index) {
     int player_x = player.pos.x;
     int distance = abs(enemy_x - player_x);
 
-
     // Move toward player
     if (player_x < enemy_x) {
         // Player is to the left, move left
@@ -345,7 +350,6 @@ void joven_action_stop(int index) {
     // Otherwise maintain current position (player directly above/below)
 }
 
-
 /** @brief Applies a force to the enemy, affecting its position.
  *
  * @param enemy The enemy to which the force will be applied.
@@ -353,7 +357,7 @@ void joven_action_stop(int index) {
  * @param vy The vertical velocity to apply.
  */
 static inline void _enemy_affect_force(int index, int vx, int vy) {
-    if (active_enemies[index].type == ENEMY_BIRD) {
+    if (active_enemies[index].type == ENEMY_BIRD || active_enemies[index].type == ENEMY_DOG) {
         return; // birds are not affected by gravity or forces, they just move horizontally
     }
     active_enemies[index].vx += vx;
@@ -363,7 +367,7 @@ static inline void _enemy_affect_force(int index, int vx, int vy) {
 static inline void _update_specific_enemy(int index, int scroll_x) {
     _enemy_affect_force(index, 0, (active_enemies[index].anime_index & 1) == 0);
     _enemy_update_position(index, scroll_x);
-    if (active_enemies[index].type == ENEMY_BIRD) {
+    if (active_enemies[index].type == ENEMY_BIRD || active_enemies[index].type == ENEMY_DOG) {
         switch (active_enemies[index].state) {
         case BMOVE_LEFT:
             // bird_action_move_left(index);
@@ -394,7 +398,7 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
             // joven_action_fall_end();
             break;
         case ECROUCHING:
-            //enemy_action_crouch(index);
+            // enemy_action_crouch(index);
             break;
         case ETHROWING:
             // joven_action_throw();
@@ -481,21 +485,21 @@ void enemy_on_hit(int enemy_id) {
 }
 
 void enemy_pool_update(int camera_x) {
-    int spawn_margin = 32;
-    int despawn_left = 128;
+    /*int spawn_margin = 32;
+    int despawn_left = 128;*/
 
     // Spawn: check static list
     for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; ++i) {
-        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {
-            fprintf(enemy_log_file, "* Enemy at static index %d is active=%d or killed=%d\n", i, 
-                spawnable_enemies[i].active, spawnable_enemies[i].killed);
-            continue;
+        if (spawnable_enemies[i].type == -1 || spawnable_enemies[i].data == NULL) { 
+            continue; // skip uninitialized spawn points
         }
-        if (spawnable_enemies[i].data == NULL) {
+
+        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {            
             continue;
         }
 
         if (spawnable_enemies[i].screen_spawn_x == camera_x) {
+            fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
             _spawn_from_static(i);
         }
     }

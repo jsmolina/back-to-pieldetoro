@@ -18,7 +18,7 @@
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
 #define LEVEL1_GROUND_Y 67
-#define LEVEL2_GROUND_Y 120
+#define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 1
 #define MAX_CAR_VX 5
 
