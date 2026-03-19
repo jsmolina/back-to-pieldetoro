@@ -194,6 +194,15 @@ void reset_spawnable_enemies() {
         spawnable_enemies[i].pos.x = 0;
         spawnable_enemies[i].pos.y = 0;
         spawnable_enemies[i].data = NULL;
+        spawnable_enemies[i].type = -1;
+        spawnable_enemies[i].vx = 0;
+        spawnable_enemies[i].vy = 0;
+        spawnable_enemies[i].move_count = 0;
+        spawnable_enemies[i].anime_count = 0;
+        spawnable_enemies[i].anime_index = 0;
+        spawnable_enemies[i].sprite_index = 0;
+        spawnable_enemies[i].state = 0;
+        spawnable_enemies[i].prev_state = -1;
     }
 }
 
@@ -287,11 +296,11 @@ static void enemy_check_vy(int index) {
 }
 
 static inline void enemy_check_vx(int index, int scroll_x) {
-    if (active_enemies[index].pos.x < scroll_x - 50) {
+    if (active_enemies[index].pos.x < (scroll_x - 50)) {
         active_enemies[index].vx = 2;
         active_enemies[index].state = BMOVE_RIGHT;
         active_enemies[index].flip = FALSE;
-    } else if (active_enemies[index].pos.x > scroll_x + SCREEN_W + 50) {
+    } else if (active_enemies[index].pos.x > (scroll_x + SCREEN_W + 50)) {
         active_enemies[index].vx = -2;
         active_enemies[index].state = BMOVE_LEFT;
         active_enemies[index].flip = TRUE;
@@ -476,21 +485,21 @@ void enemy_on_hit(int enemy_id) {
 }
 
 void enemy_pool_update(int camera_x) {
-    int spawn_margin = 32;
-    int despawn_left = 128;
+    /*int spawn_margin = 32;
+    int despawn_left = 128;*/
 
     // Spawn: check static list
     for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; ++i) {
-        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {
-            fprintf(enemy_log_file, "* Enemy at static index %d is active=%d or killed=%d\n", i,
-                spawnable_enemies[i].active, spawnable_enemies[i].killed);
-            continue;
+        if (spawnable_enemies[i].type == -1 || spawnable_enemies[i].data == NULL) { 
+            continue; // skip uninitialized spawn points
         }
-        if (spawnable_enemies[i].data == NULL) {
+
+        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {            
             continue;
         }
 
         if (spawnable_enemies[i].screen_spawn_x == camera_x) {
+            fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
             _spawn_from_static(i);
         }
     }
