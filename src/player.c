@@ -28,6 +28,7 @@
 #define CROUCHING 14
 #define THROWING 15
 #define FALL_TO_FLOOR 16
+#define KICKING 17
 #define PLAYER_DEFAULT_ENERGY 5
 #define PLAYER_DEFAULT_LIVES 3
 
@@ -45,7 +46,7 @@ struct playerType player;
 PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 
-static animeItem car_animations[17] = {
+static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -61,12 +62,12 @@ static animeItem car_animations[17] = {
     { 70, { 0 }, 1, 70 },    // DEAD_END
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
     { 0, {}, 0, 0 },         // CROUCHING (cars don't crouch)
-    { 0, {}, 0, 0 },         // UNUSED
-    { 0, {}, 0, 0 },         // UNUSED
-
+    { 0, {}, 0, 0 },         // THROWING (cars don't throw)
+    { 0, {}, 0, 0 },         // FALL_TO_FLOOR (cars don't fall to floor)
+    { 0, {}, 0, 0 },         // KICKING (cars don't kick)
 };
 
-static animeItem martin_animations[17] = {
+static animeItem martin_animations[18] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
@@ -84,6 +85,7 @@ static animeItem martin_animations[17] = {
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
     { 5, { 15 }, 0, 0 },                                         // THROWING OBJECT
     { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
+    { 10, { 16 }, 0, 0 },                                        // KICKING
 };
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -174,6 +176,17 @@ static int action_key_freed() {
         return TRUE;
     } else if (action_was_pressed && !key[KEY_RCONTROL] && !key[KEY_LCONTROL]) {
         action_was_pressed = 0;
+    }
+    return FALSE;
+}
+
+static uint8_t kick_was_pressed = 0;
+static int kick_key_freed() {
+    if (!kick_was_pressed && (key[KEY_ALT] || key[KEY_ALTGR])) {
+        kick_was_pressed = 1;
+        return TRUE;
+    } else if (kick_was_pressed && !key[KEY_ALT] && !key[KEY_ALTGR]) {
+        kick_was_pressed = 0;
     }
     return FALSE;
 }
@@ -445,6 +458,11 @@ static inline void player_do_throw() {
         player.flip);
 }
 
+static inline void player_do_kick() {
+    player_change_state(KICKING);
+    player.vx = 0;
+}
+
 /**
  * @brief Player performs a jump, that could be diagonal
  */
@@ -487,6 +505,8 @@ static void player_action_fall() {
 
     if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     }
 }
 
@@ -516,6 +536,9 @@ static void player_action_move_left() {
         return;
     } else if (action_key_freed()) {
         player_do_throw();
+        return;
+    } else if (kick_key_freed()) {
+        player_do_kick();
         return;
     }
 
@@ -548,6 +571,9 @@ static void player_action_move_right() {
         return;
     } else if (action_key_freed()) {
         player_do_throw();
+        return;
+    } else if (kick_key_freed()) {
+        player_do_kick();
         return;
     }
 
@@ -595,6 +621,8 @@ static void player_action_stop() {
         player_do_crouch();
     } else if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     } else {
         player_count_move(0, 0);
     }
@@ -649,6 +677,8 @@ static void player_action_jump_up() {
 
     if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     }
 
     player_count_move(player.vx, 0);
@@ -707,6 +737,12 @@ static int player_action_dead() {
 
 static void player_action_throw() {
     // TODO: implement throwing action and pass to stop
+    if (player_count_move(0, 0) == FINISHED) {
+        player_change_state(STOP);
+    }
+}
+
+static void player_action_kick() {
     if (player_count_move(0, 0) == FINISHED) {
         player_change_state(STOP);
     }
@@ -806,6 +842,9 @@ void player_update() {
         break;
     case THROWING:
         player_action_throw();
+        break;
+    case KICKING:
+        player_action_kick();
         break;
     case FALL_TO_FLOOR:
         player.pos.y += 1;
