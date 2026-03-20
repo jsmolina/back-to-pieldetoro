@@ -5,8 +5,7 @@
 #include "helpers.h"
 
 #define COCHE_FRAMES 3
-#define MARTIN_FRAMES 16
-#define MAX_FRAMES 13
+#define MARTIN_FRAMES 17
 
 typedef enum {
     CAR_TYPE = 0,
