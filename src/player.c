@@ -1,5 +1,6 @@
 #include "player.h"
 #include "allegro/gfx.h"
+#include "allegro/inline/draw.inl"
 #include "book.h"
 #include "dat_manager.h"
 #include "game.h"
@@ -29,7 +30,7 @@
 #define THROWING 15
 #define FALL_TO_FLOOR 16
 #define KICKING 17
-#define PLAYER_DEFAULT_ENERGY 5
+#define PLAYER_DEFAULT_ENERGY 6
 #define PLAYER_DEFAULT_LIVES 3
 
 #define JUMP_VY -8
@@ -88,6 +89,32 @@ static animeItem martin_animations[18] = {
     { 10, { 16 }, 0, 0 },                                        // KICKING
 };
 
+void repaint_lifebar() {        
+    int e = player.energy;
+    // clamp por seguridad (evita índices/alturas inválidas)
+    if (e < 0) e = 0;
+    if (e > PLAYER_DEFAULT_ENERGY) e = PLAYER_DEFAULT_ENERGY;
+    // 8 * e  => e << 3
+    int martin_h = (e << 2) + e;
+    int bruno_h = ((PLAYER_DEFAULT_ENERGY - e) << 2) + (PLAYER_DEFAULT_ENERGY - e);
+    // LIFEBAR_MARTIN_BMP is 29x30, as energy decreases, LIFEBAR_BRUNO_BMP appears on 
+    // top of it to cover the missing energy, so we just need to draw the correct part of LIFEBAR_BRUNO_BMP based on player energy
+    blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, martin_h);
+    if (bruno_h == 0) {
+        return; // no need to draw if bruno height is 0
+    }
+    blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
+}
+
+void repaint_lives() {
+    int x = 200;
+    rectfill(screen, x, 185, 260, 195, 6); // Clear the area where lives are displayed
+    for (int i = 0; i < player.lives; i++) {
+        draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
+        x += 20;
+    }
+}
+
 void player_init(int x, int y, int current_level, int max_vx) {
     player.pos.x = x;
     player.pos.y = y;
@@ -109,6 +136,11 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+    if (current_level != LEVEL_ID_INTRO) {
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw empty lifebar background
+        repaint_lifebar();
+        repaint_lives();
+    }
 }
 
 void load_coche_spritesheet() {
@@ -199,7 +231,8 @@ void player_on_hit() {
     if (player.energy <= 0) {
         player_change_state(DEAD);
     }
-    // TODO: redraw energy bar
+    // TODO: redraw energy bar, check when zero to trigger death animation, etc.
+    repaint_lifebar();
 }
 
 /**

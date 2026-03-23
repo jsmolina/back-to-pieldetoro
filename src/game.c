@@ -162,7 +162,7 @@ inline void draw_game() {
     case 2:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
-        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
+        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
@@ -170,8 +170,8 @@ inline void draw_game() {
         collision_check_enemy_vs_player(scroll_x);
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
-        rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
+        //rectfill(screen, 10, 190, 290, 200, 16);
+        //textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
 
         break;
     }
