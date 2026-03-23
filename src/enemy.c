@@ -166,8 +166,10 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap
     int frame_width = (int)enemy_spritesheet->w / frame_count;
     enem->width = frame_width;
     enem->height = enemy_spritesheet->h;
+    int offset = 0;
     for (int i = 0; i < frame_count; i++) {
-        enem->sprites[i] = create_sub_bitmap(enemy_spritesheet, i * frame_width, 0, frame_width, enemy_spritesheet->h);
+        enem->sprites[i] = create_sub_bitmap(enemy_spritesheet, offset, 0, frame_width, enemy_spritesheet->h);
+        offset += frame_width;
     }
     enem->total_frames = frame_count;
     if (type == ENEMY_JOVEN) {

@@ -150,9 +150,10 @@ void load_coche_spritesheet() {
     coche.height = coche_spritesheet->h;
     coche.total_frames = COCHE_FRAMES;
     // player.current_sprite = create_video_bitmap(player.width, player.height);
-
+    int offset = 0;
     for (int i = 0; i < COCHE_FRAMES; i++) {
-        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
+        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, offset, 0, frame_width, coche_spritesheet->h);
+        offset += frame_width;
     }
 }
 
@@ -170,9 +171,10 @@ void load_martin_spritesheet() {
     martin.width = frame_width;
     martin.height = martin_spritesheet->h;
     martin.total_frames = MARTIN_FRAMES;
-
+    int offset = 0;
     for (int i = 0; i < MARTIN_FRAMES; i++) {
-        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
+        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, offset, 0, frame_width, martin_spritesheet->h);
+        offset += frame_width;
     }
 }
 
