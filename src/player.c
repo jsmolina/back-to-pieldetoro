@@ -13,30 +13,12 @@
 
 #define LEVEL_ID_INTRO 1
 
-#define STOP 1
-#define MOVE_LEFT 2
-#define MOVE_RIGHT 3
-#define BREAKING 4
-#define JUMP_UP 5
-#define JUMP_DOWN 6
-#define JUMP_HIT 7
-#define FALL 8
-#define FALL2 9
-#define DEAD 10
-#define FALL_END 11
-#define DEAD_END 12
-#define BOUNCING 13
-#define CROUCHING 14
-#define THROWING 15
-#define FALL_TO_FLOOR 16
-#define KICKING 17
 #define PLAYER_DEFAULT_ENERGY 6
 #define PLAYER_DEFAULT_LIVES 3
+#define PLAYER_HURT_COOLDOWN_FRAMES 60
+#define PLAYER_BLINK_INTERVAL 2
 
 #define JUMP_VY -8
-
-#define FINISHED 1
-#define NOT_FINISHED 0
 
 #define PLAYER_ACCEL 1
 
@@ -89,15 +71,17 @@ static animeItem martin_animations[18] = {
     { 10, { 16 }, 0, 0 },                                        // KICKING
 };
 
-void repaint_lifebar() {        
+void repaint_lifebar() {
     int e = player.energy;
     // clamp por seguridad (evita índices/alturas inválidas)
-    if (e < 0) e = 0;
-    if (e > PLAYER_DEFAULT_ENERGY) e = PLAYER_DEFAULT_ENERGY;
+    if (e < 0)
+        e = 0;
+    if (e > PLAYER_DEFAULT_ENERGY)
+        e = PLAYER_DEFAULT_ENERGY;
     // 8 * e  => e << 3
     int martin_h = (e << 2) + e;
     int bruno_h = ((PLAYER_DEFAULT_ENERGY - e) << 2) + (PLAYER_DEFAULT_ENERGY - e);
-    // LIFEBAR_MARTIN_BMP is 29x30, as energy decreases, LIFEBAR_BRUNO_BMP appears on 
+    // LIFEBAR_MARTIN_BMP is 29x30, as energy decreases, LIFEBAR_BRUNO_BMP appears on
     // top of it to cover the missing energy, so we just need to draw the correct part of LIFEBAR_BRUNO_BMP based on player energy
     blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, martin_h);
     if (bruno_h == 0) {
@@ -128,6 +112,7 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.move_count = 0;
     player.max_vx = max_vx;
     player.energy = PLAYER_DEFAULT_ENERGY;
+    player.hurt_cooldown = 0;
     // Ensure size/sprite indices are initialized to safe defaults. Width/height
     // are normally set when loading the spritesheet; initialize to 0 to
     // detect misuse before they contain garbage.
@@ -229,7 +214,14 @@ void player_on_hit() {
     if (player.state == DEAD || player.state == FALL_END || player.state == DEAD_END) {
         return; // already in dying/dead state, ignore further hits
     }
+
+    if (player.hurt_cooldown > 0) {
+        return;
+    }
+
     player.energy--;
+    player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
+
     if (player.energy <= 0) {
         player_change_state(DEAD);
     }
@@ -345,6 +337,13 @@ inline collisionType player_aabb() {
             .y = player.pos.y + 14,
             .w = 20,
             .h = 26
+        };
+    } else if (player.state == KICKING) {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y,
+            .w = 24,
+            .h = 40
         };
     } else {
         return (collisionType){
@@ -757,6 +756,7 @@ static void player_action_breaking() {
 static int player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
+        player.hurt_cooldown = 0;
         player.lives--;
         if (player.lives <= 0) {
             return FALSE;
@@ -824,6 +824,10 @@ void player_anime_update() {
     player.anime_count++;
 }
 inline void player_draw(int scroll_x) {
+    if (player.hurt_cooldown > 0 && ((player.hurt_cooldown / PLAYER_BLINK_INTERVAL) & 1) == 0) {
+        return;
+    }
+
     if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
         if (player.flip == TRUE && player.type != CAR_TYPE) { // cars don't flip
             draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
@@ -840,6 +844,11 @@ void player_update() {
     if (game_pause) {
         return;
     }
+
+    if (player.hurt_cooldown > 0) {
+        player.hurt_cooldown--;
+    }
+
     player_affect_force(0, (player.anime_index & 1) == 0);
     player_update_position();
 
@@ -867,6 +876,7 @@ void player_update() {
         player_action_breaking();
         break;
     case DEAD:
+        // TODO control
         player_action_dead();
         break;
     case FALL_END:

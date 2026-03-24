@@ -1,8 +1,26 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include <allegro.h>
-#include "object.h"
 #include "helpers.h"
+#include "object.h"
+#include <allegro.h>
+
+#define STOP 1
+#define MOVE_LEFT 2
+#define MOVE_RIGHT 3
+#define BREAKING 4
+#define JUMP_UP 5
+#define JUMP_DOWN 6
+#define JUMP_HIT 7
+#define FALL 8
+#define FALL2 9
+#define DEAD 10
+#define FALL_END 11
+#define DEAD_END 12
+#define BOUNCING 13
+#define CROUCHING 14
+#define THROWING 15
+#define FALL_TO_FLOOR 16
+#define KICKING 17
 
 #define COCHE_FRAMES 3
 #define MARTIN_FRAMES 17
@@ -13,7 +31,6 @@ typedef enum {
 } playerEnum;
 
 typedef int (*CheckHitFn)();
-
 
 typedef struct {
     int width;
@@ -30,18 +47,17 @@ struct playerType {
     int flip;
     int lives;
     int energy;
+    int hurt_cooldown;
     int move_count;
     int anime_count;
     int anime_index;
     int sprite_index;
-    int type ; 
+    int type;
     unsigned int state;
     unsigned int prev_state;
-    PlayerData * data; // pointer to static data for current player type (car or martin)
-    animeItem * animations; // pointer to current level animations, should be injected during player initialization
+    PlayerData* data;      // pointer to static data for current player type (car or martin)
+    animeItem* animations; // pointer to current level animations, should be injected during player initialization
 };
-
-
 
 /**
  * @brief __init__ :)
@@ -67,12 +83,14 @@ inline void player_draw(int scroll_x);
 int player_is_deading();
 /** @brief Loads the spritesheet for the car player
  *
- */ 
-void load_coche_spritesheet(); void destroy_coche_spritesheet();
+ */
+void load_coche_spritesheet();
+void destroy_coche_spritesheet();
 /** @brief Loads the spritesheet for the martin player
  *
  */
-void load_martin_spritesheet(); void destroy_martin_spritesheet();
+void load_martin_spritesheet();
+void destroy_martin_spritesheet();
 
 /** @brief Handles player death
  *

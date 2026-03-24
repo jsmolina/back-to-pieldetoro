@@ -1,5 +1,4 @@
 #include "enemy.h"
-#include "allegro/keyboard.h"
 #include "dat_manager.h"
 #include "errors.h"
 #include "game.h"
@@ -7,7 +6,6 @@
 #include "player.h"
 #include "statics.h"
 #include <allegro.h>
-#include <math.h>
 #include <stdio.h>
 
 #define ESTOP 1
@@ -24,6 +22,8 @@
 #define BSTOP 1
 #define BMOVE_LEFT 2
 #define BMOVE_RIGHT 3
+#define BDEAD 4
+#define BDEAD_END 5
 
 #define TOTAL_ENEMY_DATA 3
 
@@ -53,18 +53,22 @@ static animeItem joven_animations[11] = {
     { 5, { 15 }, 1, 0 },                                         // ETHROWING OBJECT
 };
 
-static animeItem bird_animations[4] = {
-    { 0, { 0 }, 0, -1 },    // NONE
-    { 1, { 0 }, 1, 60 },    // BSTOP
+static animeItem bird_animations[6] = {
+    { 0, { 0 }, 0, -1 },   // NONE
+    { 1, { 0 }, 1, 60 },   // BSTOP
     { 2, { 0, 1 }, 2, 4 }, // BMOVE_LEFT
     { 2, { 0, 1 }, 2, 4 }, // BMOVE_RIGHT
+    { 12, { 0 }, 2, 4 },   // BDEAD
+    { 2, { 0 }, 2, 4 },    // BDEAD_END
 };
 
-static animeItem dog_animations[4] = {
+static animeItem dog_animations[6] = {
     { 0, { 6 }, 0, -1 },               // NONE
     { 1, { 0 }, 1, 60 },               // BSTOP
     { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_LEFT
     { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_RIGHT
+    { 12, { 0 }, 2, 4 },               // BDEAD
+    { 2, { 0 }, 2, 4 },                // BDEAD_END
 };
 
 // called on stage init to load bitmaps and initialize static data for enemy types
@@ -226,10 +230,76 @@ void destroy_enemy_spritesheets() {
     }
 }
 
+static void enemy_change_state(int index, unsigned int state) {
+    active_enemies[index].prev_state = active_enemies[index].state;
+    active_enemies[index].state = state;
+    active_enemies[index].move_count = active_enemies[index].data->animations[state].move_count;
+}
+
+static inline unsigned int _enemy_dead_state(enum EnemyType type) {
+    if (type == ENEMY_JOVEN) {
+        return EDEAD;
+    }
+
+    return BDEAD;
+}
+
+static inline int _enemy_uses_forces(int index) {
+    if (active_enemies[index].type == ENEMY_JOVEN) {
+        return TRUE;
+    }
+
+    return active_enemies[index].state == BDEAD || active_enemies[index].state == BDEAD_END;
+}
+
+static void _enemy_apply_death_impulse(int index) {
+    Enemy* enemy = &active_enemies[index];
+    int horizontal_impulse = player.flip == TRUE ? -2 : 2;
+
+    enemy->vx = horizontal_impulse;
+    enemy->vy = -7;
+}
+
+static void _enemy_apply_death_friction(int index) {
+    Enemy* enemy = &active_enemies[index];
+
+    if (enemy->vx > 0) {
+        enemy->vx--;
+    } else if (enemy->vx < 0) {
+        enemy->vx++;
+    }
+}
+
+static unsigned int enemy_count_move(int index, int dx, int dy) {
+    if (active_enemies[index].move_count >= 0) {
+        active_enemies[index].move_count--;
+    }
+
+    if (active_enemies[index].move_count < 0) {
+        return FINISHED;
+    }
+    return NOT_FINISHED;
+}
+
+/** @brief Applies a force to the enemy, affecting its position.
+ *
+ * @param enemy The enemy to which the force will be applied.
+ * @param vx The horizontal velocity to apply.
+ * @param vy The vertical velocity to apply.
+ */
+static inline void _enemy_affect_force(int index, int vx, int vy) {
+    if (!_enemy_uses_forces(index)) {
+        return;
+    }
+
+    active_enemies[index].vx += vx;
+    active_enemies[index].vy += vy;
+}
+
 static inline void _enemy_anime_update(int index) {
     // enemy animations
     Enemy* enemy = &active_enemies[index];
-    if ((enemy->type == ENEMY_BIRD || enemy->type == ENEMY_DOG) && enemy->state > BMOVE_RIGHT) {
+    if ((enemy->type == ENEMY_BIRD || enemy->type == ENEMY_DOG) && enemy->state > BDEAD_END) {
         die("error: bird in invalid state %d", enemy->state);
     }
 
@@ -280,7 +350,7 @@ static int enemy_is_on_obj(int index) {
  *
  */
 static void enemy_check_vy(int index) {
-    if (active_enemies[index].state == EDEAD) {
+    if (active_enemies[index].state == EDEAD_END) {
         active_enemies[index].vy = 0;
         return;
     }
@@ -300,12 +370,14 @@ static void enemy_check_vy(int index) {
 static inline void enemy_check_vx(int index, int scroll_x) {
     if (active_enemies[index].pos.x < (scroll_x - 50)) {
         active_enemies[index].vx = 2;
-        active_enemies[index].state = BMOVE_RIGHT;
+        // active_enemies[index].state = BMOVE_RIGHT;
         active_enemies[index].flip = FALSE;
+        enemy_change_state(index, BMOVE_RIGHT);
     } else if (active_enemies[index].pos.x > (scroll_x + SCREEN_W + 50)) {
         active_enemies[index].vx = -2;
-        active_enemies[index].state = BMOVE_LEFT;
+        // active_enemies[index].state = BMOVE_LEFT;
         active_enemies[index].flip = TRUE;
+        enemy_change_state(index, BMOVE_LEFT);
     }
 }
 
@@ -340,30 +412,41 @@ void joven_action_stop(int index) {
     // Move toward player
     if (player_x < enemy_x) {
         // Player is to the left, move left
-        active_enemies[index].state = EMOVE_LEFT;
+        enemy_change_state(index, EMOVE_LEFT);
+        // active_enemies[index].state = EMOVE_LEFT;
         active_enemies[index].vx = -2; // Move left
         active_enemies[index].flip = TRUE;
     } else if (player_x > enemy_x) {
         // Player is to the right, move right
-        active_enemies[index].state = EMOVE_RIGHT;
+        enemy_change_state(index, EMOVE_RIGHT);
+        // active_enemies[index].state = EMOVE_RIGHT;
         active_enemies[index].vx = 2; // Move right
         active_enemies[index].flip = FALSE;
     }
     // Otherwise maintain current position (player directly above/below)
 }
 
-/** @brief Applies a force to the enemy, affecting its position.
- *
- * @param enemy The enemy to which the force will be applied.
- * @param vx The horizontal velocity to apply.
- * @param vy The vertical velocity to apply.
- */
-static inline void _enemy_affect_force(int index, int vx, int vy) {
-    if (active_enemies[index].type == ENEMY_BIRD || active_enemies[index].type == ENEMY_DOG) {
-        return; // birds are not affected by gravity or forces, they just move horizontally
+void enemy_action_dead(int index) {
+    if (enemy_count_move(index, 0, 0) == FINISHED) {
+        active_enemies[index].active = FALSE;
+        active_enemies[index].killed = TRUE;
+        active_enemies[index].pos.x = 0;
+        active_enemies[index].pos.y = 0;
+        active_enemies[index].vx = 0;
+        active_enemies[index].vy = 0;
+        int origin_index = active_enemies[index].origin;
+        if (origin_index >= 0 && origin_index < MAX_SPAWNABLE_ENEMIES) {
+            spawnable_enemies[origin_index].killed = TRUE; // mark static as killed so it won't respawn
+        }
+
+        active_enemies[index].origin = -1;
+        return;
     }
-    active_enemies[index].vx += vx;
-    active_enemies[index].vy += vy;
+
+    //_enemy_apply_death_friction(index);
+}
+
+void enemy_action_dead_end(int index) {
 }
 
 static inline void _update_specific_enemy(int index, int scroll_x) {
@@ -377,7 +460,14 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         case BMOVE_RIGHT:
             // bird_action_move_right(index);
             break;
+        case BDEAD:
+            enemy_action_dead(index);
+            break;
+        case BDEAD_END:
+            enemy_action_dead_end(index);
+            break;
         }
+
     } else if (active_enemies[index].type == ENEMY_JOVEN) {
         switch (active_enemies[index].state) {
         case EMOVE_LEFT:
@@ -395,8 +485,10 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
             break;
         case EDEAD:
             // joven_action_dead();
+            enemy_action_dead(index);
             break;
         case EFALL_END:
+            enemy_action_dead_end(index);
             // joven_action_fall_end();
             break;
         case ECROUCHING:
@@ -477,13 +569,10 @@ void enemy_on_hit(int enemy_id) {
     if (enemy_id < 0 || enemy_id >= MAX_ACTIVE_ENEMIES) {
         return;
     }
-    active_enemies[enemy_id].killed = TRUE;
-    int origin_index = active_enemies[enemy_id].origin;
-    if (origin_index >= 0 && origin_index < MAX_SPAWNABLE_ENEMIES) {
-        spawnable_enemies[origin_index].killed = TRUE; // mark static as killed so it won't respawn
-    }
-    active_enemies[enemy_id].active = FALSE;
-    active_enemies[enemy_id].origin = -1;
+    // active_enemies[enemy_id].killed = TRUE;
+    // active_enemies[enemy_id].active = FALSE;
+    enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
+    _enemy_apply_death_impulse(enemy_id);
 }
 
 void enemy_pool_update(int camera_x) {
@@ -492,11 +581,11 @@ void enemy_pool_update(int camera_x) {
 
     // Spawn: check static list
     for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; ++i) {
-        if (spawnable_enemies[i].type == -1 || spawnable_enemies[i].data == NULL) { 
+        if (spawnable_enemies[i].type == -1 || spawnable_enemies[i].data == NULL) {
             continue; // skip uninitialized spawn points
         }
 
-        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {            
+        if (spawnable_enemies[i].active == TRUE || spawnable_enemies[i].killed == TRUE) {
             continue;
         }
 
