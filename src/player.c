@@ -1,11 +1,13 @@
 #include "player.h"
 #include "allegro/gfx.h"
+#include "allegro/inline/draw.inl"
+#include "book.h"
 #include "dat_manager.h"
 #include "game.h"
 #include "object.h"
 #include "player.h"
 #include "statics.h"
-#include "book.h"
+#include "tiles.h"
 #include <allegro.h>
 #include <math.h>
 
@@ -27,7 +29,8 @@
 #define CROUCHING 14
 #define THROWING 15
 #define FALL_TO_FLOOR 16
-#define PLAYER_DEFAULT_ENERGY 5
+#define KICKING 17
+#define PLAYER_DEFAULT_ENERGY 6
 #define PLAYER_DEFAULT_LIVES 3
 
 #define JUMP_VY -8
@@ -41,10 +44,10 @@ struct playerType player;
 
 // BITMAP* sp_coche[COCHE_FRAMES];
 // BITMAP* sp_martin[MARTIN_FRAMES];
-PlayerData coche = {0, 0, 0, {NULL}}; // static data for car player type
-PlayerData martin = {0, 0, 0, {NULL}}; // static data for martin player type
+PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
+PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 
-static animeItem car_animations[17] = {
+static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -59,18 +62,18 @@ static animeItem car_animations[17] = {
     { 60, { 0 }, 1, 60 },    // FALL_END
     { 70, { 0 }, 1, 70 },    // DEAD_END
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
-    { 0, {}, 0, 0 },          // CROUCHING (cars don't crouch)
-    { 0, {}, 0, 0 },       // UNUSED
-    { 0, {}, 0, 0 },      // UNUSED
-    
+    { 0, {}, 0, 0 },         // CROUCHING (cars don't crouch)
+    { 0, {}, 0, 0 },         // THROWING (cars don't throw)
+    { 0, {}, 0, 0 },         // FALL_TO_FLOOR (cars don't fall to floor)
+    { 0, {}, 0, 0 },         // KICKING (cars don't kick)
 };
 
-static animeItem martin_animations[17] = {
+static animeItem martin_animations[18] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 4, { 9 }, 1, 2 },                                         // BREAKING
+    { 4, { 9 }, 1, 2 },                                          // BREAKING
     { 12, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
@@ -81,9 +84,36 @@ static animeItem martin_animations[17] = {
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
-    { 5, {15}, 0, 0 },                                           // THROWING OBJECT
-    { 5, {13}, 0, 0 },                                          // FALL_TO_FLOOR
+    { 5, { 15 }, 0, 0 },                                         // THROWING OBJECT
+    { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
+    { 10, { 16 }, 0, 0 },                                        // KICKING
 };
+
+void repaint_lifebar() {        
+    int e = player.energy;
+    // clamp por seguridad (evita índices/alturas inválidas)
+    if (e < 0) e = 0;
+    if (e > PLAYER_DEFAULT_ENERGY) e = PLAYER_DEFAULT_ENERGY;
+    // 8 * e  => e << 3
+    int martin_h = (e << 2) + e;
+    int bruno_h = ((PLAYER_DEFAULT_ENERGY - e) << 2) + (PLAYER_DEFAULT_ENERGY - e);
+    // LIFEBAR_MARTIN_BMP is 29x30, as energy decreases, LIFEBAR_BRUNO_BMP appears on 
+    // top of it to cover the missing energy, so we just need to draw the correct part of LIFEBAR_BRUNO_BMP based on player energy
+    blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, martin_h);
+    if (bruno_h == 0) {
+        return; // no need to draw if bruno height is 0
+    }
+    blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
+}
+
+void repaint_lives() {
+    int x = 200;
+    rectfill(screen, x, 185, 260, 195, 6); // Clear the area where lives are displayed
+    for (int i = 0; i < player.lives; i++) {
+        draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
+        x += 20;
+    }
+}
 
 void player_init(int x, int y, int current_level, int max_vx) {
     player.pos.x = x;
@@ -106,6 +136,11 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+    if (current_level != LEVEL_ID_INTRO) {
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw empty lifebar background
+        repaint_lifebar();
+        repaint_lives();
+    }
 }
 
 void load_coche_spritesheet() {
@@ -115,9 +150,10 @@ void load_coche_spritesheet() {
     coche.height = coche_spritesheet->h;
     coche.total_frames = COCHE_FRAMES;
     // player.current_sprite = create_video_bitmap(player.width, player.height);
-
+    int offset = 0;
     for (int i = 0; i < COCHE_FRAMES; i++) {
-        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, i * frame_width, 0, frame_width, coche_spritesheet->h);
+        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, offset, 0, frame_width, coche_spritesheet->h);
+        offset += frame_width;
     }
 }
 
@@ -135,9 +171,10 @@ void load_martin_spritesheet() {
     martin.width = frame_width;
     martin.height = martin_spritesheet->h;
     martin.total_frames = MARTIN_FRAMES;
-
+    int offset = 0;
     for (int i = 0; i < MARTIN_FRAMES; i++) {
-        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, i * frame_width, 0, frame_width, martin_spritesheet->h);
+        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, offset, 0, frame_width, martin_spritesheet->h);
+        offset += frame_width;
     }
 }
 
@@ -168,11 +205,22 @@ static int jump_key_freed() {
 
 static uint8_t action_was_pressed = 0;
 static int action_key_freed() {
-    if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL] )) {
+    if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL])) {
         action_was_pressed = 1;
         return TRUE;
     } else if (action_was_pressed && !key[KEY_RCONTROL] && !key[KEY_LCONTROL]) {
         action_was_pressed = 0;
+    }
+    return FALSE;
+}
+
+static uint8_t kick_was_pressed = 0;
+static int kick_key_freed() {
+    if (!kick_was_pressed && (key[KEY_ALT] || key[KEY_ALTGR])) {
+        kick_was_pressed = 1;
+        return TRUE;
+    } else if (kick_was_pressed && !key[KEY_ALT] && !key[KEY_ALTGR]) {
+        kick_was_pressed = 0;
     }
     return FALSE;
 }
@@ -185,7 +233,8 @@ void player_on_hit() {
     if (player.energy <= 0) {
         player_change_state(DEAD);
     }
-    // TODO: redraw energy bar
+    // TODO: redraw energy bar, check when zero to trigger death animation, etc.
+    repaint_lifebar();
 }
 
 /**
@@ -219,7 +268,7 @@ static int player_is_on_obj() {
         collisionType f2 = front_wheels_area();
         return checkOverObj(f2);
     }
-    else {        
+    else {
         collisionType f1 = player_foot_area();
         return checkOverObj(f1);
     }
@@ -227,8 +276,8 @@ static int player_is_on_obj() {
 } */
 
 /**
-* @brief defines the area of the rear car wheels for collision detection
-*/
+ * @brief defines the area of the rear car wheels for collision detection
+ */
 collisionType rear_wheels_area() {
     if (!player.data) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -246,8 +295,8 @@ collisionType rear_wheels_area() {
 }
 
 /**
-* @brief defines the area of the front car wheels for collision detection
-*/
+ * @brief defines the area of the front car wheels for collision detection
+ */
 collisionType front_wheels_area() {
     if (!player.data) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -265,11 +314,10 @@ collisionType front_wheels_area() {
 }
 
 /**
-* @brief defines the area of the main player feet for collision detection
-*/
+ * @brief defines the area of the main player feet for collision detection
+ */
 inline collisionType player_foot_area() {
-    if (player.data == NULL || player.data->height == 0 || player.data->width == 0
-        || player.pos.x == 0 || player.pos.y == 0) {
+    if (player.data == NULL || player.data->height == 0 || player.data->width == 0) {
         return (collisionType){ 0, 0, 0, 0 };
     }
     int y1 = player.pos.y + player.data->height - 3;
@@ -285,8 +333,7 @@ inline collisionType player_foot_area() {
 }
 
 inline collisionType player_aabb() {
-    if (player.data == NULL || player.data->height == 0 || player.data->width == 0
-        || player.pos.x == 0 || player.pos.y == 0) {
+    if (player.data == NULL || player.data->height == 0 || player.data->width == 0) {
         return (collisionType){ 0, 0, 0, 0 };
     }
     int y1 = player.pos.y + player.data->height - 3;
@@ -295,7 +342,7 @@ inline collisionType player_aabb() {
     if (player.state == CROUCHING) {
         return (collisionType){
             .x = player.pos.x,
-            .y = player.pos.y+14,
+            .y = player.pos.y + 14,
             .w = 20,
             .h = 26
         };
@@ -308,7 +355,6 @@ inline collisionType player_aabb() {
         };
     }
 }
-
 
 /**
  * @brief Checks player speed
@@ -357,11 +403,43 @@ static void player_check_vx() {
 /**
  * @brief Updates player position based on velocities
  */
+static void player_move_y_substeps() {
+    if (player.vy == 0) {
+        return;
+    }
+
+    int step_dir = (player.vy > 0) ? 1 : -1;
+    int steps = (player.vy > 0) ? player.vy : -player.vy;
+
+    for (int i = 0; i < steps; i++) {
+        player.pos.y += step_dir;
+
+        if (step_dir > 0) {
+            if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
+                collisionType foot = player_foot_area();
+                if (player.data != NULL && foot.h > 0) {
+                    int foot_bottom = foot.y + foot.h - 1;
+                    int tile_row = foot_bottom / TILES_SIZE;
+                    int tile_top = tile_row * TILES_SIZE;
+                    player.pos.y = tile_top - player.data->height;
+                }
+                player.vy = 0;
+                break;
+            }
+            if (player.type == CAR_TYPE && player.pos.y >= GROUND_Y) {
+                player.pos.y = GROUND_Y;
+                player.vy = 0;
+                break;
+            }
+        }
+    }
+}
+
 static void player_update_position() {
     player_check_vx();
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
-    player.pos.y = round(player.pos.y + player.vy);
+    player_move_y_substeps();
 }
 
 /**
@@ -403,8 +481,8 @@ static inline void player_do_stop() {
 }
 
 /**
-* @brief called on throw key press, changes player state to THROWING
-*/
+ * @brief called on throw key press, changes player state to THROWING
+ */
 static inline void player_do_throw() {
     player_change_state(THROWING);
     player.vx = 0;
@@ -412,10 +490,13 @@ static inline void player_do_throw() {
     init_book(
         player.pos.x + (player.flip ? -6 : 6),
         player.pos.y + 5,
-        player.flip
-    );
+        player.flip);
 }
 
+static inline void player_do_kick() {
+    player_change_state(KICKING);
+    player.vx = 0;
+}
 
 /**
  * @brief Player performs a jump, that could be diagonal
@@ -426,7 +507,7 @@ static inline void player_do_jump() {
         player.flip = TRUE;
     }
     if (key[KEY_RIGHT]) {
-       // player.vx = 1;
+        // player.vx = 1;
         player.flip = FALSE;
 
         if (player.vx < player.max_vx) {
@@ -440,8 +521,6 @@ static inline void player_do_jump() {
     player.vy = JUMP_VY;
     player_change_state(JUMP_UP);
 }
-
-
 
 // ACTIONS
 static void player_action_fall() {
@@ -461,6 +540,8 @@ static void player_action_fall() {
 
     if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     }
 }
 
@@ -473,24 +554,26 @@ static void player_traveling() {
 }
 
 /**
-* @brief called on crouch key press, changes player state to CROUCHING
-*/
+ * @brief called on crouch key press, changes player state to CROUCHING
+ */
 static inline void player_do_crouch() {
     player_change_state(CROUCHING);
 }
 
 // ACTIONS: called on update loop to perform current action and transitions
 
-
-/** 
-* @brief moves player to the left, with possible jump if up is pressed. Called on update loop when state is MOVE_LEFT
-*/
+/**
+ * @brief moves player to the left, with possible jump if up is pressed. Called on update loop when state is MOVE_LEFT
+ */
 static void player_action_move_left() {
     if (jump_key_freed()) {
         player_do_jump();
         return;
     } else if (action_key_freed()) {
         player_do_throw();
+        return;
+    } else if (kick_key_freed()) {
+        player_do_kick();
         return;
     }
 
@@ -524,6 +607,9 @@ static void player_action_move_right() {
     } else if (action_key_freed()) {
         player_do_throw();
         return;
+    } else if (kick_key_freed()) {
+        player_do_kick();
+        return;
     }
 
     if (player_count_move(1, 0) == NOT_FINISHED) {
@@ -553,7 +639,6 @@ static void player_action_move_right() {
     }
 }
 
-
 static void player_action_stop() {
     if (player.vy > 0) {
         if (player.vx == 0) {
@@ -571,6 +656,8 @@ static void player_action_stop() {
         player_do_crouch();
     } else if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     } else {
         player_count_move(0, 0);
     }
@@ -581,7 +668,7 @@ static void player_action_crouch() {
         if (player.pos.y < GROUND_Y) {
             player_change_state(FALL_TO_FLOOR);
             player.vy = 1;
-        } 
+        }
     }
 
     if (!key[KEY_DOWN]) {
@@ -625,6 +712,8 @@ static void player_action_jump_up() {
 
     if (action_key_freed()) {
         player_do_throw();
+    } else if (kick_key_freed()) {
+        player_do_kick();
     }
 
     player_count_move(player.vx, 0);
@@ -672,17 +761,23 @@ static int player_action_dead() {
         if (player.lives <= 0) {
             return FALSE;
         }
-                              
+
         player.pos.y = GROUND_Y;
         player.vx = 0;
-        player.vy = 0;            
-        
+        player.vy = 0;
+
         return TRUE;
     }
 }
 
 static void player_action_throw() {
     // TODO: implement throwing action and pass to stop
+    if (player_count_move(0, 0) == FINISHED) {
+        player_change_state(STOP);
+    }
+}
+
+static void player_action_kick() {
     if (player_count_move(0, 0) == FINISHED) {
         player_change_state(STOP);
     }
@@ -728,7 +823,7 @@ void player_anime_update() {
     }
     player.anime_count++;
 }
-inline void player_draw(int scroll_x) {    
+inline void player_draw(int scroll_x) {
     if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
         if (player.flip == TRUE && player.type != CAR_TYPE) { // cars don't flip
             draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
@@ -783,9 +878,12 @@ void player_update() {
     case THROWING:
         player_action_throw();
         break;
+    case KICKING:
+        player_action_kick();
+        break;
     case FALL_TO_FLOOR:
         player.pos.y += 1;
-         if (player.pos.y >= GROUND_Y) {
+        if (player.pos.y >= GROUND_Y) {
             player.pos.y = GROUND_Y;
             player_do_stop();
         }
