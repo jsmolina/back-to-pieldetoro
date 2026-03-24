@@ -180,7 +180,6 @@ void collision_check_enemy_vs_player(int scroll_x) {
     // Get player collision area (using foot area for main body collision)
     collisionType player_area = player_aabb();
     // rect(screen, player_area.x - scroll_x, player_area.y, player_area.x + player_area.w - scroll_x, player_area.y + player_area.h, makecol(0, 255, 0)); // Debug: draw player collision box
-
     // Get all enemy bounding boxes
     collisionType enemies[MAX_ACTIVE_ENEMIES];
     enemy_get_all_aabb(enemies);
@@ -193,11 +192,11 @@ void collision_check_enemy_vs_player(int scroll_x) {
 
         // Check for collision
         if (collision(player_area, enemies[enemy_id])) {
-            // Enemy hits player
-            player_on_hit();
-
-            // Mark enemy as killed
-            enemy_on_hit(enemy_id);
+            if (player.state == KICKING) {
+                enemy_on_hit(enemy_id);
+            } else {
+                player_on_hit();
+            }
         }
     }
 }

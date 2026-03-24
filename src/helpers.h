@@ -1,6 +1,10 @@
 
 #ifndef HELPERS_H
 #define HELPERS_H
+
+#define FINISHED 1
+#define NOT_FINISHED 0
+
 // helpers define common types and functions used across multiple modules, such as player, enemy, and game management.
 #include <allegro.h>
 
