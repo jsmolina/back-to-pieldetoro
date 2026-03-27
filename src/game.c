@@ -81,8 +81,7 @@ void update_game_run() {
         }
         int tile_below_type = wheels_on_tiles();
         if (tile_below_type == HARMFUL) {
-            player_killed();
-            return;
+            player_on_hit();
         } else if (tile_below_type == BACK_IN_TIME) {
             // back in time tile
             world_state = WBACK_IN_TIME;
@@ -260,9 +259,12 @@ inline void update_game() {
         advance_stage();
         break;
     case PLAYER_FALL:
-        // dead fall
         player_update();
-        if (player.pos.y > GROUND_Y + player.data->height) {
+        if (player.lives <= 0) {
+            world_state = GAME_OVER;
+        } else if (!player_is_deading()) {
+            world_state = RESTART_STAGE;
+        } else if (player.pos.y > GROUND_Y + player.data->height) {
             player.lives--;
             world_state = RESTART_STAGE;
         }

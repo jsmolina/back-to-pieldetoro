@@ -72,6 +72,7 @@ static animeItem martin_animations[18] = {
 };
 
 void repaint_lifebar() {
+    if (player.type == CAR_TYPE) return;
     int e = player.energy;
     // clamp por seguridad (evita índices/alturas inválidas)
     if (e < 0)
@@ -768,6 +769,7 @@ static int player_action_dead() {
 
         return TRUE;
     }
+    return NOT_FINISHED;
 }
 
 static void player_action_throw() {
@@ -876,8 +878,14 @@ void player_update() {
         player_action_breaking();
         break;
     case DEAD:
-        // TODO control
-        player_action_dead();
+        {
+            int result = player_action_dead();
+            if (result == TRUE) {
+                player_change_state(STOP);
+            } else if (result == FALSE) {
+                player_change_state(DEAD_END);
+            }
+        }
         break;
     case FALL_END:
         player_action_fall_end();

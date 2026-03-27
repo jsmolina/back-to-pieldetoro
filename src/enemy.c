@@ -141,9 +141,15 @@ void load_level_enemies(int level_id) {
         int parsed = sscanf(cursor, "%d,%d,%d,%d,%d,%d",
             &current_level, &enemy_type,
             &enemy_x, &enemy_y, &enemy_vx, &enemy_spawn_x);
-
+        if (parsed == 0) {
+            cursor = strchr(cursor, '\n');
+            if (cursor == NULL)
+                break;
+            cursor++;
+            continue;
+        }
         if (parsed != 6) {
-            die("invalid line in stage_enemies.def");
+            die("invalid line in stage_enemies.def %d", parsed);
         }
 
         if (current_level == level_id) {
