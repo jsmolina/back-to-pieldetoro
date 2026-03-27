@@ -87,10 +87,7 @@ void update_game_run() {
             world_state = WBACK_IN_TIME;
             return;
         }
-        // attack_enemy() check if player collides enemies
-        // TODO: check if player is on harming tiles
         // this.world.checkHitObj(this.foot_area(0, dy));
-        // player_attack();
 
         if (next_x < 320) {
             // next_x++;
@@ -149,7 +146,7 @@ inline void draw_game() {
 
     case 1:
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
-        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 180);
+        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
             draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         } else {
@@ -260,6 +257,7 @@ inline void update_game() {
         break;
     case PLAYER_FALL:
         player_update();
+        // check lives first: DEAD_END makes player_is_deading() return FALSE
         if (player.lives <= 0) {
             world_state = GAME_OVER;
         } else if (!player_is_deading()) {

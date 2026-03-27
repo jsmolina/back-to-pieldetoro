@@ -8,7 +8,6 @@
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
-#include "helpers.h"
 #include "player.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -131,6 +130,7 @@ int main(void) {
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
+    load_numbers_spritesheet();
 
     short exit_game = 0;
     do {

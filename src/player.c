@@ -72,7 +72,7 @@ static animeItem martin_animations[18] = {
 };
 
 void repaint_lifebar() {
-    if (player.type == CAR_TYPE) return;
+    //if (player.type == CAR_TYPE) return;
     int e = player.energy;
     // clamp por seguridad (evita índices/alturas inválidas)
     if (e < 0)
@@ -122,11 +122,15 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
-    if (current_level != LEVEL_ID_INTRO) {
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw empty lifebar background
-        repaint_lifebar();
-        repaint_lives();
-    }
+    //if (current_level != LEVEL_ID_INTRO) {
+    blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw empty lifebar background
+    repaint_lifebar();
+    repaint_lives();
+    //}
+    if (current_level == LEVEL_ID_INTRO) {
+        // TODO FIX
+       draw_sprite(screen, numbers_sprites[2], 6, 295);
+    }       
 }
 
 void load_coche_spritesheet() {
