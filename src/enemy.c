@@ -218,6 +218,7 @@ void reset_spawnable_enemies() {
     }
 }
 
+
 // clean up bitmaps for enemy type
 void destroy_enemy_spritesheets() {
     for (int i = 0; i < TOTAL_ENEMY_DATA; i++) {

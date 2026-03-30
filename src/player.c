@@ -28,6 +28,7 @@ struct playerType player;
 // BITMAP* sp_martin[MARTIN_FRAMES];
 PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
+static PlayerFlowEvent pending_flow_event = PLAYER_FLOW_NONE;
 
 static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -40,7 +41,7 @@ static animeItem car_animations[18] = {
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL
     { 1, { 0 }, 1, 1 },      // FALL2
-    { 30, { 0 }, 1, 30 },    // DEAD
+    { 150, { 0, 3 }, 2, 5 }, // DEAD
     { 60, { 0 }, 1, 60 },    // FALL_END
     { 70, { 0 }, 1, 70 },    // DEAD_END
     { 20, { 0, 2 }, 2, 30 }, // BOUNCING
@@ -61,7 +62,7 @@ static animeItem martin_animations[18] = {
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL
     { 1, { 13 }, 1, 1 },                                         // FALL2
-    { 30, { 0 }, 1, 30 },                                        // DEAD
+    { 150, { 0, 17 }, 2, 5 },                                    // DEAD
     { 60, { 14 }, 1, 60 },                                       // FALL_END
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
@@ -71,33 +72,10 @@ static animeItem martin_animations[18] = {
     { 10, { 16 }, 0, 0 },                                        // KICKING
 };
 
-void repaint_lifebar() {
-    //if (player.type == CAR_TYPE) return;
-    int e = player.energy;
-    // clamp por seguridad (evita índices/alturas inválidas)
-    if (e < 0)
-        e = 0;
-    if (e > PLAYER_DEFAULT_ENERGY)
-        e = PLAYER_DEFAULT_ENERGY;
-    // 8 * e  => e << 3
-    int martin_h = (e << 2) + e;
-    int bruno_h = ((PLAYER_DEFAULT_ENERGY - e) << 2) + (PLAYER_DEFAULT_ENERGY - e);
-    // LIFEBAR_MARTIN_BMP is 29x30, as energy decreases, LIFEBAR_BRUNO_BMP appears on
-    // top of it to cover the missing energy, so we just need to draw the correct part of LIFEBAR_BRUNO_BMP based on player energy
-    blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, martin_h);
-    if (bruno_h == 0) {
-        return; // no need to draw if bruno height is 0
-    }
-    blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
-}
-
-void repaint_lives() {
-    int x = 200;
-    rectfill(screen, x, 185, 260, 195, 6); // Clear the area where lives are displayed
-    for (int i = 0; i < player.lives; i++) {
-        draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
-        x += 20;
-    }
+void player_new_game() {
+    player.energy = PLAYER_DEFAULT_ENERGY;
+    player.lives = PLAYER_DEFAULT_LIVES;
+    pending_flow_event = PLAYER_FLOW_NONE;
 }
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -112,25 +90,10 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.flip = FALSE;
     player.move_count = 0;
     player.max_vx = max_vx;
-    player.energy = PLAYER_DEFAULT_ENERGY;
-    player.hurt_cooldown = 0;
-    // Ensure size/sprite indices are initialized to safe defaults. Width/height
-    // are normally set when loading the spritesheet; initialize to 0 to
-    // detect misuse before they contain garbage.
     player.sprite_index = 0;
-    player.lives = PLAYER_DEFAULT_LIVES;
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
-    //if (current_level != LEVEL_ID_INTRO) {
-    blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw empty lifebar background
-    repaint_lifebar();
-    repaint_lives();
-    //}
-    if (current_level == LEVEL_ID_INTRO) {
-        // TODO FIX
-       draw_sprite(screen, numbers_sprites[2], 6, 295);
-    }       
 }
 
 void load_coche_spritesheet() {
@@ -230,8 +193,6 @@ void player_on_hit() {
     if (player.energy <= 0) {
         player_change_state(DEAD);
     }
-    // TODO: redraw energy bar, check when zero to trigger death animation, etc.
-    repaint_lifebar();
 }
 
 /**
@@ -381,9 +342,8 @@ static void player_check_vy() {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
             player.vy = 0;
         }
-        if (player.type == CAR_TYPE && player.pos.y >= GROUND_Y) {
+        if (player.type == CAR_TYPE && car_is_on_obj()) {
             player.vy = 0;
-            player.pos.y = GROUND_Y;
         }
     }
 }
@@ -430,8 +390,15 @@ static void player_move_y_substeps() {
                 player.vy = 0;
                 break;
             }
-            if (player.type == CAR_TYPE && player.pos.y >= GROUND_Y) {
-                player.pos.y = GROUND_Y;
+            if (player.type == CAR_TYPE && car_is_on_obj()) {
+                collisionType rear = rear_wheels_area();
+                if (player.data != NULL && rear.h > 0) {
+                    int support_bottom = rear.y + rear.h - 1;
+                    int tile_row = support_bottom / TILES_SIZE;
+                    int tile_top = tile_row * TILES_SIZE;
+                    int support_offset_y = rear.y - player.pos.y;
+                    player.pos.y = tile_top - support_offset_y - rear.h;
+                }
                 player.vy = 0;
                 break;
             }
@@ -758,22 +725,35 @@ static void player_action_breaking() {
     player_do_stop();
 }
 
-static int player_action_dead() {
+/**
+@brief called when player energy reaches 0, performs death animation and transitions to DEAD_END or STOP based on lives left
+*/
+static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
         player.hurt_cooldown = 0;
         player.lives--;
+        player_change_state(DEAD_END);
         if (player.lives <= 0) {
-            return FALSE;
+            pending_flow_event = PLAYER_FLOW_GAME_OVER;
+            return;
+        } else {
+            pending_flow_event = PLAYER_FLOW_RESTART_STAGE;
         }
 
+        // TODO restart level
         player.pos.y = GROUND_Y;
         player.vx = 0;
         player.vy = 0;
 
-        return TRUE;
+        return;
     }
-    return NOT_FINISHED;
+}
+
+PlayerFlowEvent player_consume_flow_event() {
+    PlayerFlowEvent event = pending_flow_event;
+    pending_flow_event = PLAYER_FLOW_NONE;
+    return event;
 }
 
 static void player_action_throw() {
@@ -794,7 +774,7 @@ void player_action_fall_end() {
 
 // conditional
 int player_is_deading() {
-    if (player.state == DEAD || player.state == FALL_END) {
+    if (player.state == DEAD_END || player.state == FALL_END) {
         return TRUE;
     } else {
         return FALSE;
@@ -882,14 +862,7 @@ void player_update() {
         player_action_breaking();
         break;
     case DEAD:
-        {
-            int result = player_action_dead();
-            if (result == TRUE) {
-                player_change_state(STOP);
-            } else if (result == FALSE) {
-                player_change_state(DEAD_END);
-            }
-        }
+        player_action_dead();
         break;
     case FALL_END:
         player_action_fall_end();
@@ -912,14 +885,4 @@ void player_update() {
         break;
     }
     player_anime_update();
-
-    /**
-        if (this.pause)
-            return;
-        this.update_position();
-        const action_func = `action_${this.state.toLowerCase()}`;
-        this[action_func]();
-        this.anime_update();
-
-     */
 }

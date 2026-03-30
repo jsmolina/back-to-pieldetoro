@@ -1,5 +1,6 @@
 #include "game.h"
 #include "book.h"
+#include "dat_manager.h"
 #include "enemy.h"
 #include "object.h"
 #include "player.h"
@@ -21,6 +22,7 @@
 #define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 1
 #define MAX_CAR_VX 5
+#define HUD_MAX_ENERGY 6
 
 // gravedad
 float GRAVITY = 0.8;
@@ -38,11 +40,86 @@ BITMAP* current_background;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
+static int hud_last_level = -1;
+static int hud_last_energy = -1;
+static int hud_last_lives = -1;
+
+void print_year(int n1, int n2, int n3, int n4) {
+    draw_sprite(screen, numbers_sprites[n1], 42, 182);
+    draw_sprite(screen, numbers_sprites[n2], 62, 182);
+    draw_sprite(screen, numbers_sprites[n3], 82, 182);
+    draw_sprite(screen, numbers_sprites[n4], 102, 182);
+}
+
+void lifebar() {
+    int force_full_redraw = (hud_last_level != current_level);
+    if (force_full_redraw) {
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
+        if (current_level == 1) {
+            print_year(1, 9, 8, 4);
+        } else if (current_level == 2) {
+            print_year(2, 0, 2, 5);
+        }
+    }
+
+    int e = player.energy;
+    if (e < 0)
+        e = 0;
+    if (e > HUD_MAX_ENERGY)
+        e = HUD_MAX_ENERGY;
+
+    if (force_full_redraw || hud_last_energy != e) {
+        // restore energy slot background before redrawing current energy state
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 145, 0, 145, 170, 29, 30);
+        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, 30);
+        int bruno_h = ((HUD_MAX_ENERGY - e) << 2) + (HUD_MAX_ENERGY - e);
+        if (bruno_h > 0) {
+            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
+        }
+        hud_last_energy = e;
+    }
+
+    if (force_full_redraw || hud_last_lives != player.lives) {
+        // clear lives area with HUD background, then draw current amount
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 190, 0, 190, 170, 130, 30);
+        int x = 200;
+        for (int i = 0; i < player.lives; i++) {
+            draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
+            x += 20;
+        }
+        hud_last_lives = player.lives;
+    }
+
+    hud_last_level = current_level;
+}
+
+void advance_stage() {
+    current_level++;
+    switch (current_level) {
+    case 1:
+        current_background = load_background(BG0_TMX);
+        break;
+    case 2:
+        /*if (current_background) {
+            destroy_bitmap(current_background);
+        }*/
+        // player_init(10, GROUND_Y);
+        current_background = load_background(BG1_TMX);
+
+        world_state = START_STAGE;
+        break;
+    default:
+        world_state = GAME_OVER;
+        break;
+    }
+}
+
 // loads first level and passes it to scroller bitmap
 void start_new_game() {
     stop_midi();
-    current_background = load_background(BG0_TMX);
-    current_level = 1;
+    // current_background = load_background(BG0_TMX);
+    current_level = 0;
+    advance_stage();
     world_state = START_STAGE;
 
     for (int i = 0; i < 255; i++) {
@@ -73,6 +150,15 @@ void update_game_run() {
     switch (current_level) {
     case 1:
         player_update();
+        PlayerFlowEvent flow_event = player_consume_flow_event();
+        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+            world_state = RESTART_STAGE;
+            return;
+        }
+        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+            world_state = GAME_OVER;
+            return;
+        }
         // this.attackEnemy(this.player);
         // this.warp_if_outside(this.player);
         if (player_is_deading()) {
@@ -105,6 +191,19 @@ void update_game_run() {
             player.pos.x++;
         }
         player_update();
+        flow_event = player_consume_flow_event();
+        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+            world_state = RESTART_STAGE;
+            return;
+        }
+        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+            world_state = GAME_OVER;
+            return;
+        }
+        if (player_is_deading()) {
+            world_state = PLAYER_FALL;
+            return;
+        }
         enemy_update(scroll_x);
         enemy_pool_update(scroll_x);
         throwable_update(scroll_x);
@@ -153,6 +252,7 @@ inline void draw_game() {
             textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
         }*/
         player_draw(scroll_x);
+        lifebar();
         // draw objects, player, enemies
         break;
     case 2:
@@ -164,10 +264,11 @@ inline void draw_game() {
         draw_throwable(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
+        lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
-        //rectfill(screen, 10, 190, 290, 200, 16);
-        //textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
+        // rectfill(screen, 10, 190, 290, 200, 16);
+        // textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
 
         break;
     }
@@ -178,6 +279,7 @@ void start_stage() {
     case 1:
         level1_intro();
         GROUND_Y = LEVEL1_GROUND_Y;
+        player_new_game();
         player_init(10, GROUND_Y, current_level, MAX_CAR_VX);
         break;
     case 2:
@@ -185,27 +287,10 @@ void start_stage() {
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         // initializes level enemies
-        //init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
-        //init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
-        //enemy_pool_init();
+        // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
+        // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
+        // enemy_pool_init();
         load_level_enemies(2);
-        break;
-    }
-}
-
-void advance_stage() {
-    current_level++;
-    switch (current_level) {
-    case 2:
-        if (current_background) {
-            destroy_bitmap(current_background);
-        }
-        // player_init(10, GROUND_Y);
-        current_background = load_background(BG1_TMX);
-        world_state = START_STAGE;
-        break;
-    default:
-        world_state = GAME_OVER;
         break;
     }
 }
@@ -240,6 +325,7 @@ inline void update_game() {
         break;
     case RESTART_STAGE:
         player_init(10, GROUND_Y, current_level, player.max_vx);
+        enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         world_state = GAME_RUN;
         break;
@@ -256,17 +342,14 @@ inline void update_game() {
         advance_stage();
         break;
     case PLAYER_FALL:
-        player_update();
-        // check lives first: DEAD_END makes player_is_deading() return FALSE
+        // player_update();
+        //  check lives first: DEAD_END makes player_is_deading() return FALSE
         if (player.lives <= 0) {
             world_state = GAME_OVER;
-        } else if (!player_is_deading()) {
-            world_state = RESTART_STAGE;
-        } else if (player.pos.y > GROUND_Y + player.data->height) {
-            player.lives--;
+        } else {
             world_state = RESTART_STAGE;
         }
-        draw_game();
+        // draw_game();
         break;
     case GAME_OVER:
         break;
@@ -274,6 +357,6 @@ inline void update_game() {
 }
 
 void unload_game_memory() {
-    destroy_coche_spritesheet();
-    destroy_enemy_spritesheets();
+    /*destroy_coche_spritesheet();
+    destroy_enemy_spritesheets();*/
 }
