@@ -188,10 +188,11 @@ void player_on_hit() {
     }
 
     player.energy--;
-    player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
 
     if (player.energy <= 0) {
         player_change_state(DEAD);
+    } else {
+        player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
     }
 }
 
@@ -733,7 +734,7 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
-        player.hurt_cooldown = 0;
+        
         player.lives--;
         player_change_state(DEAD_END);
         if (player.lives <= 0) {
