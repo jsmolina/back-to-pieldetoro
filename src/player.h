@@ -22,13 +22,19 @@
 #define FALL_TO_FLOOR 16
 #define KICKING 17
 
-#define COCHE_FRAMES 3
-#define MARTIN_FRAMES 17
+#define COCHE_FRAMES 4
+#define MARTIN_FRAMES 18
 
 typedef enum {
     CAR_TYPE = 0,
     MARTIN_TYPE = 1,
 } playerEnum;
+
+typedef enum {
+    PLAYER_FLOW_NONE = 0,
+    PLAYER_FLOW_RESTART_STAGE = 1,
+    PLAYER_FLOW_GAME_OVER = 2,
+} PlayerFlowEvent;
 
 typedef int (*CheckHitFn)();
 
@@ -63,6 +69,12 @@ struct playerType {
  * @brief __init__ :)
  */
 void player_init(int x, int y, int current_level, int max_vx);
+
+/**
+ * @brief called only on first level, starting new game, by resetting player lives and energy to default values.
+ *
+ */
+void player_new_game();
 
 /**
  * @brief Updates player from main loop
@@ -121,6 +133,13 @@ collisionType player_foot_area();
  */
 collisionType player_aabb();
 void player_on_hit();
+
+/**
+ * @brief Returns pending player flow event and clears it.
+ *
+ * @return PLAYER_FLOW_NONE if there is no pending event.
+ */
+PlayerFlowEvent player_consume_flow_event();
 
 extern struct playerType player;
 

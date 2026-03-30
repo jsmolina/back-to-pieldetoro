@@ -108,6 +108,7 @@ void reset_spawnable_enemies();
 void load_level_enemies(int level_id);
 
 /** @brief Initializes the enemy pool, sets all the variables to default values and assigns static data to each enemy instance.
+    also Called when restarting a stage to clear existing enemies.
  *
  */
 void enemy_pool_init();

@@ -6,7 +6,7 @@
 #include "tiles.h"
 
 #define GAME_PLATFORMS_SIZE1 19
-#define GAME_PLATFORMS_SIZE2 18
+#define GAME_PLATFORMS_SIZE2 15
 #define CAR_PLATFORM_SIZE 9
 
 // simple AABB collision detection

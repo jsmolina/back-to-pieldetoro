@@ -19,6 +19,7 @@ struct coords {
 Tiles image
 */
 extern BITMAP *tiles;
+extern BITMAP* numbers_sprites[10]; // spritesheet for numbers used in score display
 extern PALETTE palette;
 // dirty tiles array
 extern char dirty_tiles[25][MAX_HORIZ_TILES];
@@ -30,6 +31,7 @@ extern int map_pixel_width;
 Preloads all tiles as a bitmap to blit them to screen
 */
 inline void load_tiles();
+void load_numbers_spritesheet();
 BITMAP * load_background(int id);
 
 /**

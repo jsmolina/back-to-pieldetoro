@@ -2,14 +2,13 @@
 
 #include "allegro/fli.h"
 #include "allegro/gfx.h"
+#include "allegro/keyboard.h"
 #include "allegro/midi.h"
 #include "allegro/timer.h"
-#include "enemy.h"
-#include "player.h"
-#include "allegro/keyboard.h"
 #include "dat_manager.h"
+#include "enemy.h"
 #include "game.h"
-#include "helpers.h"
+#include "player.h"
 #include "tiles.h"
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -49,6 +48,17 @@ void increment_speed_counter() {
 }
 END_OF_FUNCTION(increment_speed_counter);
 
+static int skip_fli_on_space(void) {
+    return key[KEY_SPACE] ? 1 : 0;
+}
+
+static void wait_for_space_release(void) {
+    while (key[KEY_SPACE]) {
+        rest(0);
+    }
+    clear_keybuf();
+}
+
 static void wait_a_bit(int amount) {
     clear_keybuf();
     int start = retrace_count;
@@ -73,8 +83,8 @@ int main(void) {
     set_color_conversion(COLORCONV_NONE);
 
     /* the scrolling area is twice the width of the screen (640x240) */
-    //scroller = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
-    //scroller = create_video_bitmap(SCREEN_W, SCREEN_H);
+    // scroller = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
+    // scroller = create_video_bitmap(SCREEN_W, SCREEN_H);
 
     extract_data();
 
@@ -93,7 +103,7 @@ int main(void) {
     }
     play_midi(dat_file[INTRO_MID].dat, 0);
 
-    set_palette((RGB*) dat_file[PALETE_JORDI_LOGO_BMP].dat);    
+    set_palette((RGB*)dat_file[PALETE_JORDI_LOGO_BMP].dat);
     blit(dat_file[JORDI_LOGO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     wait_a_bit(700);
     stop_midi();
@@ -105,29 +115,33 @@ int main(void) {
     BITMAP* menu = dat_file[MENU2_BMP].dat;
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, 0);
-    play_memory_fli(dat_file[INTRO_FLI].dat, screen, 0, 0);
+    play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, skip_fli_on_space);
+    wait_for_space_release();
+    play_memory_fli(dat_file[INTRO_FLI].dat, screen, 0, skip_fli_on_space);
+    wait_for_space_release();
     wait_a_bit(200);
     set_palette(palette);
 
-    for (int i = 0; i < 40 ; i++) {
+    for (int i = 0; i < 40; i++) {
         blit(menu, screen, 0, i, 0, 0, 320, 200);
         vsync();
     }
-    
+
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
-    
+    load_numbers_spritesheet();
+
     short exit_game = 0;
     do {
         switch (game_state) {
         case TITLE:
             if (key[KEY_SPACE]) {
                 game_state = GAME;
-                do {} while(key[KEY_SPACE]);
+                do {
+                } while (key[KEY_SPACE]);
                 stop_midi();
-                start_new_game();                
+                start_new_game();
             }
             break;
         case GAME:
@@ -137,7 +151,7 @@ int main(void) {
             break;
         }
 
-        //blit(scroller, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        // blit(scroller, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
         vsync();
 
         if (key[KEY_ESC]) {
@@ -145,11 +159,11 @@ int main(void) {
         }
 
     } while (exit_game == 0);
-    //die("Exiting game...");
-    
-    //destroy_bitmap(scroller);
+    // die("Exiting game...");
+
+    // destroy_bitmap(scroller);
     unload_game_memory();
-    //unload_datafile(dat_file);
+    // unload_datafile(dat_file);
     printf("Enjoyed playing? See you soon!\n");
     clear_keybuf();
     return 0;

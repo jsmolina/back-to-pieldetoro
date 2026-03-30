@@ -9,11 +9,9 @@
 
 
 void level1_intro() {
-    BITMAP * intro_bmp = dat_file[PIELDETORO_INTRO3_BMP].dat;    
     set_palette((RGB*) dat_file[PALETE_INTRO_BMP].dat);
     
-    blit(intro_bmp, screen, 0, 0, 0, 0, 320, 200);
-    destroy_bitmap(intro_bmp);
+    blit(dat_file[PIELDETORO_INTRO3_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
     print_at(10, 160, "has montado una máquina del tiempoen una loca?", makecol(255, 255, 255));
     print_at(10, 180, "Si vas a montar una cacharra del   tiempo,que mole,tron!", makecol(255, 205, 205));
