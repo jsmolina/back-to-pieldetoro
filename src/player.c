@@ -383,8 +383,9 @@ static void player_move_y_substeps() {
                 collisionType foot = player_foot_area();
                 if (player.data != NULL && foot.h > 0) {
                     int foot_bottom = foot.y + foot.h - 1;
-                    int tile_row = foot_bottom / TILES_SIZE;
-                    int tile_top = tile_row * TILES_SIZE;
+                    // optimized as tiles are 8x8
+                    int tile_row = foot_bottom >> 3;
+                    int tile_top = tile_row << 3;
                     player.pos.y = tile_top - player.data->height;
                 }
                 player.vy = 0;
@@ -394,8 +395,9 @@ static void player_move_y_substeps() {
                 collisionType rear = rear_wheels_area();
                 if (player.data != NULL && rear.h > 0) {
                     int support_bottom = rear.y + rear.h - 1;
-                    int tile_row = support_bottom / TILES_SIZE;
-                    int tile_top = tile_row * TILES_SIZE;
+                    // optimized as tiles are 8x8
+                    int tile_row = support_bottom >> 3;
+                    int tile_top = tile_row << 3;
                     int support_offset_y = rear.y - player.pos.y;
                     player.pos.y = tile_top - support_offset_y - rear.h;
                 }
