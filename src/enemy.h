@@ -107,6 +107,14 @@ void reset_spawnable_enemies();
  */
 void load_level_enemies(int level_id);
 
+/** @brief Loads enemies from a TMX XML map object layer.
+ *  Creates spawnable enemies from <object> tags where type is EL or ER.
+ *  Enemy type is read from the object name (ENEMY_JOVEN, ENEMY_BIRD, ENEMY_DOG).
+ *
+ * @param tmx_id TMX file ID packed in datos.dat (e.g. BG1_TMX).
+ */
+void load_level_enemies_v2(int level_id);
+
 /** @brief Initializes the enemy pool, sets all the variables to default values and assigns static data to each enemy instance.
     also Called when restarting a stage to clear existing enemies.
  *

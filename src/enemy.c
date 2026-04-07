@@ -7,6 +7,8 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define ESTOP 1
 #define EMOVE_LEFT 2
@@ -169,6 +171,67 @@ void load_level_enemies(int level_id) {
     enemy_pool_init();
 }
 
+static enum EnemyType parse_enemy_type(const char* name) {
+    if (strcmp(name, "ENEMY_DOG") == 0)
+        return ENEMY_DOG;
+    if (strcmp(name, "ENEMY_JOVEN") == 0)
+        return ENEMY_JOVEN;
+    if (strcmp(name, "ENEMY_BIRD") == 0)
+        return ENEMY_BIRD;
+    return -1;
+}
+
+void load_level_enemies_v2(int level_id) {
+    int tmx_id = level_to_dat_id(level_id);
+    const char* cursor;
+    int enemy_index = 0;
+
+    enemy_log_file = fopen("enemy_log.txt", "w");
+
+    if (tmx_id < 0) {
+        die("invalid level id %d for TMX", level_id);
+    }
+
+    if (dat_file[tmx_id].dat == NULL) {
+        die("cannot load TMX data for level %d", level_id);
+    }
+
+    cursor = (const char*)dat_file[tmx_id].dat;
+
+    while ((cursor = strstr(cursor, "<object ")) != NULL) {
+        int id;
+        char name[64], object_type[8];
+        int x, y;
+
+        int matched = sscanf(cursor,
+            "<object id=\"%d\" name=\"%63[^\"]\" type=\"%7[^\"]\" x=\"%d\" y=\"%d\"",
+            &id, name, object_type, &x, &y);
+
+        if (matched == 5) {
+            enum EnemyType enemy_type = parse_enemy_type(name);
+
+            if ((strcmp(object_type, "EL") == 0 || strcmp(object_type, "ER") == 0) && enemy_type != -1) {
+                int enemy_spawn_x = (strcmp(object_type, "ER") == 0)
+                    ? x - SCREEN_W
+                    : x;
+                // if x is smaller than screen size, we can end in a negative spawn point, so we clamp it to 0
+                if (enemy_spawn_x < 0) {
+                    enemy_spawn_x = 0;
+                }
+                int vx = 0;
+                init_enemy(enemy_index, enemy_type, x, y, vx, enemy_spawn_x);
+                enemy_index++;
+                if (enemy_index >= MAX_SPAWNABLE_ENEMIES) {
+                    break;
+                }
+            }
+        }
+
+        cursor++; /* advance past current '<' to find next tag */
+    }
+    enemy_pool_init();
+}
+
 // load bitmaps and initialize static data for enemy types
 static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap_id) {
     EnemyData* enem = &enemy_data[type];
@@ -217,7 +280,6 @@ void reset_spawnable_enemies() {
         spawnable_enemies[i].prev_state = -1;
     }
 }
-
 
 // clean up bitmaps for enemy type
 void destroy_enemy_spritesheets() {
@@ -597,7 +659,9 @@ void enemy_pool_update(int camera_x) {
         }
 
         if (spawnable_enemies[i].screen_spawn_x == camera_x) {
-            fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
+            if (enemy_log_file) {
+                fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
+            }
             _spawn_from_static(i);
         }
     }

@@ -149,6 +149,9 @@ void player_init(int x, int y, int current_level, int max_vx) {
   `pos.x - scroll_x`. Background is blitted with scroll offset.
 - **Data files**: All assets are packed in `datos.dat` and accessed via
   `dat_file[CONSTANT].dat`. Never load assets from loose files at runtime.
+- **SOLID**: Try to keep game loop in game.c, enemies behaviour in enemy.c,
+ player in player.c, collisions in object.c, tiles management in tiles.c, 
+ datafile management in dat_manager.c
 
 ### Comments
 
@@ -165,3 +168,8 @@ void player_init(int x, int y, int current_level, int max_vx) {
 - Screen is 320x200 VGA. Use `SCREEN_W` and `SCREEN_H` constants.
 - The palette is global (`palette` in `tiles.c`). Palette operations use
   `set_palette()`, `get_pallete()`, `set_color()`.
+- pc.h is on {DJGPP_PATH}/i586-pc-msdosdjgpp/sys-include/pc.h
+
+### Performance
+- This game is intended for a 486 DX, so avoid multiplications and divisions when possible.
+- Try to reuse existing code.
