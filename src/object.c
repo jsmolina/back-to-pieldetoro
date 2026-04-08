@@ -35,7 +35,7 @@ static inline int is_harmful_tile(int id) {
 static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
-
+/*
 static const int platform_ids1[GAME_PLATFORMS_SIZE1] = {
     39, 45, 46, 47, 48, 49, 109, 137, 141,
     174, 175, 176, 177,
@@ -46,22 +46,11 @@ static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {
     296, 297, 298, 299, 630, 631,
     906, 907, 908, 920, 921, 922,
     1016, 1017, 1018
-};
+};*/
 
 static inline int is_a_platform(int id) {
-    if (id < 296) {
-        for (int i = 0; i < GAME_PLATFORMS_SIZE1; i++) {
-            if (platform_ids1[i] == id) {
-                return TRUE;
-            }
-        }
-    } else {
-        for (int i = 0; i < GAME_PLATFORMS_SIZE2; i++) {
-            if (platform_ids2[i] == id) {
-                return TRUE;
-            }
-        }
-        return FALSE;
+    if (id > 1023) {
+        return TRUE;
     }
     return FALSE;
 }
