@@ -1,7 +1,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <stdio.h>
 
 #include "dat_manager.h"
 

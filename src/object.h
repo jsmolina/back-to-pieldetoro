@@ -5,6 +5,9 @@
 #define HARMFUL_TILE_1 852
 #define HARMFUL_TILE_2 923
 #define BACK_IN_TIME_TILE 876
+#define DOOR_TILE_1 234
+#define DOOR_TILE_2 235
+#define DOOR_TILE_3 236
 
 #define ROAD 0
 #define HARMFUL 1
@@ -51,5 +54,16 @@ void collision_check_enemy_vs_player(int scroll_x);
 
 int martin_is_on_obj();
 int car_is_on_obj();
+
+/** @brief Checks if Martin is standing over a room door tile.
+ *  @return TRUE if any tile overlapping the player is a door tile, FALSE otherwise.
+ */
+int martin_is_over_room_door();
+
+/**
+ * @brief Checks for collisions between the player and coins.
+ * If the player overlaps a coin, it is collected.
+ */
+void collision_check_player_vs_coins();
 
 #endif

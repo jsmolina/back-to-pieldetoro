@@ -1,9 +1,12 @@
 #include "game.h"
 #include "book.h"
+#include "coin.h"
 #include "dat_manager.h"
 #include "enemy.h"
+#include "helpers.h"
 #include "object.h"
 #include "player.h"
+#include "room.h"
 #include "stage1.h"
 #include "stage2.h"
 #include "statics.h"
@@ -95,16 +98,13 @@ void lifebar() {
 
 void advance_stage() {
     current_level++;
+    int dat_id = level_to_dat_id(current_level);
     switch (current_level) {
     case 1:
-        current_background = load_background(BG0_TMX);
+        current_background = load_background(dat_id);
         break;
     case 2:
-        /*if (current_background) {
-            destroy_bitmap(current_background);
-        }*/
-        // player_init(10, GROUND_Y);
-        current_background = load_background(BG1_TMX);
+        current_background = load_background(dat_id);
 
         world_state = START_STAGE;
         break;
@@ -180,17 +180,13 @@ void update_game_run() {
         }
         break;
     case 2:
-        if (key[KEY_8_PAD]) {
-            player.state = 1;
-            player.pos.y--;
-        } else if (key[KEY_2_PAD]) {
-            player.pos.y++;
-        } else if (key[KEY_4_PAD]) {
-            player.pos.x--;
-        } else if (key[KEY_6_PAD]) {
-            player.pos.x++;
-        }
         player_update();
+        // check room door entry: space + Martin + stopped + over door tile
+        if (space_key_freed() && player.type == MARTIN_TYPE
+            && player.state == STOP && martin_is_over_room_door()) {
+            enter_room();
+        }
+
         flow_event = player_consume_flow_event();
         if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
@@ -262,13 +258,15 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
+        draw_coins(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
+        collision_check_player_vs_coins();
         lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        // textprintf_ex(screen, font, 10, 190, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
+        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
 
         break;
     }
@@ -290,7 +288,10 @@ void start_stage() {
         // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
-        load_level_enemies(2);
+        //load_level_enemies(2);
+        load_level_enemies_v2(2);
+        reset_coins();
+        load_level_coins(2);
         break;
     }
 }

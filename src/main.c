@@ -5,6 +5,7 @@
 #include "allegro/keyboard.h"
 #include "allegro/midi.h"
 #include "allegro/timer.h"
+#include "coin.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
@@ -131,6 +132,7 @@ int main(void) {
     load_coche_spritesheet();
     load_martin_spritesheet();
     load_numbers_spritesheet();
+    load_coin_spritesheet();
 
     short exit_game = 0;
     do {

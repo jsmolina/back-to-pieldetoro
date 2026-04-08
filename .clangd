@@ -1,0 +1,9 @@
+CompileFlags:
+  Add:
+    - -xc
+    - -std=c99
+    - -Isrc
+    - -Isetup
+    - -Ivendor/allegro-4.2.2-xc/include
+    - -I/Users/jordism/djgpp/i586-pc-msdosdjgpp/sys-include
+    - -DHAVE_STDBOOL_H=1

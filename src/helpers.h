@@ -56,8 +56,11 @@ void beep(int frequency, int duration);
 
 /** @brief Waits for the spacebar key to be pressed and released. */
 void wait_for_space();
-
+int space_key_freed();
 /** @brief Prints text at a specific position on screen. */
 void print_at(int x, int y, char* texto, int col);
+
+/** @brief Converts a level number to its corresponding data ID. */
+int level_to_dat_id(int level);
 
 #endif

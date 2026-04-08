@@ -1,11 +1,21 @@
 
 #include "helpers.h"
-
+#include "statics.h"
 #include <allegro.h>
 
 #include <pc.h>
 #include <dos.h>
 
+static uint8_t space_was_pressed = 0;
+int space_key_freed() {
+    if (!space_was_pressed && (key[KEY_SPACE])) {
+        space_was_pressed = 1;
+        return TRUE;
+    } else if (space_was_pressed && !key[KEY_SPACE]) {
+        space_was_pressed = 0;
+    }
+    return FALSE;
+}
 
 void wait_for_space() {
     do {} while (!key[KEY_SPACE]);
@@ -43,4 +53,15 @@ void beep(int frequency, int duration) {
     
     delay(duration);    
     outportb(0x61, inportb(0x61) & 0xfc);
+}
+
+int level_to_dat_id(int level) {
+    switch (level) {
+    case 1:
+        return BG0_TMX;
+    case 2:
+        return BG1_TMX;
+    default:
+        return -1;
+    }
 }

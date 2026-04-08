@@ -472,6 +472,11 @@ static inline void player_do_kick() {
     player.vx = 0;
 }
 
+static inline void player_do_open() {
+    // only for martin, coche doesn't open
+    
+}
+
 /**
  * @brief Player performs a jump, that could be diagonal
  */

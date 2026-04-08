@@ -1,5 +1,6 @@
 #include "object.h"
 #include "book.h"
+#include "coin.h"
 #include "enemy.h"
 #include "helpers.h"
 #include "player.h"
@@ -35,7 +36,7 @@ static inline int is_harmful_tile(int id) {
 static inline int is_back_in_time_tile(int id) {
     return id == 876;
 }
-
+/*
 static const int platform_ids1[GAME_PLATFORMS_SIZE1] = {
     39, 45, 46, 47, 48, 49, 109, 137, 141,
     174, 175, 176, 177,
@@ -46,22 +47,11 @@ static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {
     296, 297, 298, 299, 630, 631,
     906, 907, 908, 920, 921, 922,
     1016, 1017, 1018
-};
+};*/
 
 static inline int is_a_platform(int id) {
-    if (id < 296) {
-        for (int i = 0; i < GAME_PLATFORMS_SIZE1; i++) {
-            if (platform_ids1[i] == id) {
-                return TRUE;
-            }
-        }
-    } else {
-        for (int i = 0; i < GAME_PLATFORMS_SIZE2; i++) {
-            if (platform_ids2[i] == id) {
-                return TRUE;
-            }
-        }
-        return FALSE;
+    if (id > 1023) {
+        return TRUE;
     }
     return FALSE;
 }
@@ -210,4 +200,54 @@ int car_is_on_obj() {
     collisionType rear = rear_wheels_area();
     collisionType front = front_wheels_area();
     return checkOverObj(rear) || checkOverObj(front);
+}
+
+static inline int is_a_door_tile(int id) {
+    return id == DOOR_TILE_1 || id == DOOR_TILE_2 || id == DOOR_TILE_3;
+}
+
+int martin_is_over_room_door() {
+    if (player.data == NULL)
+        return FALSE;
+
+    int tile_id = get_tile_at_position(player.pos.x + 10, player.pos.y+ 10); 
+    if (is_a_door_tile(tile_id)) {
+        return TRUE;
+    }
+    return FALSE;
+
+    /*int sx = player.pos.x / TILES_SIZE;
+    int ex = (player.pos.x + player.data->width - 1) / TILES_SIZE;
+    int sy = player.pos.y / TILES_SIZE;
+    int ey = (player.pos.y + player.data->height - 1) / TILES_SIZE;
+
+    if (sx < 0) sx = 0;
+    if (sy < 0) sy = 0;
+    if (ex >= curr_tiles_width) ex = curr_tiles_width - 1;
+    if (ey >= MAX_VERT_TILES) ey = MAX_VERT_TILES - 1;
+
+    for (int ty = sy; ty <= ey; ty++) {
+        for (int tx = sx; tx <= ex; tx++) {
+            int tile_id = tiles_values[ty][tx] - 1;
+            if (is_a_door_tile(tile_id)) {
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;*/
+}
+
+void collision_check_player_vs_coins() {
+    collisionType player_area = player_aabb();
+    collisionType coin_boxes[MAX_COINS];
+    coin_get_all_aabb(coin_boxes);
+
+    for (int i = 0; i < MAX_COINS; i++) {
+        if (coin_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, coin_boxes[i])) {
+            coin_on_collect(i);
+        }
+    }
 }
