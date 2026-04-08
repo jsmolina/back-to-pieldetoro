@@ -1,5 +1,6 @@
 #include "object.h"
 #include "book.h"
+#include "coin.h"
 #include "enemy.h"
 #include "helpers.h"
 #include "player.h"
@@ -234,4 +235,19 @@ int martin_is_over_room_door() {
         }
     }
     return FALSE;*/
+}
+
+void collision_check_player_vs_coins() {
+    collisionType player_area = player_aabb();
+    collisionType coin_boxes[MAX_COINS];
+    coin_get_all_aabb(coin_boxes);
+
+    for (int i = 0; i < MAX_COINS; i++) {
+        if (coin_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, coin_boxes[i])) {
+            coin_on_collect(i);
+        }
+    }
 }

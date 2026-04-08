@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Wed Apr  8 16:10:28 2026 */
+/* Date: Wed Apr  8 16:43:22 2026 */
 /* Do not hand edit! */
 
 #define BG0_TMX                          0        /* DATA */

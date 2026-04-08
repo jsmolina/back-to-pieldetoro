@@ -60,4 +60,10 @@ int car_is_on_obj();
  */
 int martin_is_over_room_door();
 
+/**
+ * @brief Checks for collisions between the player and coins.
+ * If the player overlaps a coin, it is collected.
+ */
+void collision_check_player_vs_coins();
+
 #endif

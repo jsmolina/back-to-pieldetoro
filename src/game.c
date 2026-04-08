@@ -1,5 +1,6 @@
 #include "game.h"
 #include "book.h"
+#include "coin.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "helpers.h"
@@ -257,8 +258,10 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
+        draw_coins(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
+        collision_check_player_vs_coins();
         lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
@@ -287,6 +290,8 @@ void start_stage() {
         // enemy_pool_init();
         //load_level_enemies(2);
         load_level_enemies_v2(2);
+        reset_coins();
+        load_level_coins(2);
         break;
     }
 }
