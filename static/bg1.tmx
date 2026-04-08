@@ -34,7 +34,7 @@
   <object id="3" name="ENEMY_BIRD" type="EL" x="490" y="115">
    <point/>
   </object>
-  <object id="4" name="COIN" type="O" x="960" y="88">
+  <object id="4" name="COIN" type="O" x="960" y="78">
    <point/>
   </object>
   <object id="5" name="ENEMY_JOVEN" type="ER" x="965" y="120">
@@ -46,13 +46,13 @@
   <object id="10" name="ENEMY_JOVEN" type="ER" x="382" y="120">
    <point/>
   </object>
-  <object id="11" name="COIN" type="O" x="986" y="88">
+  <object id="11" name="COIN" type="O" x="986" y="78">
    <point/>
   </object>
-  <object id="12" name="COIN" type="O" x="1037" y="88">
+  <object id="12" name="COIN" type="O" x="1037" y="78">
    <point/>
   </object>
-  <object id="13" name="COIN" type="O" x="1068" y="88">
+  <object id="13" name="COIN" type="O" x="1068" y="78">
    <point/>
   </object>
  </objectgroup>
