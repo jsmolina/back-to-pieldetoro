@@ -248,7 +248,7 @@ collisionType rear_wheels_area() {
         .x = player.pos.x + 16,
         .y = y,
         .w = 12,
-        .h = 10
+        .h = 12
     };
     return ret;
 }
@@ -267,7 +267,7 @@ collisionType front_wheels_area() {
         .x = player.pos.x + player.data->width - 26,
         .y = y,
         .w = 12,
-        .h = 10
+        .h = 12
     };
     return ret;
 }

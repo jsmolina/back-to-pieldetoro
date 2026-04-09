@@ -29,19 +29,19 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 16,
+            "scale": 2.9983,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1638,
-                "y": 97.78125
+                "x": 1639.595770936864,
+                "y": 83.54734349464695
             }
         },
         "bg1_shop.tmx": {
             "scale": 2.3664,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 159.947599729547,
-                "y": 97.61663286004054
+                "x": 156.35564570655848,
+                "y": 94.02467883705205
             }
         },
         "level1.tmx": {

@@ -63,7 +63,7 @@ void load_level_coins(int level_id) {
 
         if (matched == 5 && strcmp(name, "COIN") == 0 && strcmp(object_type, "O") == 0) {
             coins[idx].x = x;
-            coins[idx].y = y;
+            coins[idx].y = y - 18; // adjust y to align with ground level
             coins[idx].active = TRUE;
             coins[idx].collected = FALSE;
             idx++;
