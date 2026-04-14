@@ -213,10 +213,12 @@ int martin_is_over_door() {
             continue;
 
         if (collision(player_area, door_boxes[i])) {
-            return TRUE;
+            return door_boxes[i].meta; // this is the destination tmx id stored in door static_id
+            // can be used to trigger room change on next frame after confirming player wants to enter
+            //return TRUE;
         }
     }
-    return FALSE;
+    return -1;
 }
 
 void collision_check_player_vs_coins() {

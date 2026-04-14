@@ -37,6 +37,11 @@ typedef enum {
     PLAYER_ENTER_ROOM = 3,
 } PlayerFlowEvent;
 
+typedef struct {
+    PlayerFlowEvent type;
+    int data; // optional field for extra info, usage depends on event type (e.g., tmx_id for PLAYER_ENTER_ROOM)
+} FlowEventType;
+
 typedef int (*CheckHitFn)();
 
 typedef struct {
@@ -140,7 +145,7 @@ void player_on_hit();
  *
  * @return PLAYER_FLOW_NONE if there is no pending event.
  */
-PlayerFlowEvent player_consume_flow_event();
+FlowEventType player_consume_flow_event();
 
 extern struct playerType player;
 

@@ -29,7 +29,8 @@ struct playerType player;
 // BITMAP* sp_martin[MARTIN_FRAMES];
 PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
-static PlayerFlowEvent pending_flow_event = PLAYER_FLOW_NONE;
+
+FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
 
 static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -120,7 +121,7 @@ static int kick_key_freed() {
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
     player.lives = PLAYER_DEFAULT_LIVES;
-    pending_flow_event = PLAYER_FLOW_NONE;
+    pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
 }
 
 void player_init(int x, int y, int current_level, int max_vx) {
@@ -486,8 +487,10 @@ static inline void player_do_kick() {
 
 static inline void player_do_open() {
     // only for martin, coche doesn't open
-    if (martin_is_over_door() == TRUE) {
-        pending_flow_event = PLAYER_ENTER_ROOM;
+    int result = martin_is_over_door();
+    if (result != -1) {
+        pending_flow_event.type = PLAYER_ENTER_ROOM;
+        pending_flow_event.data = result;
     }
 }
 
@@ -760,10 +763,10 @@ static void player_action_dead() {
         player.lives--;
         player_change_state(DEAD_END);
         if (player.lives <= 0) {
-            pending_flow_event = PLAYER_FLOW_GAME_OVER;
+            pending_flow_event.type = PLAYER_FLOW_GAME_OVER;
             return;
         } else {
-            pending_flow_event = PLAYER_FLOW_RESTART_STAGE;
+            pending_flow_event.type = PLAYER_FLOW_RESTART_STAGE;
         }
 
         // TODO restart level
@@ -775,9 +778,9 @@ static void player_action_dead() {
     }
 }
 
-PlayerFlowEvent player_consume_flow_event() {
-    PlayerFlowEvent event = pending_flow_event;
-    pending_flow_event = PLAYER_FLOW_NONE;
+FlowEventType player_consume_flow_event() {
+    FlowEventType event = pending_flow_event;
+    pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
     return event;
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="320" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="19">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="320" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="20">
  <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="320" height="25">
   <data encoding="csv">
@@ -62,5 +62,6 @@
    <point/>
   </object>
   <object id="18" name="DOOR" type="1" x="1000" y="132" width="28" height="27"/>
+  <object id="19" name="DOOR" type="1" x="1632" y="132" width="28" height="27"/>
  </objectgroup>
 </map>

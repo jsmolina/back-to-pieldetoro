@@ -11,7 +11,7 @@
 PALETTE palette;
 BITMAP* tiles;
 // width="80" height="25"
-char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
+// char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
 int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
 BITMAP* numbers_sprites[10] = { NULL }; // spritesheet for numbers used in score display
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
@@ -53,6 +53,89 @@ void load_numbers_spritesheet() {
     for (int i = 0; i < 10; i++) {
         numbers_sprites[i] = create_sub_bitmap(numbers_spritesheet, i * frame_width, 0, frame_width, numbers_spritesheet->h);
     }
+}
+
+BITMAP* load_shop_bg(int id) {
+    char* in_file = dat_file[id].dat;
+    if (in_file == NULL) {
+        die("cannot load shop background %d", id);
+    }
+
+    unsigned char current;
+    int start_csv = 0;
+    int i = 0;
+    int local_tiles_width = 0;
+
+    do {
+        current = (unsigned char)in_file[i++];
+        if (current == '>') {
+            int header_start = i - 1;
+            while (header_start > 0 && in_file[header_start] != '<')
+                header_start--;
+            char header_line[256] = { 0 };
+            int hlen = 0;
+            while (in_file[header_start + hlen] != '>' && hlen < 255) {
+                header_line[hlen] = in_file[header_start + hlen];
+                hlen++;
+            }
+            header_line[hlen] = '\0';
+            const char* wptr = strstr(header_line, "width=\"");
+            if (wptr) {
+                wptr += 7;
+                char numbuf[16] = { 0 };
+                int ni = 0;
+                while (wptr[ni] && wptr[ni] != '"' && ni < 15) {
+                    numbuf[ni] = wptr[ni];
+                    ni++;
+                }
+                numbuf[ni] = '\0';
+                local_tiles_width = atoi(numbuf);
+            }
+            start_csv += 1;
+        }
+    } while (start_csv < 5 && current != '\0');
+
+    if (local_tiles_width <= 0) {
+        die("invalid shop tiles width: %d", local_tiles_width);
+    }
+
+    int local_pixel_width = local_tiles_width * TILES_SIZE;
+    BITMAP* background = create_bitmap(local_pixel_width, SCREEN_H);
+    if (!background) {
+        die("cannot create shop background bitmap");
+    }
+
+    char current_tile[16] = { 0 };
+    int charpos = 0;
+    char* output;
+    struct coords screen_coords;
+    screen_coords.x = screen_coords.y = 0;
+
+    do {
+        current = in_file[i++];
+
+        if (current == ',' || current == '<') {
+            if (current == '<')
+                start_csv = -1;
+            current_tile[charpos] = '\0';
+            charpos = 0;
+            int tile_number = strtol(current_tile, &output, 10);
+            struct coords coordinates = get_tile_coords(tile_number);
+
+            blit(tiles, background, coordinates.x, coordinates.y,
+                screen_coords.x, screen_coords.y, TILES_SIZE, TILES_SIZE);
+
+            screen_coords.x += 8;
+            if (screen_coords.x >= local_pixel_width - 1) {
+                screen_coords.y += 8;
+                screen_coords.x = 0;
+            }
+        } else if (current != '\0') {
+            current_tile[charpos++] = current;
+        }
+    } while (current != '\0' && start_csv != -1);
+
+    return background;
 }
 
 BITMAP* load_background(int id) {
@@ -166,7 +249,7 @@ BITMAP* load_background(int id) {
 
     return background;
 }
-
+/*
 void mark_dirty_tiles(int x, int y, int width, int height) {
     int sx, sy, ex, ey;
 
@@ -194,4 +277,4 @@ void mark_dirty_tiles(int x, int y, int width, int height) {
 // Clear all dirty tiles
 void clear_dirty_tiles() {
     memset(dirty_tiles, 0, sizeof(dirty_tiles));
-}
+}*/

@@ -150,12 +150,12 @@ void update_game_run() {
     switch (current_level) {
     case 1:
         player_update();
-        PlayerFlowEvent flow_event = player_consume_flow_event();
-        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+        FlowEventType flow_event = player_consume_flow_event();
+        if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
         }
-        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+        if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
             world_state = GAME_OVER;
             return;
         }
@@ -183,16 +183,17 @@ void update_game_run() {
         player_update();
 
         flow_event = player_consume_flow_event();
-        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+        if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
-        } else if (flow_event == PLAYER_FLOW_GAME_OVER) {
+        } else if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
             world_state = GAME_OVER;
             return;
-        } else if (flow_event == PLAYER_ENTER_ROOM) {
+        } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
             } while (key[KEY_SPACE]);
-            enter_room();
+            enter_room(flow_event.data);
+            hud_last_level = -1; // force HUD redraw on room exit
             return;
         }
         if (player_is_deading()) {
@@ -207,6 +208,7 @@ void update_game_run() {
     }
 }
 
+/*
 // Repaint only dirty tiles
 void repaint_dirty_tiles() {
     for (int y = 0; y < MAX_VERT_TILES; ++y) {
@@ -225,7 +227,7 @@ void repaint_dirty_tiles() {
             }
         }
     }
-}
+}*/
 
 inline void draw_game() {
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
