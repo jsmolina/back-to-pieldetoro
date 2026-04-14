@@ -1,7 +1,6 @@
 #include "errors.h"
 #include <allegro.h>
 #include <allegro/gfx.h>
-#include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
 

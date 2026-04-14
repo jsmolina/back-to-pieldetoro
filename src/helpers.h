@@ -44,6 +44,7 @@ typedef struct {
     int y;
     int w;
     int h;
+    int meta; // optional field for extra info, usage depends on context (e.g., enemy type, tile type, etc.)
 } collisionType;
 
 /**
@@ -56,7 +57,6 @@ void beep(int frequency, int duration);
 
 /** @brief Waits for the spacebar key to be pressed and released. */
 void wait_for_space();
-int space_key_freed();
 /** @brief Prints text at a specific position on screen. */
 void print_at(int x, int y, char* texto, int col);
 

@@ -6,6 +6,7 @@
 #include "game.h"
 #include "object.h"
 #include "player.h"
+#include "room.h"
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -71,6 +72,50 @@ static animeItem martin_animations[18] = {
     { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
     { 10, { 16 }, 0, 0 },                                        // KICKING
 };
+
+static uint8_t space_was_pressed = 0;
+static int space_key_freed() {
+    if (!space_was_pressed && key[KEY_SPACE]) {
+        space_was_pressed = 1;
+        return TRUE;
+    } else if (space_was_pressed && !key[KEY_SPACE]) {
+        space_was_pressed = 0;
+    }
+    return FALSE;
+}
+
+static uint8_t jump_was_pressed = 0;
+static int jump_key_freed() {
+    if (!jump_was_pressed && key[KEY_UP]) {
+        jump_was_pressed = 1;
+        return TRUE;
+    } else if (jump_was_pressed && !key[KEY_UP]) {
+        jump_was_pressed = 0;
+    }
+    return FALSE;
+}
+
+static uint8_t action_was_pressed = 0;
+static int action_key_freed() {
+    if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL])) {
+        action_was_pressed = 1;
+        return TRUE;
+    } else if (action_was_pressed && !key[KEY_RCONTROL] && !key[KEY_LCONTROL]) {
+        action_was_pressed = 0;
+    }
+    return FALSE;
+}
+
+static uint8_t kick_was_pressed = 0;
+static int kick_key_freed() {
+    if (!kick_was_pressed && (key[KEY_ALT] || key[KEY_ALTGR])) {
+        kick_was_pressed = 1;
+        return TRUE;
+    } else if (kick_was_pressed && !key[KEY_ALT] && !key[KEY_ALTGR]) {
+        kick_was_pressed = 0;
+    }
+    return FALSE;
+}
 
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
@@ -143,39 +188,6 @@ static void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
     player.move_count = player.animations[player.state].move_count;
-}
-
-static uint8_t jump_was_pressed = 0;
-static int jump_key_freed() {
-    if (!jump_was_pressed && key[KEY_UP]) {
-        jump_was_pressed = 1;
-        return TRUE;
-    } else if (jump_was_pressed && !key[KEY_UP]) {
-        jump_was_pressed = 0;
-    }
-    return FALSE;
-}
-
-static uint8_t action_was_pressed = 0;
-static int action_key_freed() {
-    if (!action_was_pressed && (key[KEY_RCONTROL] || key[KEY_LCONTROL])) {
-        action_was_pressed = 1;
-        return TRUE;
-    } else if (action_was_pressed && !key[KEY_RCONTROL] && !key[KEY_LCONTROL]) {
-        action_was_pressed = 0;
-    }
-    return FALSE;
-}
-
-static uint8_t kick_was_pressed = 0;
-static int kick_key_freed() {
-    if (!kick_was_pressed && (key[KEY_ALT] || key[KEY_ALTGR])) {
-        kick_was_pressed = 1;
-        return TRUE;
-    } else if (kick_was_pressed && !key[KEY_ALT] && !key[KEY_ALTGR]) {
-        kick_was_pressed = 0;
-    }
-    return FALSE;
 }
 
 void player_on_hit() {
@@ -474,7 +486,9 @@ static inline void player_do_kick() {
 
 static inline void player_do_open() {
     // only for martin, coche doesn't open
-    
+    if (martin_is_over_door() == TRUE) {
+        pending_flow_event = PLAYER_ENTER_ROOM;
+    }
 }
 
 /**
@@ -637,6 +651,9 @@ static void player_action_stop() {
         player_do_throw();
     } else if (kick_key_freed()) {
         player_do_kick();
+    } else if (space_key_freed()) {
+        player_do_open();
+
     } else {
         player_count_move(0, 0);
     }
@@ -739,7 +756,7 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
-        
+
         player.lives--;
         player_change_state(DEAD_END);
         if (player.lives <= 0) {

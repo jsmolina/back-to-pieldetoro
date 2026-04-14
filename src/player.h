@@ -34,6 +34,7 @@ typedef enum {
     PLAYER_FLOW_NONE = 0,
     PLAYER_FLOW_RESTART_STAGE = 1,
     PLAYER_FLOW_GAME_OVER = 2,
+    PLAYER_ENTER_ROOM = 3,
 } PlayerFlowEvent;
 
 typedef int (*CheckHitFn)();

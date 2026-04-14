@@ -1,6 +1,7 @@
 #include "object.h"
 #include "book.h"
 #include "coin.h"
+#include "door.h"
 #include "enemy.h"
 #include "helpers.h"
 #include "player.h"
@@ -71,11 +72,11 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
     if (r.w <= 0 || r.h <= 0)
         return 0;
 
-    int sx = r.x / TILES_SIZE;
-    int ex = (r.x + r.w - 1) / TILES_SIZE;
-    /*int sy = r.y / TILES_SIZE;
-    int ey = (r.y + r.h - 1) / TILES_SIZE;*/
-    int sy = (r.y + r.h - 1) / TILES_SIZE; // only inferior row for platform check
+    int sx = r.x >> 3;
+    int ex = (r.x + r.w - 1) >> 3;
+    /*int sy = r.y >> 3;
+    int ey = (r.y + r.h - 1) >> 3;*/
+    int sy = (r.y + r.h - 1) >> 3; // only inferior row for platform check
     int ey = sy;
 
     if (sx < 0)
@@ -202,39 +203,20 @@ int car_is_on_obj() {
     return checkOverObj(rear) || checkOverObj(front);
 }
 
-static inline int is_a_door_tile(int id) {
-    return id == DOOR_TILE_1 || id == DOOR_TILE_2 || id == DOOR_TILE_3;
-}
+int martin_is_over_door() {
+    collisionType player_area = player_aabb();
+    collisionType door_boxes[MAX_DOORS];
+    door_get_all_aabb(door_boxes);
 
-int martin_is_over_room_door() {
-    if (player.data == NULL)
-        return FALSE;
+    for (int i = 0; i < MAX_DOORS; i++) {
+        if (door_boxes[i].w == 0)
+            continue;
 
-    int tile_id = get_tile_at_position(player.pos.x + 10, player.pos.y+ 10); 
-    if (is_a_door_tile(tile_id)) {
-        return TRUE;
-    }
-    return FALSE;
-
-    /*int sx = player.pos.x / TILES_SIZE;
-    int ex = (player.pos.x + player.data->width - 1) / TILES_SIZE;
-    int sy = player.pos.y / TILES_SIZE;
-    int ey = (player.pos.y + player.data->height - 1) / TILES_SIZE;
-
-    if (sx < 0) sx = 0;
-    if (sy < 0) sy = 0;
-    if (ex >= curr_tiles_width) ex = curr_tiles_width - 1;
-    if (ey >= MAX_VERT_TILES) ey = MAX_VERT_TILES - 1;
-
-    for (int ty = sy; ty <= ey; ty++) {
-        for (int tx = sx; tx <= ex; tx++) {
-            int tile_id = tiles_values[ty][tx] - 1;
-            if (is_a_door_tile(tile_id)) {
-                return TRUE;
-            }
+        if (collision(player_area, door_boxes[i])) {
+            return TRUE;
         }
     }
-    return FALSE;*/
+    return FALSE;
 }
 
 void collision_check_player_vs_coins() {

@@ -2,6 +2,7 @@
 #include "book.h"
 #include "coin.h"
 #include "dat_manager.h"
+#include "door.h"
 #include "enemy.h"
 #include "helpers.h"
 #include "object.h"
@@ -12,7 +13,6 @@
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
-#include <string.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -181,19 +181,18 @@ void update_game_run() {
         break;
     case 2:
         player_update();
-        // check room door entry: space + Martin + stopped + over door tile
-        if (space_key_freed() && player.type == MARTIN_TYPE
-            && player.state == STOP && martin_is_over_room_door()) {
-            enter_room();
-        }
 
         flow_event = player_consume_flow_event();
         if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
-        }
-        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+        } else if (flow_event == PLAYER_FLOW_GAME_OVER) {
             world_state = GAME_OVER;
+            return;
+        } else if (flow_event == PLAYER_ENTER_ROOM) {
+            do {
+            } while (key[KEY_SPACE]);
+            enter_room();
             return;
         }
         if (player_is_deading()) {
@@ -288,10 +287,12 @@ void start_stage() {
         // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
-        //load_level_enemies(2);
+        // load_level_enemies(2);
         load_level_enemies_v2(2);
         reset_coins();
         load_level_coins(2);
+        reset_doors();
+        load_level_doors(2);
         break;
     }
 }
