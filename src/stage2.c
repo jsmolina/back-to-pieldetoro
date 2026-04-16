@@ -8,8 +8,8 @@
 void level2_intro() {
     blit(dat_file[LEVEL2_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     rectfill(screen, 0, 180, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
-    print_at(10, 180, "Nen, ahora gobierna Bruno Tanez", makecol(255, 205, 205));
-    print_at(10, 190, "Ostias, no me jodas.", makecol(255, 255, 255));
+    print_at(10, 180, "NEN, AHORA GOBIERNA BRUNO TANEZ", makecol(255, 205, 205));
+    print_at(10, 190, "OSTIAS, NO ME JODAS.", makecol(255, 255, 255));
 
    wait_for_space();
 }

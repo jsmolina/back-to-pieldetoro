@@ -1,6 +1,7 @@
 #include "room.h"
 #include "allegro/gfx.h"
 #include "tiles.h"
+#include "helpers.h"
 #include <allegro.h>
 
 void enter_room(int tmx_id) {
@@ -10,8 +11,7 @@ void enter_room(int tmx_id) {
 
     blit(bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 
-    textprintf_ex(screen, font, 60, 120, makecol(200, 200, 200), -1, "Pulsa ESPACIO para salir");
-
+    print_at(95, 190, "SPACE para comprar", makecol(255, 205, 205));
     // room loop
     while (1) {
         vsync();

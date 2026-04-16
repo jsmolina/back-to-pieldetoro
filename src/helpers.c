@@ -1,6 +1,8 @@
 
 #include "helpers.h"
 #include "statics.h"
+#include "dat_manager.h"
+
 #include <allegro.h>
 
 #include <pc.h>
@@ -16,6 +18,8 @@ void wait_for_space() {
 }
 
 void print_at(int x, int y, char * texto, int col) {
+    FONT *myfont = dat_file[FONT_FNT].dat;
+
     int longitud = strlen(texto);
     char trozo[36];
     //rectfill(screen, 0, y, SCREEN_W, y+20, makecol(1,1,1));
@@ -25,8 +29,8 @@ void print_at(int x, int y, char * texto, int col) {
         
         strncpy(trozo, texto + i, len);
         trozo[len] = '\0'; // importante: terminar el string
-        textprintf_ex(screen, font, x, y, col, makecol(1, 1, 1), "%s", trozo);
-        y += 10;
+        textprintf_ex(screen, myfont, x, y, col, makecol(1, 1, 1), "%s", trozo);
+        y += 8;
         if (y > 240) {
             y = 0;
         }
