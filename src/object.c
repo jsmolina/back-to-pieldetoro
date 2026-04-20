@@ -51,7 +51,9 @@ static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {
 };*/
 
 static inline int is_a_platform(int id) {
-    if (id > 1023) {
+    // two rows of tiles are considered platforms, this check is faster 
+    // than looping through an array of platform ids and works because platforms are grouped together in the tileset
+    if (id > 1023 && id < 1088) {
         return TRUE;
     }
     return FALSE;

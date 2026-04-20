@@ -636,6 +636,10 @@ static void player_action_move_right() {
 }
 
 static void player_action_stop() {
+    if (key[KEY_F2]) {
+        pending_flow_event.type = PLAYER_ENTER_ROOM;
+        pending_flow_event.data = 2;
+    }
     if (player.vy > 0) {
         if (player.vx == 0) {
             player_change_state(FALL);

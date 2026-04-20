@@ -1,6 +1,7 @@
 #include "coin.h"
 #include "dat_manager.h"
 #include "errors.h"
+#include "game.h"
 #include "helpers.h"
 #include "statics.h"
 #include <allegro.h>
@@ -16,7 +17,6 @@ typedef struct {
 
 static Coin coins[MAX_COINS];
 static BITMAP* coin_sprite = NULL;
-static int coins_collected = 0;
 static int coin_count = 0; // number of coins loaded for current level
 
 void load_coin_spritesheet() {
@@ -33,7 +33,6 @@ void reset_coins() {
         coins[i].active = FALSE;
         coins[i].collected = FALSE;
     }
-    coins_collected = 0;
     coin_count = 0;
 }
 
@@ -110,12 +109,12 @@ void coin_get_all_aabb(collisionType* boxes) {
 }
 
 void coin_on_collect(int index) {
-    if (index >= 0 && index < coin_count) {
+    if (index >= 0 && index < coin_count && !coins[index].collected) {
         coins[index].collected = TRUE;
-        coins_collected++;
+        game_on_coin_collected();
     }
 }
 
 int get_coins_collected() {
-    return coins_collected;
+    return game_get_coins_collected();
 }

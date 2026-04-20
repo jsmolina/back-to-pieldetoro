@@ -46,6 +46,34 @@ PALETTE pal_flash;
 static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
+static int coins_collected = 0;
+static int game_money = 0;
+
+void game_on_coin_collected() {
+    coins_collected++;
+    game_money += COIN_MONEY_VALUE;
+}
+
+int game_get_coins_collected() {
+    return coins_collected;
+}
+
+int game_get_money() {
+    return game_money;
+}
+
+int game_try_spend_money(int amount) {
+    if (amount <= 0) {
+        return TRUE;
+    }
+
+    if (game_money < amount) {
+        return FALSE;
+    }
+
+    game_money -= amount;
+    return TRUE;
+}
 
 void print_year(int n1, int n2, int n3, int n4) {
     draw_sprite(screen, numbers_sprites[n1], 42, 182);
@@ -85,7 +113,7 @@ void lifebar() {
     if (force_full_redraw || hud_last_lives != player.lives) {
         // clear lives area with HUD background, then draw current amount
         blit(dat_file[LIFEBAR_BMP].dat, screen, 190, 0, 190, 170, 130, 30);
-        int x = 200;
+        int x = 182;
         for (int i = 0; i < player.lives; i++) {
             draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
             x += 20;
@@ -119,6 +147,8 @@ void start_new_game() {
     stop_midi();
     // current_background = load_background(BG0_TMX);
     current_level = 0;
+    coins_collected = 0;
+    game_money = 0;
     advance_stage();
     world_state = START_STAGE;
 
@@ -192,7 +222,8 @@ void update_game_run() {
         } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
             } while (key[KEY_SPACE]);
-            enter_room(flow_event.data);
+            int room_choice = enter_room(flow_event.data, current_level);
+            (void)room_choice;
             hud_last_level = -1; // force HUD redraw on room exit
             return;
         }
