@@ -1,7 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "helpers.h"
-#include "object.h"
 #include <allegro.h>
 
 #define STOP 1
@@ -34,7 +33,13 @@ typedef enum {
     PLAYER_FLOW_NONE = 0,
     PLAYER_FLOW_RESTART_STAGE = 1,
     PLAYER_FLOW_GAME_OVER = 2,
+    PLAYER_ENTER_ROOM = 3,
 } PlayerFlowEvent;
+
+typedef struct {
+    PlayerFlowEvent type;
+    int data; // optional field for extra info, usage depends on event type (e.g., tmx_id for PLAYER_ENTER_ROOM)
+} FlowEventType;
 
 typedef int (*CheckHitFn)();
 
@@ -110,9 +115,15 @@ void destroy_martin_spritesheet();
 void player_killed();
 
 /**
- * @brief Gets the collision area for the player's foot
+ * @brief Restores the player's energy to the default value
  *
- * @return collisionType struct representing the foot collision area
+ */
+void player_energy_up();
+
+/**
+ * @brief Gets the collision area for the player's front wheels
+ *
+ * @return collisionType struct representing the front wheels collision area
  */
 collisionType front_wheels_area();
 /** @brief Gets the collision area for the player's rear wheels
@@ -133,14 +144,21 @@ collisionType player_foot_area();
  */
 collisionType player_aabb();
 void player_on_hit();
+void player_energy_up();
 
 /**
  * @brief Returns pending player flow event and clears it.
  *
  * @return PLAYER_FLOW_NONE if there is no pending event.
  */
-PlayerFlowEvent player_consume_flow_event();
+FlowEventType player_consume_flow_event();
+
+/** @brief Restores the player's energy to the default value
+ *
+ */
+void player_energy_up();
 
 extern struct playerType player;
+
 
 #endif

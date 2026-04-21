@@ -1,6 +1,7 @@
 #include "coin.h"
 #include "dat_manager.h"
 #include "errors.h"
+#include "game.h"
 #include "helpers.h"
 #include "statics.h"
 #include <allegro.h>
@@ -15,9 +16,16 @@ typedef struct {
 } Coin;
 
 static Coin coins[MAX_COINS];
+static Coin enemy_drop_coins[MAX_ENEMY_COINS];
 static BITMAP* coin_sprite = NULL;
-static int coins_collected = 0;
 static int coin_count = 0; // number of coins loaded for current level
+
+static void _clear_coin(Coin* coin) {
+    coin->x = 0;
+    coin->y = 0;
+    coin->active = FALSE;
+    coin->collected = FALSE;
+}
 
 void load_coin_spritesheet() {
     coin_sprite = dat_file[MONEY_BMP].dat;
@@ -28,12 +36,11 @@ void load_coin_spritesheet() {
 
 void reset_coins() {
     for (int i = 0; i < MAX_COINS; i++) {
-        coins[i].x = 0;
-        coins[i].y = 0;
-        coins[i].active = FALSE;
-        coins[i].collected = FALSE;
+        _clear_coin(&coins[i]);
     }
-    coins_collected = 0;
+    for (int i = 0; i < MAX_ENEMY_COINS; i++) {
+        _clear_coin(&enemy_drop_coins[i]);
+    }
     coin_count = 0;
 }
 
@@ -91,6 +98,29 @@ inline void draw_coins(int scroll_x) {
             }
         }
     }
+
+    for (int i = 0; i < MAX_ENEMY_COINS; i++) {
+        if (enemy_drop_coins[i].active && !enemy_drop_coins[i].collected) {
+            int screen_x = enemy_drop_coins[i].x - scroll_x;
+            if (screen_x <= -coin_sprite->w || screen_x >= SCREEN_W) {
+                enemy_drop_coins[i].active = FALSE;
+                continue;
+            }
+            draw_sprite(screen, coin_sprite, screen_x, enemy_drop_coins[i].y);
+        }
+    }
+}
+
+void coin_spawn_enemy_drop(int x, int y) {
+    for (int i = 0; i < MAX_ENEMY_COINS; i++) {
+        if (!enemy_drop_coins[i].active || enemy_drop_coins[i].collected) {
+            enemy_drop_coins[i].x = x;
+            enemy_drop_coins[i].y = y;
+            enemy_drop_coins[i].active = TRUE;
+            enemy_drop_coins[i].collected = FALSE;
+            return;
+        }
+    }
 }
 
 void coin_get_all_aabb(collisionType* boxes) {
@@ -107,15 +137,40 @@ void coin_get_all_aabb(collisionType* boxes) {
             boxes[i].h = 0;
         }
     }
+
+    for (int i = 0; i < MAX_ENEMY_COINS; i++) {
+        int box_index = MAX_COINS + i;
+        if (enemy_drop_coins[i].active && !enemy_drop_coins[i].collected) {
+            boxes[box_index].x = enemy_drop_coins[i].x;
+            boxes[box_index].y = enemy_drop_coins[i].y;
+            boxes[box_index].w = coin_sprite ? coin_sprite->w : 16;
+            boxes[box_index].h = coin_sprite ? coin_sprite->h : 16;
+        } else {
+            boxes[box_index].x = 0;
+            boxes[box_index].y = 0;
+            boxes[box_index].w = 0;
+            boxes[box_index].h = 0;
+        }
+    }
 }
 
 void coin_on_collect(int index) {
-    if (index >= 0 && index < coin_count) {
+    if (index >= 0 && index < coin_count && !coins[index].collected) {
         coins[index].collected = TRUE;
-        coins_collected++;
+        game_on_coin_collected();
+        return;
+    }
+
+    if (index >= MAX_COINS && index < MAX_TOTAL_COINS) {
+        int enemy_coin_index = index - MAX_COINS;
+        if (enemy_drop_coins[enemy_coin_index].active && !enemy_drop_coins[enemy_coin_index].collected) {
+            enemy_drop_coins[enemy_coin_index].collected = TRUE;
+            enemy_drop_coins[enemy_coin_index].active = FALSE;
+            game_on_coin_collected();
+        }
     }
 }
 
 int get_coins_collected() {
-    return coins_collected;
+    return game_get_coins_collected();
 }

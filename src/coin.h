@@ -4,6 +4,8 @@
 #include "helpers.h"
 
 #define MAX_COINS 20
+#define MAX_ENEMY_COINS 8
+#define MAX_TOTAL_COINS (MAX_COINS + MAX_ENEMY_COINS)
 
 /**
  * @file coin.h
@@ -31,10 +33,13 @@ void load_level_coins(int level_id);
  */
 void draw_coins(int scroll_x);
 
+/** @brief Spawns a coin dropped by a defeated enemy. */
+void coin_spawn_enemy_drop(int x, int y);
+
 /**
  * @brief Fills the provided array with AABB boxes for all active, uncollected coins.
  *        Inactive or collected coins get a zero-sized box.
- * @param boxes Array of at least MAX_COINS collisionType elements.
+ * @param boxes Array of at least MAX_TOTAL_COINS collisionType elements.
  */
 void coin_get_all_aabb(collisionType* boxes);
 

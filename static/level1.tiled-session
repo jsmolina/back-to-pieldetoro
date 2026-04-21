@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1.tmx",
+    "activeFile": "bg1_shop.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -21,27 +21,27 @@
             "scale": 2.2578,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1279.7856320311807,
-                "y": 100.09743998582691
+                "x": 1280.0070865444236,
+                "y": 99.87598547258392
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.9983,
+            "scale": 1.6619,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1639.595770936864,
-                "y": 83.54734349464695
+                "x": 376.3764366087009,
+                "y": 199.77134604970215
             }
         },
         "bg1_shop.tmx": {
-            "scale": 2.3664,
+            "scale": 4.59,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 156.35564570655848,
-                "y": 94.02467883705205
+                "x": 129.520697167756,
+                "y": 31.154684095860567
             }
         },
         "level1.tmx": {
@@ -53,8 +53,8 @@
             }
         },
         "tiles.tsx": {
-            "scaleInDock": 1.7731,
-            "scaleInEditor": 4.34
+            "scaleInDock": 2.2471,
+            "scaleInEditor": 2.33
         }
     },
     "last.imagePath": "/Users/jordism/repos/back-to-pieldetoro",
@@ -71,10 +71,10 @@
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
-        "bg1_shop.tmx",
-        "bg0.tmx",
         "tiles.tsx",
         "bg1.tmx",
+        "bg0.tmx",
+        "bg1_shop.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

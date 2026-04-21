@@ -6,11 +6,14 @@
 #include "game.h"
 #include "object.h"
 #include "player.h"
+
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
 #include <math.h>
 
+#define CAR_WIDTH 105
+#define MARTIN_WIDTH 24
 #define LEVEL_ID_INTRO 1
 
 #define PLAYER_DEFAULT_ENERGY 6
@@ -28,7 +31,8 @@ struct playerType player;
 // BITMAP* sp_martin[MARTIN_FRAMES];
 PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
-static PlayerFlowEvent pending_flow_event = PLAYER_FLOW_NONE;
+
+FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
 
 static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -72,77 +76,15 @@ static animeItem martin_animations[18] = {
     { 10, { 16 }, 0, 0 },                                        // KICKING
 };
 
-void player_new_game() {
-    player.energy = PLAYER_DEFAULT_ENERGY;
-    player.lives = PLAYER_DEFAULT_LIVES;
-    pending_flow_event = PLAYER_FLOW_NONE;
-}
-
-void player_init(int x, int y, int current_level, int max_vx) {
-    player.pos.x = x;
-    player.pos.y = y;
-    player.vx = 0;
-    player.vy = 0;
-    player.state = STOP;
-    player.prev_state = 0;
-    player.anime_count = 0;
-    player.anime_index = 0;
-    player.flip = FALSE;
-    player.move_count = 0;
-    player.max_vx = max_vx;
-    player.sprite_index = 0;
-    player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
-    player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
-    player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
-}
-
-void load_coche_spritesheet() {
-    BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
-    int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
-    coche.width = frame_width;
-    coche.height = coche_spritesheet->h;
-    coche.total_frames = COCHE_FRAMES;
-    // player.current_sprite = create_video_bitmap(player.width, player.height);
-    int offset = 0;
-    for (int i = 0; i < COCHE_FRAMES; i++) {
-        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, offset, 0, frame_width, coche_spritesheet->h);
-        offset += frame_width;
+static uint8_t space_was_pressed = 0;
+static int space_key_freed() {
+    if (!space_was_pressed && key[KEY_SPACE]) {
+        space_was_pressed = 1;
+        return TRUE;
+    } else if (space_was_pressed && !key[KEY_SPACE]) {
+        space_was_pressed = 0;
     }
-}
-
-void destroy_coche_spritesheet() {
-    BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
-    int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
-    for (int i = 0; i < COCHE_FRAMES; i++) {
-        destroy_bitmap(coche.sprites[i]);
-    }
-}
-
-void load_martin_spritesheet() {
-    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
-    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
-    martin.width = frame_width;
-    martin.height = martin_spritesheet->h;
-    martin.total_frames = MARTIN_FRAMES;
-    int offset = 0;
-    for (int i = 0; i < MARTIN_FRAMES; i++) {
-        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, offset, 0, frame_width, martin_spritesheet->h);
-        offset += frame_width;
-    }
-}
-
-void destroy_martin_spritesheet() {
-    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
-    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
-    for (int i = 0; i < MARTIN_FRAMES; i++) {
-        destroy_bitmap(martin.sprites[i]);
-    }
-}
-
-static void player_change_state(unsigned int state) {
-    player.prev_state = player.state;
-    player.state = state;
-    player.move_count = player.animations[player.state].move_count;
+    return FALSE;
 }
 
 static uint8_t jump_was_pressed = 0;
@@ -176,6 +118,80 @@ static int kick_key_freed() {
         kick_was_pressed = 0;
     }
     return FALSE;
+}
+
+void player_new_game() {
+    player.energy = PLAYER_DEFAULT_ENERGY;
+    player.lives = PLAYER_DEFAULT_LIVES;
+    pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
+}
+
+void player_init(int x, int y, int current_level, int max_vx) {
+    player.pos.x = x;
+    player.pos.y = y;
+    player.vx = 0;
+    player.vy = 0;
+    player.state = STOP;
+    player.prev_state = 0;
+    player.anime_count = 0;
+    player.anime_index = 0;
+    player.flip = FALSE;
+    player.move_count = 0;
+    player.max_vx = max_vx;
+    player.sprite_index = 0;
+    player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
+    player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
+    player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+}
+
+void load_coche_spritesheet() {
+    BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
+    int frame_width = CAR_WIDTH;
+    coche.width = frame_width;
+    coche.height = coche_spritesheet->h;
+    coche.total_frames = COCHE_FRAMES;
+    // player.current_sprite = create_video_bitmap(player.width, player.height);
+    int offset = 0;
+    for (int i = 0; i < COCHE_FRAMES; i++) {
+        coche.sprites[i] = create_sub_bitmap(coche_spritesheet, offset, 0, frame_width, coche_spritesheet->h);
+        offset += frame_width;
+    }
+}
+
+void destroy_coche_spritesheet() {
+    BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
+    for (int i = 0; i < COCHE_FRAMES; i++) {
+        destroy_bitmap(coche.sprites[i]);
+    }
+}
+
+void load_martin_spritesheet() {
+    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
+    int frame_width = MARTIN_WIDTH;
+    martin.width = frame_width;
+    martin.height = martin_spritesheet->h;
+    martin.total_frames = MARTIN_FRAMES;
+    int offset = 0;
+    for (int i = 0; i < MARTIN_FRAMES; i++) {
+        martin.sprites[i] = create_sub_bitmap(martin_spritesheet, offset, 0, frame_width, martin_spritesheet->h);
+        offset += frame_width;
+    }
+}
+
+void destroy_martin_spritesheet() {
+    BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
+    for (int i = 0; i < MARTIN_FRAMES; i++) {
+        destroy_bitmap(martin.sprites[i]);
+    }
+}
+
+static void player_change_state(unsigned int state) {
+    player.prev_state = player.state;
+    player.state = state;
+    player.move_count = player.animations[player.state].move_count;
+}
+void player_energy_up() {
+    player.energy = PLAYER_DEFAULT_ENERGY;
 }
 
 void player_on_hit() {
@@ -474,7 +490,11 @@ static inline void player_do_kick() {
 
 static inline void player_do_open() {
     // only for martin, coche doesn't open
-    
+    int result = martin_is_over_door();
+    if (result != -1) {
+        pending_flow_event.type = PLAYER_ENTER_ROOM;
+        pending_flow_event.data = result;
+    }
 }
 
 /**
@@ -619,6 +639,10 @@ static void player_action_move_right() {
 }
 
 static void player_action_stop() {
+    if (key[KEY_F2]) {
+        pending_flow_event.type = PLAYER_ENTER_ROOM;
+        pending_flow_event.data = 2;
+    }
     if (player.vy > 0) {
         if (player.vx == 0) {
             player_change_state(FALL);
@@ -637,6 +661,9 @@ static void player_action_stop() {
         player_do_throw();
     } else if (kick_key_freed()) {
         player_do_kick();
+    } else if (space_key_freed()) {
+        player_do_open();
+
     } else {
         player_count_move(0, 0);
     }
@@ -739,14 +766,14 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
-        
+
         player.lives--;
         player_change_state(DEAD_END);
         if (player.lives <= 0) {
-            pending_flow_event = PLAYER_FLOW_GAME_OVER;
+            pending_flow_event.type = PLAYER_FLOW_GAME_OVER;
             return;
         } else {
-            pending_flow_event = PLAYER_FLOW_RESTART_STAGE;
+            pending_flow_event.type = PLAYER_FLOW_RESTART_STAGE;
         }
 
         // TODO restart level
@@ -758,9 +785,9 @@ static void player_action_dead() {
     }
 }
 
-PlayerFlowEvent player_consume_flow_event() {
-    PlayerFlowEvent event = pending_flow_event;
-    pending_flow_event = PLAYER_FLOW_NONE;
+FlowEventType player_consume_flow_event() {
+    FlowEventType event = pending_flow_event;
+    pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
     return event;
 }
 

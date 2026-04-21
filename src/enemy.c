@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "coin.h"
 #include "dat_manager.h"
 #include "errors.h"
 #include "game.h"
@@ -60,13 +61,13 @@ static animeItem bird_animations[11] = {
     { 1, { 0 }, 1, 60 },   // BSTOP
     { 2, { 0, 1 }, 2, 4 }, // BMOVE_LEFT
     { 2, { 0, 1 }, 2, 4 }, // BMOVE_RIGHT
-    { 1, { 0 }, 1, 1 },  // EFALL
-    { 1, { 0 }, 1, 1 },   // EFALL2
+    { 1, { 0 }, 1, 1 },    // EFALL
+    { 1, { 0 }, 1, 1 },    // EFALL2
     { 12, { 0 }, 2, 4 },   // BDEAD
     { 60, { 0 }, 1, 60 },  // EFALL_END
     { 2, { 0 }, 2, 4 },    // EDEAD_END
-        { 1, { 0 }, 1, 30 },  // ECROUCHING
-    { 5, { 0 }, 1, 0 },      // ETHROWING OBJECT
+    { 1, { 0 }, 1, 30 },   // ECROUCHING
+    { 5, { 0 }, 1, 0 },    // ETHROWING OBJECT
 };
 
 static animeItem dog_animations[11] = {
@@ -77,9 +78,9 @@ static animeItem dog_animations[11] = {
     { 1, { 0 }, 1, 1 },                // EFALL
     { 1, { 0 }, 1, 1 },                // EFALL2
     { 12, { 0 }, 2, 4 },               // BDEAD
-    { 60, { 0 }, 1, 60 },               // EFALL_END
+    { 60, { 0 }, 1, 60 },              // EFALL_END
     { 2, { 0 }, 2, 4 },                // BDEAD_END
-    { 1, { 0 }, 1, 30 },           // ECROUCHING
+    { 1, { 0 }, 1, 30 },               // ECROUCHING
     { 5, { 0 }, 1, 0 },                // ETHROWING OBJECT
 };
 
@@ -523,6 +524,7 @@ void bird_action_stop(int index) {
 
 void enemy_action_dead(int index) {
     if (enemy_count_move(index, 0, 0) == FINISHED) {
+        coin_spawn_enemy_drop(active_enemies[index].pos.x, active_enemies[index].pos.y + active_enemies[index].data->height - 18);
         active_enemies[index].active = FALSE;
         active_enemies[index].killed = TRUE;
         active_enemies[index].pos.x = 0;
@@ -549,33 +551,33 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
     _enemy_update_position(index, scroll_x);
 
     switch (active_enemies[index].state) {
-        case EMOVE_LEFT:
-            // joven_action_move_left();
-            break;
-        case EMOVE_RIGHT:
-            // joven_action_move_right();
-            break;
-        case EFALL:
-        case EFALL2:
-            // joven_action_fall();
-            break;
-        case ESTOP:
-            joven_action_stop(index);
-            break;
-        case EDEAD:
-            // joven_action_dead();
-            enemy_action_dead(index);
-            break;
-        case EFALL_END:
-            enemy_action_dead_end(index);
-            // joven_action_fall_end();
-            break;
-        case ECROUCHING:
-            // enemy_action_crouch(index);
-            break;
-        case ETHROWING:
-            // joven_action_throw();
-            break;
+    case EMOVE_LEFT:
+        // joven_action_move_left();
+        break;
+    case EMOVE_RIGHT:
+        // joven_action_move_right();
+        break;
+    case EFALL:
+    case EFALL2:
+        // joven_action_fall();
+        break;
+    case ESTOP:
+        joven_action_stop(index);
+        break;
+    case EDEAD:
+        // joven_action_dead();
+        enemy_action_dead(index);
+        break;
+    case EFALL_END:
+        enemy_action_dead_end(index);
+        // joven_action_fall_end();
+        break;
+    case ECROUCHING:
+        // enemy_action_crouch(index);
+        break;
+    case ETHROWING:
+        // joven_action_throw();
+        break;
     }
     _enemy_anime_update(index);
 }

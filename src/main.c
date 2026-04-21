@@ -68,6 +68,15 @@ static void wait_a_bit(int amount) {
     }
 }
 
+inline void show_main_menu() {
+    BITMAP* menu = dat_file[MENU2_BMP].dat;
+
+    for (int i = 0; i < 40; i++) {
+        blit(menu, screen, 0, i, 0, 0, 320, 200);
+        vsync();
+    }
+}
+
 int main(void) {
     RGB black = { 16, 16, 16, 0 };
 
@@ -113,7 +122,6 @@ int main(void) {
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     wait_a_bit(200);
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
-    BITMAP* menu = dat_file[MENU2_BMP].dat;
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
     play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, skip_fli_on_space);
@@ -123,10 +131,7 @@ int main(void) {
     wait_a_bit(200);
     set_palette(palette);
 
-    for (int i = 0; i < 40; i++) {
-        blit(menu, screen, 0, i, 0, 0, 320, 200);
-        vsync();
-    }
+    show_main_menu();
 
     load_enemy_spritesheets();
     load_coche_spritesheet();
@@ -157,7 +162,27 @@ int main(void) {
         vsync();
 
         if (key[KEY_ESC]) {
-            exit_game = 1;
+            if (game_state == GAME) {
+                enum PauseMenuResult pause_result = game_handle_pause();
+                switch (pause_result) {
+                case PAUSE_RESULT_CONTINUE:
+                    break; // resume game
+                case PAUSE_RESULT_RESTART:
+                    stop_midi();
+                    game_state = TITLE; // go back to title/menu
+                    show_main_menu();
+                    break;
+                case PAUSE_RESULT_EXIT:
+                    stop_midi();
+                    exit_game = 1; // exit game
+                    break;
+                }
+            } else {
+                stop_midi();
+                exit_game = 1; // exit from title/other states
+            }
+            do {
+            } while (key[KEY_ESC]);
         }
 
     } while (exit_game == 0);

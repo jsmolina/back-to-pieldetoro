@@ -2,9 +2,11 @@
 #include "book.h"
 #include "coin.h"
 #include "dat_manager.h"
+#include "door.h"
 #include "enemy.h"
 #include "helpers.h"
 #include "object.h"
+#include "pause.h"
 #include "player.h"
 #include "room.h"
 #include "stage1.h"
@@ -12,7 +14,6 @@
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
-#include <string.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -32,7 +33,7 @@ float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
 int GROUND_Y = LEVEL1_GROUND_Y;
-int game_pause = 0;
+int game_pause = FALSE;
 int scroll_x;
 
 int current_level = 0;
@@ -46,6 +47,35 @@ PALETTE pal_flash;
 static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
+static int hud_last_coins = -1;
+static int coins_collected = 0;
+static int game_money = 0;
+
+void game_on_coin_collected() {
+    coins_collected++;
+    game_money += COIN_MONEY_VALUE;
+}
+
+int game_get_coins_collected() {
+    return coins_collected;
+}
+
+int game_get_money() {
+    return game_money;
+}
+
+int game_try_spend_money(int amount) {
+    if (amount <= 0) {
+        return TRUE;
+    }
+
+    if (game_money < amount) {
+        return FALSE;
+    }
+
+    game_money -= amount;
+    return TRUE;
+}
 
 void print_year(int n1, int n2, int n3, int n4) {
     draw_sprite(screen, numbers_sprites[n1], 42, 182);
@@ -85,12 +115,19 @@ void lifebar() {
     if (force_full_redraw || hud_last_lives != player.lives) {
         // clear lives area with HUD background, then draw current amount
         blit(dat_file[LIFEBAR_BMP].dat, screen, 190, 0, 190, 170, 130, 30);
-        int x = 200;
+        int x = 182;
         for (int i = 0; i < player.lives; i++) {
             draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
             x += 20;
         }
         hud_last_lives = player.lives;
+    }
+
+    int money = game_get_money();
+    if (force_full_redraw || hud_last_coins != money) {
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
+        printf_at_simple(250, 185, 41, 43, "%6d", money);
+        hud_last_coins = money;
     }
 
     hud_last_level = current_level;
@@ -119,6 +156,9 @@ void start_new_game() {
     stop_midi();
     // current_background = load_background(BG0_TMX);
     current_level = 0;
+    coins_collected = 0;
+    game_money = 0;
+    room_reset_purchased_items();
     advance_stage();
     world_state = START_STAGE;
 
@@ -150,12 +190,12 @@ void update_game_run() {
     switch (current_level) {
     case 1:
         player_update();
-        PlayerFlowEvent flow_event = player_consume_flow_event();
-        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+        FlowEventType flow_event = player_consume_flow_event();
+        if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
         }
-        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+        if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
             world_state = GAME_OVER;
             return;
         }
@@ -181,19 +221,20 @@ void update_game_run() {
         break;
     case 2:
         player_update();
-        // check room door entry: space + Martin + stopped + over door tile
-        if (space_key_freed() && player.type == MARTIN_TYPE
-            && player.state == STOP && martin_is_over_room_door()) {
-            enter_room();
-        }
 
         flow_event = player_consume_flow_event();
-        if (flow_event == PLAYER_FLOW_RESTART_STAGE) {
+        if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
-        }
-        if (flow_event == PLAYER_FLOW_GAME_OVER) {
+        } else if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
             world_state = GAME_OVER;
+            return;
+        } else if (flow_event.type == PLAYER_ENTER_ROOM) {
+            do {
+            } while (key[KEY_SPACE]);
+            int room_choice = enter_room(flow_event.data, current_level);
+            (void)room_choice;
+            hud_last_level = -1; // force HUD redraw on room exit
             return;
         }
         if (player_is_deading()) {
@@ -208,6 +249,7 @@ void update_game_run() {
     }
 }
 
+/*
 // Repaint only dirty tiles
 void repaint_dirty_tiles() {
     for (int y = 0; y < MAX_VERT_TILES; ++y) {
@@ -226,7 +268,7 @@ void repaint_dirty_tiles() {
             }
         }
     }
-}
+}*/
 
 inline void draw_game() {
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
@@ -288,10 +330,12 @@ void start_stage() {
         // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
-        //load_level_enemies(2);
+        // load_level_enemies(2);
         load_level_enemies_v2(2);
         reset_coins();
         load_level_coins(2);
+        reset_doors();
+        load_level_doors(2);
         break;
     }
 }
@@ -354,6 +398,23 @@ inline void update_game() {
         break;
     case GAME_OVER:
         break;
+    }
+}
+
+enum PauseMenuResult game_handle_pause(void) {
+    game_pause = TRUE;
+    enum PauseMenuOption pause_choice = show_pause_menu();
+    game_pause = FALSE;
+
+    switch (pause_choice) {
+    case PAUSE_CONTINUE:
+        return PAUSE_RESULT_CONTINUE;
+    case PAUSE_MENU:
+        return PAUSE_RESULT_RESTART;
+    case PAUSE_EXIT_TO_DOS:
+        return PAUSE_RESULT_EXIT;
+    default:
+        return PAUSE_RESULT_CONTINUE;
     }
 }
 
