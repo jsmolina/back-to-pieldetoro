@@ -7,6 +7,7 @@
 
 #include <dos.h>
 #include <pc.h>
+#include <stdio.h>
 
 #if !defined(LANG_EN) && !defined(LANG_ES)
 #define LANG_ES 1
@@ -27,7 +28,9 @@ static const char* const game_texts[TXT_COUNT] = {
     "NO WAY, ARE YOU FUCKING ME?",
     "BRO, BUY",
     "UR BROKE",
-    "BOUGHT BRO"
+    "BOUGHT BRO",
+    "NO STOCK BRO",
+    "I NEED THAT ALMANAC"
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -42,7 +45,9 @@ static const char* const game_texts[TXT_COUNT] = {
     "OSTIAS, NO ME JODAS.",
     "COMPRA BRO",
     "ESTAS BROKE",
-    "COMPRADO BRO"
+    "COMPRADO BRO",
+    "NO QUEDA BRO",
+    "NECESITO ESE ALMANAQUE"
 };
 #endif
 
@@ -111,6 +116,23 @@ void print_at(int x, int y, const char* texto, int col, int bg) {
             y = 0;
         }
     }
+}
+
+void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
+    FONT* myfont = dat_file[FONT_FNT].dat;
+    char buffer[256];
+
+    if (!format || !myfont) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    buffer[sizeof(buffer) - 1] = '\0';
+    textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
 }
 
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {

@@ -5,6 +5,12 @@
 
 #define COIN_MONEY_VALUE 5
 
+enum PauseMenuResult {
+    PAUSE_RESULT_CONTINUE = 0,
+    PAUSE_RESULT_RESTART = 1,
+    PAUSE_RESULT_EXIT = 2,
+};
+
 /**
  * @file game.h
  * @brief Core game state and rendering management header
@@ -37,6 +43,9 @@ void start_new_game();
 
 /** @brief Adds one collected coin reward to game economy counters. */
 void game_on_coin_collected();
+
+/** @brief Handles pause menu display and returns the selected action. */
+enum PauseMenuResult game_handle_pause(void);
 
 /** @brief Returns collected coin count in the current run. */
 int game_get_coins_collected();

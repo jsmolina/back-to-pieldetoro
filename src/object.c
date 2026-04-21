@@ -51,7 +51,7 @@ static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {
 };*/
 
 static inline int is_a_platform(int id) {
-    // two rows of tiles are considered platforms, this check is faster 
+    // two rows of tiles are considered platforms, this check is faster
     // than looping through an array of platform ids and works because platforms are grouped together in the tileset
     if (id > 1023 && id < 1088) {
         return TRUE;
@@ -217,7 +217,7 @@ int martin_is_over_door() {
         if (collision(player_area, door_boxes[i])) {
             return door_boxes[i].meta; // this is the destination tmx id stored in door static_id
             // can be used to trigger room change on next frame after confirming player wants to enter
-            //return TRUE;
+            // return TRUE;
         }
     }
     return -1;
@@ -225,10 +225,10 @@ int martin_is_over_door() {
 
 void collision_check_player_vs_coins() {
     collisionType player_area = player_aabb();
-    collisionType coin_boxes[MAX_COINS];
+    collisionType coin_boxes[MAX_TOTAL_COINS];
     coin_get_all_aabb(coin_boxes);
 
-    for (int i = 0; i < MAX_COINS; i++) {
+    for (int i = 0; i < MAX_TOTAL_COINS; i++) {
         if (coin_boxes[i].w == 0)
             continue;
 

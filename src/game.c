@@ -6,6 +6,7 @@
 #include "enemy.h"
 #include "helpers.h"
 #include "object.h"
+#include "pause.h"
 #include "player.h"
 #include "room.h"
 #include "stage1.h"
@@ -32,7 +33,7 @@ float GRAVITY = 0.8;
 int JUMP_STRENGTH = -15;
 int PLAYER_SPEED = 5;
 int GROUND_Y = LEVEL1_GROUND_Y;
-int game_pause = 0;
+int game_pause = FALSE;
 int scroll_x;
 
 int current_level = 0;
@@ -46,6 +47,7 @@ PALETTE pal_flash;
 static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
+static int hud_last_coins = -1;
 static int coins_collected = 0;
 static int game_money = 0;
 
@@ -121,6 +123,13 @@ void lifebar() {
         hud_last_lives = player.lives;
     }
 
+    int money = game_get_money();
+    if (force_full_redraw || hud_last_coins != money) {
+        blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
+        printf_at_simple(250, 185, 41, 43, "%6d", money);
+        hud_last_coins = money;
+    }
+
     hud_last_level = current_level;
 }
 
@@ -149,6 +158,7 @@ void start_new_game() {
     current_level = 0;
     coins_collected = 0;
     game_money = 0;
+    room_reset_purchased_items();
     advance_stage();
     world_state = START_STAGE;
 
@@ -388,6 +398,23 @@ inline void update_game() {
         break;
     case GAME_OVER:
         break;
+    }
+}
+
+enum PauseMenuResult game_handle_pause(void) {
+    game_pause = TRUE;
+    enum PauseMenuOption pause_choice = show_pause_menu();
+    game_pause = FALSE;
+
+    switch (pause_choice) {
+    case PAUSE_CONTINUE:
+        return PAUSE_RESULT_CONTINUE;
+    case PAUSE_MENU:
+        return PAUSE_RESULT_RESTART;
+    case PAUSE_EXIT_TO_DOS:
+        return PAUSE_RESULT_EXIT;
+    default:
+        return PAUSE_RESULT_CONTINUE;
     }
 }
 

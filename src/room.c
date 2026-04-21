@@ -7,9 +7,10 @@
 #include <allegro.h>
 #include <stdio.h>
 
+#define ROOM_COUNT 2
+#define ROOM_FIRST_ID 1
 #define ROOM_OPTION_COUNT 3
 #define ROOM_ARROW_Y 104
-#define ROOM_OPTION_COST 5
 #define ROOM_INFO_AREA_X1 40
 #define ROOM_INFO_AREA_X2 280
 #define ROOM_INFO_AREA_Y1 180
@@ -21,56 +22,61 @@
 #define ROOM_ARROW_W 8
 #define ROOM_ARROW_H 8
 
-static const int room1_option_x[ROOM_OPTION_COUNT] = { 110, 160, 203 };
-static const int room2_option_x[ROOM_OPTION_COUNT] = { 104, 160, 210 };
-static const int room1_option_cost[ROOM_OPTION_COUNT] = { ROOM_OPTION_COST, ROOM_OPTION_COST, ROOM_OPTION_COST };
-static const int room2_option_cost[ROOM_OPTION_COUNT] = { ROOM_OPTION_COST, ROOM_OPTION_COST, ROOM_OPTION_COST };
+typedef struct {
+    int x;
+    int cost;
+    int default_purchased;
+} RoomOption;
 
-static const int* get_option_positions(int room_id) {
-    if (room_id == 1) {
-        return room1_option_x;
+static RoomOption room_options[ROOM_COUNT][ROOM_OPTION_COUNT] = {
+    { { 110, 1000, FALSE }, { 160, 30, FALSE }, { 203, 1, TRUE } },
+    { { 104, 5, FALSE }, { 160, 70, FALSE }, { 210, 60, FALSE } }
+};
+
+int purchased_items[ROOM_COUNT][ROOM_OPTION_COUNT] = { { FALSE, FALSE, TRUE }, { FALSE, FALSE, FALSE } };
+
+static int room_id_to_index(int room_id) {
+    int room_index = room_id - ROOM_FIRST_ID;
+    if (room_index < 0 || room_index >= ROOM_COUNT) {
+        return 0;
     }
-    if (room_id == 2) {
-        return room2_option_x;
-    }
-    return room1_option_x;
+    return room_index;
 }
 
-static const int* get_option_costs(int room_id) {
-    if (room_id == 1) {
-        return room1_option_cost;
+void room_reset_purchased_items() {
+    for (int i = 0; i < ROOM_COUNT; i++) {
+        for (int j = 0; j < ROOM_OPTION_COUNT; j++) {
+            purchased_items[i][j] = room_options[i][j].default_purchased;
+        }
     }
-    if (room_id == 2) {
-        return room2_option_cost;
-    }
-    return room1_option_cost;
 }
 
 static void draw_room_static_text(int room_id, int txt_id) {
-    
-    if (room_id == 1) {        
-        rectfill(screen, 83, 130, 170, 140, 29);
+
+    if (room_id == 1) {
+        rectfill(screen, 83, 130, 180, 140, 29);
         print_at_slow(85, 130, game_text(txt_id), makecol(16, 16, 16), 29);
     } else if (room_id == 2) {
-        rectfill(screen, 83, 148, 170, 156, 29);
+        rectfill(screen, 83, 148, 180, 156, 29);
         print_at_slow(85, 150, game_text(txt_id), makecol(16, 16, 16), 29);
     }
 }
 
 static void draw_money_panel() {
-    char money_text[24];
-
     rectfill(screen, ROOM_MONEY_PANEL_X1, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2, ROOM_MONEY_PANEL_Y2, 16);
-    snprintf(money_text, sizeof(money_text), "EUR %6d", game_get_money());
-    print_at(ROOM_MONEY_PANEL_X1 + 2, 190, money_text, makecol(255, 255, 255), 16);
+    printf_at_simple(ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
 }
 
-static void draw_arrow_at(const int* option_x, int index) {
-    textprintf_ex(screen, font, option_x[index], ROOM_ARROW_Y, makecol(255, 255, 0), -1, "^");
+static void draw_selector_at(const RoomOption* options, int index) {
+    if (purchased_items[room_id_to_index(options[index].x)][index] == TRUE) {
+        textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 0, 0), -1, "X");
+    } else {
+        textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 255, 0), -1, "^");
+    }
 }
 
-static void clear_arrow_at(BITMAP* bg, const int* option_x, int index) {
-    blit(bg, screen, option_x[index], ROOM_ARROW_Y, option_x[index], ROOM_ARROW_Y, ROOM_ARROW_W, ROOM_ARROW_H);
+static void clear_arrow_at(BITMAP* bg, const RoomOption* options, int index) {
+    blit(bg, screen, options[index].x, ROOM_ARROW_Y, options[index].x, ROOM_ARROW_Y, ROOM_ARROW_W, ROOM_ARROW_H);
 }
 
 /** @brief Get the background bitmap for a room based on its ID and level */
@@ -99,8 +105,8 @@ int enter_room(int room_id, int level) {
 
     int owns_bitmap;
     int selected = 0;
-    const int* option_x = get_option_positions(room_id);
-    const int* option_cost = get_option_costs(room_id);
+    int room_index = room_id_to_index(room_id);
+    RoomOption* options = room_options[room_index];
 
     BITMAP* bg = get_room_bg(room_id, level, &owns_bitmap);
 
@@ -108,10 +114,13 @@ int enter_room(int room_id, int level) {
 
     blit(bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     draw_room_static_text(room_id, TXT_ROOM_01);
+    if (room_id ==1) {
+        printf_at_simple(55, 16, 15, 16, game_text(TXT_ROOM_05));
+    }
     // Room has a reserved UI area with bricks for future HUD-like info:
     // X=[40..280], Y=[180..200].
     draw_money_panel();
-    draw_arrow_at(option_x, selected);
+    draw_selector_at(options, selected);
 
     while (1) {
         int key_code = readkey() >> 8;
@@ -122,21 +131,25 @@ int enter_room(int room_id, int level) {
             if (selected < 0) {
                 selected = ROOM_OPTION_COUNT - 1;
             }
-            clear_arrow_at(bg, option_x, prev_selected);
-            draw_arrow_at(option_x, selected);
+            clear_arrow_at(bg, options, prev_selected);
+            draw_selector_at(options, selected);
         } else if (key_code == KEY_RIGHT) {
             int prev_selected = selected;
             selected++;
             if (selected >= ROOM_OPTION_COUNT) {
                 selected = 0;
             }
-            clear_arrow_at(bg, option_x, prev_selected);
-            draw_arrow_at(option_x, selected);
+            clear_arrow_at(bg, options, prev_selected);
+            draw_selector_at(options, selected);
         } else if (key_code == KEY_SPACE) {
-            if (game_try_spend_money(option_cost[selected])) {
+            if (purchased_items[room_id_to_index(options[selected].x)][selected] == TRUE) {
+                draw_room_static_text(room_id, TXT_ROOM_04);
+            } else if (game_try_spend_money(options[selected].cost)) {
+                purchased_items[room_id_to_index(options[selected].x)][selected] = TRUE;
+                clear_arrow_at(bg, options, selected);
+                draw_selector_at(options, selected);
                 draw_room_static_text(room_id, TXT_ROOM_03);
                 draw_money_panel();
-                break;
             } else {
                 draw_room_static_text(room_id, TXT_ROOM_02);
             }

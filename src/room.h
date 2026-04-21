@@ -11,4 +11,7 @@
  */
 int enter_room(int room_id, int level);
 
+/** @brief Clears room purchased items state (call on new game). */
+void room_reset_purchased_items();
+
 #endif

@@ -43,6 +43,8 @@ typedef enum {
     TXT_ROOM_01,
     TXT_ROOM_02,
     TXT_ROOM_03,
+    TXT_ROOM_04,
+    TXT_ROOM_05,
     TXT_COUNT
 } gameTextId;
 
@@ -72,10 +74,21 @@ void beep(int frequency, int duration);
 
 /** @brief Waits for the spacebar key to be pressed and released. */
 void wait_for_space();
+
 /** @brief Prints text at a specific position on screen. */
 void print_at(int x, int y, const char* texto, int col, int bg);
+
 /** @brief Prints text character by character using current game font. */
 void print_at_slow(int x, int y, const char* texto, int col, int bg);
+
+/**
+ * @brief Prints text at a specific position on screen using current game font.
+ * * This is a simplified version of print_at that does not handle line wrapping or
+ * long texts. It is intended for short messages or debug output where the caller
+ * ensures the text fits within the screen width.
+ */
+void printf_at_simple(int x, int y, int col, int bg, const char* format, ...);
+
 /** @brief Gets game text by ID for the selected compile-time language. */
 const char* game_text(gameTextId id);
 
