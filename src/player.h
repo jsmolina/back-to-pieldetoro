@@ -1,7 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "helpers.h"
-#include "object.h"
 #include <allegro.h>
 
 #define STOP 1
@@ -116,9 +115,15 @@ void destroy_martin_spritesheet();
 void player_killed();
 
 /**
- * @brief Gets the collision area for the player's foot
+ * @brief Restores the player's energy to the default value
  *
- * @return collisionType struct representing the foot collision area
+ */
+void player_energy_up();
+
+/**
+ * @brief Gets the collision area for the player's front wheels
+ *
+ * @return collisionType struct representing the front wheels collision area
  */
 collisionType front_wheels_area();
 /** @brief Gets the collision area for the player's rear wheels
@@ -139,6 +144,7 @@ collisionType player_foot_area();
  */
 collisionType player_aabb();
 void player_on_hit();
+void player_energy_up();
 
 /**
  * @brief Returns pending player flow event and clears it.
@@ -147,6 +153,12 @@ void player_on_hit();
  */
 FlowEventType player_consume_flow_event();
 
+/** @brief Restores the player's energy to the default value
+ *
+ */
+void player_energy_up();
+
 extern struct playerType player;
+
 
 #endif

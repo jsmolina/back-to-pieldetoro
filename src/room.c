@@ -2,6 +2,7 @@
 #include "allegro/gfx.h"
 #include "dat_manager.h"
 #include "game.h"
+#include "player.h"
 #include "helpers.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -141,7 +142,7 @@ int enter_room(int room_id, int level) {
             }
             clear_arrow_at(bg, options, prev_selected);
             draw_selector_at(options, selected);
-        } else if (key_code == KEY_SPACE) {
+        } else if (key_code == KEY_SPACE || key_code == KEY_ENTER) {
             if (purchased_items[room_id_to_index(options[selected].x)][selected] == TRUE) {
                 draw_room_static_text(room_id, TXT_ROOM_04);
             } else if (game_try_spend_money(options[selected].cost)) {
@@ -150,6 +151,10 @@ int enter_room(int room_id, int level) {
                 draw_selector_at(options, selected);
                 draw_room_static_text(room_id, TXT_ROOM_03);
                 draw_money_panel();
+                if (room_id == 2 && selected == 0) {
+                   // special case for 1st option in room 2, which is a health upgrade
+                   player_energy_up();
+                }
             } else {
                 draw_room_static_text(room_id, TXT_ROOM_02);
             }

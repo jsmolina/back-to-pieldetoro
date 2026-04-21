@@ -21,15 +21,15 @@ int map_pixel_width = 0;
 
 struct coords get_tile_coords(int tile_number) {
     struct coords result;
-    result.x = 8 * ((tile_number - 1) % 32);
-    result.y = 8 * ((tile_number - 1) >> 5);
+    result.x = ((tile_number - 1) & 31) << 3;
+    result.y = ((tile_number - 1) >> 5) << 3;
 
     return result;
 }
 
 int get_tile_at_position(int x, int y) {
-    int tile_x = x / TILES_SIZE;
-    int tile_y = y / TILES_SIZE;
+    int tile_x = x >> 3;
+    int tile_y = y >> 3;
 
     // Validar límites
     if (tile_x < 0 || tile_x >= curr_tiles_width || tile_y < 0 || tile_y >= MAX_VERT_TILES) {
@@ -49,9 +49,11 @@ inline void load_tiles() {
 
 void load_numbers_spritesheet() {
     BITMAP* numbers_spritesheet = dat_file[NUMBERS_BMP].dat;
-    int frame_width = (int)numbers_spritesheet->w / 10;
+    int frame_width = 4; // each number sprite is 4 pixels wide
+    int curr_x = 0;
     for (int i = 0; i < 10; i++) {
-        numbers_sprites[i] = create_sub_bitmap(numbers_spritesheet, i * frame_width, 0, frame_width, numbers_spritesheet->h);
+        numbers_sprites[i] = create_sub_bitmap(numbers_spritesheet, curr_x, 0, frame_width, numbers_spritesheet->h);
+        curr_x += frame_width;
     }
 }
 
@@ -99,7 +101,7 @@ BITMAP* load_shop_bg(int id) {
         die("invalid shop tiles width: %d", local_tiles_width);
     }
 
-    int local_pixel_width = local_tiles_width * TILES_SIZE;
+    int local_pixel_width = local_tiles_width << 3;
     BITMAP* background = create_bitmap(local_pixel_width, SCREEN_H);
     if (!background) {
         die("cannot create shop background bitmap");
@@ -189,8 +191,8 @@ BITMAP* load_background(int id) {
         die("invalid tiles width: %d", curr_tiles_width);
     }
 
-    map_width = curr_tiles_width * TILES_SIZE - SCREEN_W;
-    map_pixel_width = curr_tiles_width * TILES_SIZE;
+    map_width = (curr_tiles_width << 3) - SCREEN_W;
+    map_pixel_width = curr_tiles_width << 3;
     if (map_pixel_width <= 0) {
         die("invalid map pixel width: %d", map_pixel_width);
     }

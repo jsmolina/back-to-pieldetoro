@@ -6,12 +6,14 @@
 #include "game.h"
 #include "object.h"
 #include "player.h"
-#include "room.h"
+
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
 #include <math.h>
 
+#define CAR_WIDTH 105
+#define MARTIN_WIDTH 24
 #define LEVEL_ID_INTRO 1
 
 #define PLAYER_DEFAULT_ENERGY 6
@@ -144,7 +146,7 @@ void player_init(int x, int y, int current_level, int max_vx) {
 
 void load_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
-    int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
+    int frame_width = CAR_WIDTH;
     coche.width = frame_width;
     coche.height = coche_spritesheet->h;
     coche.total_frames = COCHE_FRAMES;
@@ -158,7 +160,6 @@ void load_coche_spritesheet() {
 
 void destroy_coche_spritesheet() {
     BITMAP* coche_spritesheet = dat_file[COCHE_SPRITESHEET_BMP].dat;
-    int frame_width = (int)coche_spritesheet->w / COCHE_FRAMES;
     for (int i = 0; i < COCHE_FRAMES; i++) {
         destroy_bitmap(coche.sprites[i]);
     }
@@ -166,7 +167,7 @@ void destroy_coche_spritesheet() {
 
 void load_martin_spritesheet() {
     BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
-    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
+    int frame_width = MARTIN_WIDTH;
     martin.width = frame_width;
     martin.height = martin_spritesheet->h;
     martin.total_frames = MARTIN_FRAMES;
@@ -179,7 +180,6 @@ void load_martin_spritesheet() {
 
 void destroy_martin_spritesheet() {
     BITMAP* martin_spritesheet = dat_file[MARTIN_SPRITESHEET_BMP].dat;
-    int frame_width = (int)martin_spritesheet->w / MARTIN_FRAMES;
     for (int i = 0; i < MARTIN_FRAMES; i++) {
         destroy_bitmap(martin.sprites[i]);
     }
@@ -189,6 +189,9 @@ static void player_change_state(unsigned int state) {
     player.prev_state = player.state;
     player.state = state;
     player.move_count = player.animations[player.state].move_count;
+}
+void player_energy_up() {
+    player.energy = PLAYER_DEFAULT_ENERGY;
 }
 
 void player_on_hit() {

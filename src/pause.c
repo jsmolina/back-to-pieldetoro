@@ -24,10 +24,10 @@ static void draw_pause_menu(int selected) {
     /* Draw dark blue background with border */
     rectfill(screen, PAUSE_MENU_X, PAUSE_MENU_Y, PAUSE_MENU_X + PAUSE_MENU_W, PAUSE_MENU_Y + PAUSE_MENU_H, PAUSE_BG_COLOR);
     rect(screen, PAUSE_MENU_X - 1, PAUSE_MENU_Y - 1, PAUSE_MENU_X + PAUSE_MENU_W + 1, PAUSE_MENU_Y + PAUSE_MENU_H + 1, PAUSE_BORDER_COLOR);
-
+    int offset_y = PAUSE_MENU_Y + 10;
     /* Draw each option */
     for (int i = 0; i < PAUSE_MENU_OPTION_COUNT; i++) {
-        int y = PAUSE_MENU_Y + (i * PAUSE_OPTION_HEIGHT) + 10;
+        int y = offset_y;
         int bg_color = (i == selected) ? PAUSE_SELECTED_COLOR : PAUSE_BG_COLOR;
         int fg_color = (i == selected) ? PAUSE_TEXT_SELECTED_COLOR : PAUSE_TEXT_COLOR;
 
@@ -37,6 +37,7 @@ static void draw_pause_menu(int selected) {
 
         //textprintf_ex(screen, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
         printf_at_simple(PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
+        offset_y+= PAUSE_OPTION_HEIGHT;
     }
 }
 
