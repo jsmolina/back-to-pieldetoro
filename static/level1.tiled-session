@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1_shop.tmx",
+    "activeFile": "test.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -21,27 +21,27 @@
             "scale": 2.2578,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1280.0070865444236,
-                "y": 99.87598547258392
+                "x": 310.92213659314376,
+                "y": 126.00761803525553
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.6619,
+            "scale": 1.66,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 376.3764366087009,
-                "y": 199.77134604970215
+                "x": 1280.120481927711,
+                "y": 100.00000000000001
             }
         },
         "bg1_shop.tmx": {
             "scale": 4.59,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 129.520697167756,
-                "y": 31.154684095860567
+                "x": 328.8671023965142,
+                "y": 101.52505446623094
             }
         },
         "level1.tmx": {
@@ -50,6 +50,14 @@
             "viewCenter": {
                 "x": 1321.8470982142858,
                 "y": 132.88225446428572
+            }
+        },
+        "test.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 111,
+                "y": 74.75
             }
         },
         "tiles.tsx": {
@@ -64,16 +72,17 @@
     "map.tileWidth": 8,
     "map.width": 378,
     "openFiles": [
-        "bg1_shop.tmx",
         "bg0.tmx",
         "bg1.tmx",
-        "tiles.tsx"
+        "tiles.tsx",
+        "test.tmx"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
-        "tiles.tsx",
-        "bg1.tmx",
         "bg0.tmx",
+        "bg1.tmx",
+        "tiles.tsx",
+        "test.tmx",
         "bg1_shop.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
