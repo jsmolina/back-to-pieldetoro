@@ -7,9 +7,8 @@
 #include "player.h"
 #include "tiles.h"
 
-#define GAME_PLATFORMS_SIZE1 19
-#define GAME_PLATFORMS_SIZE2 15
 #define CAR_PLATFORM_SIZE 9
+#define ALMANAC_TILE_ID 1040
 
 // simple AABB collision detection
 int collision(collisionType obj1, collisionType obj2) {
@@ -35,7 +34,7 @@ static inline int is_harmful_tile(int id) {
 }
 
 static inline int is_back_in_time_tile(int id) {
-    return id == 876;
+    return id == 876 || id == 1040;
 }
 /*
 static const int platform_ids1[GAME_PLATFORMS_SIZE1] = {
@@ -59,8 +58,8 @@ static inline int is_a_platform(int id) {
     return FALSE;
 }
 
-static const int car_platform_ids[CAR_PLATFORM_SIZE] = { 906, 907, 908, 909, 865, 866, 864, 867, 832 };
-
+// static const int car_platform_ids[CAR_PLATFORM_SIZE] = { 906, 907, 908, 909, 865, 866, 864, 867, 832 };
+/*
 static inline int is_a_car_platform(int id) {
     for (int i = 0; i < CAR_PLATFORM_SIZE; i++) {
         if (car_platform_ids[i] == id) {
@@ -68,7 +67,7 @@ static inline int is_a_car_platform(int id) {
         }
     }
     return FALSE;
-}
+}*/
 
 static int rect_over_tile_types(collisionType r, int is_wheel) {
     if (r.w <= 0 || r.h <= 0)
@@ -98,11 +97,15 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
                     return HARMFUL;
                 if (is_back_in_time_tile(tile_id))
                     return BACK_IN_TIME;
-                if (is_a_car_platform(tile_id))
-                    return PLATFORM;
-            } else {
                 if (is_a_platform(tile_id))
                     return PLATFORM;
+            } else {
+                if (tile_id == ALMANAC_TILE_ID)
+                    return ALMANAC;
+                if (is_a_platform(tile_id))
+                    return PLATFORM;
+                if (is_back_in_time_tile(tile_id))
+                    return BACK_IN_TIME;
             }
         }
     }
@@ -132,7 +135,7 @@ int wheels_on_tiles() {
 // will check if player is over a walkable thing
 int checkOverObj(collisionType area) {
     int result = rect_over_tile_types(area, FALSE);
-    if (result == PLATFORM) {
+    if (result == PLATFORM || result == ALMANAC) {
         return TRUE;
     }
 
@@ -203,6 +206,11 @@ int car_is_on_obj() {
     collisionType rear = rear_wheels_area();
     collisionType front = front_wheels_area();
     return checkOverObj(rear) || checkOverObj(front);
+}
+
+int player_is_over_almanac_tile() {
+    collisionType foot = player_foot_area();
+    return rect_over_tile_types(foot, FALSE) == ALMANAC;
 }
 
 int martin_is_over_door() {

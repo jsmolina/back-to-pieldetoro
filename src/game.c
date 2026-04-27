@@ -14,6 +14,7 @@
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
+#include <stdio.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -50,6 +51,12 @@ static int hud_last_lives = -1;
 static int hud_last_coins = -1;
 static int coins_collected = 0;
 static int game_money = 0;
+static volatile int stage_tick_count = 0;
+int stage_elapsed_minutes = 0;
+int stage_elapsed_seconds = 0;
+
+static void _stage_tick() { stage_tick_count++; }
+END_OF_FUNCTION(_stage_tick)
 
 void game_on_coin_collected() {
     coins_collected++;
@@ -134,6 +141,22 @@ void lifebar() {
 }
 
 void advance_stage() {
+    remove_int(_stage_tick);
+    int secs = stage_tick_count;
+    stage_tick_count = 0;
+    stage_elapsed_minutes = 0;
+    while (secs >= 60) {
+        secs -= 60;
+        stage_elapsed_minutes++;
+    }
+    stage_elapsed_seconds = secs;
+    if (current_level != 0) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "FINISHED!! %02dm %02ds", stage_elapsed_minutes, stage_elapsed_seconds);
+        print_at_slow(90, 40, buf, 31, -1);
+        wait_for_space();
+    }
+
     current_level++;
     int dat_id = level_to_dat_id(current_level);
     switch (current_level) {
@@ -236,6 +259,9 @@ void update_game_run() {
             (void)room_choice;
             hud_last_level = -1; // force HUD redraw on room exit
             return;
+        } else if (flow_event.type == PLAYER_ADVANCE_STAGE) {
+            world_state = STAGE_CLEAR;
+            return;
         }
         if (player_is_deading()) {
             world_state = PLAYER_FALL;
@@ -315,6 +341,15 @@ inline void draw_game() {
 }
 
 void start_stage() {
+    static int _timer_locked = FALSE;
+    if (!_timer_locked) {
+        LOCK_VARIABLE(stage_tick_count);
+        LOCK_FUNCTION(_stage_tick);
+        _timer_locked = TRUE;
+    }
+    remove_int(_stage_tick);
+    stage_tick_count = 0;
+    install_int_ex(_stage_tick, BPS_TO_TIMER(1));
     switch (current_level) {
     case 1:
         level1_intro();

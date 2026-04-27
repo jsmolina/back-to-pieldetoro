@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Tue Apr 21 14:22:10 2026 */
+/* Date: Mon Apr 27 09:40:46 2026 */
 /* Do not hand edit! */
 
 #define BG0_TMX                          0        /* DATA */
@@ -31,6 +31,5 @@
 #define PALETE_INTRO_BMP                 25       /* PAL  */
 #define PALETE_JORDI_LOGO_BMP            26       /* PAL  */
 #define PIELDETORO_INTRO3_BMP            27       /* BMP  */
-#define STAGE_ENEMIES_DEF                28       /* DATA */
-#define TILES_BMP                        29       /* BMP  */
+#define TILES_BMP                        28       /* BMP  */
 

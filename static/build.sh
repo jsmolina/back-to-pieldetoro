@@ -16,7 +16,7 @@ dat datos.dat -a ./palete_jordi_logo.bmp -h statics.h -t PAL
 dat datos.dat -a ./msdosclub.bmp -h statics.h -t BMP
 dat datos.dat -a ./intro.mid -h statics.h -t MIDI
 dat datos.dat -a ./msdos.mid -h statics.h -t MIDI
-dat datos.dat -a ./stage_enemies.def -h statics.h 
+#dat datos.dat -a ./stage_enemies.def -h statics.h 
 dat datos.dat -a ./intro.fli -h statics.h 
 dat datos.dat -a ./intro2.fli -h statics.h 
 dat datos.dat -a ./lifebar_bruno.bmp -h statics.h -t BMP

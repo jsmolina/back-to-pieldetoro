@@ -30,7 +30,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "UR BROKE",
     "BOUGHT BRO",
     "NO STOCK BRO",
-    "I NEED THAT ALMANAC"
+    "I NEED THAT ALMANAC",
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -47,7 +47,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "ESTAS BROKE",
     "COMPRADO BRO",
     "NO QUEDA BRO",
-    "NECESITO ESE ALMANAQUE"
+    "NECESITO ESE ALMANAQUE",
 };
 #endif
 

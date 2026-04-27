@@ -20,6 +20,12 @@
 #define PLAYER_DEFAULT_LIVES 3
 #define PLAYER_HURT_COOLDOWN_FRAMES 60
 #define PLAYER_BLINK_INTERVAL 2
+#define ALMANAC_DIALOG_X 64
+#define ALMANAC_DIALOG_Y 84
+#define ALMANAC_DIALOG_W 192
+#define ALMANAC_DIALOG_H 32
+#define ALMANAC_DIALOG_TEXT_X 72
+#define ALMANAC_DIALOG_TEXT_Y 96
 
 #define JUMP_VY -8
 
@@ -33,6 +39,7 @@ PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 
 FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
+static int almanac_tile_trigger_available = TRUE;
 
 static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -120,9 +127,12 @@ static int kick_key_freed() {
     return FALSE;
 }
 
+static void player_clamp_to_map_bounds();
+
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
     player.lives = PLAYER_DEFAULT_LIVES;
+    player.has_almanac = FALSE;
     pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
 }
 
@@ -142,6 +152,42 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+}
+
+void player_took_almanac() {
+    player.has_almanac = TRUE;
+}
+
+/**
+@brief shows the reminder of buying the almanac when stepping on the almanac tile without having it,
+ */
+static void player_show_almanac_dialog() {
+    rectfill(
+        screen,
+        ALMANAC_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(255, 255, 255));
+    rect(
+        screen,
+        ALMANAC_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(0, 0, 0));
+    print_at(
+        ALMANAC_DIALOG_TEXT_X,
+        ALMANAC_DIALOG_TEXT_Y,
+        game_text(TXT_ROOM_05),
+        makecol(0, 0, 0),
+        makecol(255, 255, 255));
+
+    clear_keybuf();
+    do {
+    } while (!key[KEY_SPACE]);
+    do {
+    } while (key[KEY_SPACE]);
 }
 
 void load_coche_spritesheet() {
@@ -338,6 +384,30 @@ inline collisionType player_aabb() {
     }
 }
 
+static void player_clamp_to_map_bounds() {
+    if (player.pos.x < 2) {
+        player.pos.x = 2;
+        if (player.vx < 0) {
+            player.vx = 0;
+        }
+    }
+
+    if (player.data != NULL && map_pixel_width > 0) {
+        int max_x = map_pixel_width - player.data->width;
+        if (max_x < 2) {
+            max_x = 2;
+        }
+
+        if (player.pos.x > max_x) {
+            player.pos.x = max_x;
+        }
+        if (player.pos.x >= max_x && player.vx > 0) {
+            player.vx = 0;
+            player.pos.x = max_x;
+        }
+    }
+}
+
 /**
  * @brief Checks player speed
  *
@@ -369,10 +439,7 @@ static void player_check_vy() {
  * @brief Checks vx for hits
  */
 static void player_check_vx() {
-    if (player.pos.x <= 2 && player.vx < 0) {
-        player.vx = 0;
-        player.pos.x = 2;
-    }
+    player_clamp_to_map_bounds();
 
     if (player.vx != 0) {
         if (checkHitObj()) {
@@ -429,6 +496,9 @@ static void player_update_position() {
     player_check_vx();
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
+
+    player_clamp_to_map_bounds();
+
     player_move_y_substeps();
 }
 
@@ -872,6 +942,19 @@ void player_update() {
 
     player_affect_force(0, (player.anime_index & 1) == 0);
     player_update_position();
+
+    if (player_is_over_almanac_tile()) {
+        if (almanac_tile_trigger_available == TRUE) {
+            almanac_tile_trigger_available = FALSE;
+            if (player.has_almanac) {
+                pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+            } else {
+                player_show_almanac_dialog();
+            }
+        }
+    } else {
+        almanac_tile_trigger_available = TRUE;
+    }
 
     switch (player.state) {
     case MOVE_LEFT:

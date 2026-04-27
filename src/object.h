@@ -10,6 +10,7 @@
 #define HARMFUL 1
 #define BACK_IN_TIME 2
 #define PLATFORM 3
+#define ALMANAC 4
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
@@ -51,6 +52,7 @@ void collision_check_enemy_vs_player(int scroll_x);
 
 int martin_is_on_obj();
 int car_is_on_obj();
+int player_is_over_almanac_tile();
 
 /** @brief Checks if Martin is over a door using AABB collision.
  *  @return TRUE if player overlaps any door, FALSE otherwise.

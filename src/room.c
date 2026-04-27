@@ -154,6 +154,8 @@ int enter_room(int room_id, int level) {
                 if (room_id == 2 && selected == 0) {
                    // special case for 1st option in room 2, which is a health upgrade
                    player_energy_up();
+                } else if (room_id == 1 && selected == 1) {
+                    player_took_almanac();
                 }
             } else {
                 draw_room_static_text(room_id, TXT_ROOM_02);
