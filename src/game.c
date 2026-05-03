@@ -159,19 +159,13 @@ void advance_stage() {
 
     current_level++;
     int dat_id = level_to_dat_id(current_level);
-    switch (current_level) {
-    case 1:
+    if (current_level > 0 && current_level < 4) {
         current_background = load_background(dat_id);
-        break;
-    case 2:
-        current_background = load_background(dat_id);
-
         world_state = START_STAGE;
-        break;
-    default:
+    } else {
         world_state = GAME_OVER;
-        break;
     }
+  
 }
 
 // loads first level and passes it to scroller bitmap
