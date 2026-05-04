@@ -74,7 +74,7 @@ static animeItem martin_animations[18] = {
     { 1, { 13 }, 1, 1 },                                         // FALL
     { 1, { 13 }, 1, 1 },                                         // FALL2
     { 150, { 0, 17 }, 2, 5 },                                    // DEAD
-    { 60, { 14 }, 1, 60 },                                       // FALL_END
+    { 60, { 0, 17 }, 2, 5 },                                      // FALL_END (play dead animation)
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
@@ -413,17 +413,15 @@ static void player_clamp_to_map_bounds() {
  *
  */
 static void player_check_vy() {
-    if (player.state == DEAD) {
+    /*if (player.state == DEAD) {
         return;
-    }
+    }*/
 
-    if (player.state == JUMP_HIT || player.state == DEAD) {
+    if (player.state == JUMP_HIT || player.state == DEAD || player.state == FALL_END ) {
         player.vy = 0;
         return;
     }
 
-    if (player.state == FALL_END)
-        return;
 
     if (player.vy > 0) {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
@@ -605,6 +603,7 @@ static void player_action_fall() {
         }
     } else if (player.pos.y > SCREEN_H - player.data->height) {
         player_change_state(FALL_END);
+        player.vx = 0;
     }
 
     if (action_key_freed()) {
@@ -875,11 +874,14 @@ static void player_action_kick() {
 }
 
 void player_action_fall_end() {
+    if (player_count_move(0, 0) == FINISHED) {
+        player_change_state(DEAD_END);
+    }
 }
 
 // conditional
 int player_is_deading() {
-    if (player.state == DEAD_END || player.state == FALL_END) {
+    if (player.state == DEAD_END) {
         return TRUE;
     } else {
         return FALSE;

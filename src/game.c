@@ -9,8 +9,7 @@
 #include "pause.h"
 #include "player.h"
 #include "room.h"
-#include "stage1.h"
-#include "stage2.h"
+#include "intros.h"
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -236,7 +235,7 @@ void update_game_run() {
             // next_x++;
         }
         break;
-    case 2:
+    default:
         player_update();
 
         flow_event = player_consume_flow_event();
@@ -313,7 +312,7 @@ inline void draw_game() {
         lifebar();
         // draw objects, player, enemies
         break;
-    case 2:
+    default:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
@@ -351,8 +350,8 @@ void start_stage() {
         player_new_game();
         player_init(10, GROUND_Y, current_level, MAX_CAR_VX);
         break;
-    case 2:
-        level2_intro();
+    default:
+        show_intro(current_level);
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
         // initializes level enemies
@@ -360,11 +359,11 @@ void start_stage() {
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
         // load_level_enemies(2);
-        load_level_enemies_v2(2);
+        load_level_enemies_v2(current_level);
         reset_coins();
-        load_level_coins(2);
+        load_level_coins(current_level);
         reset_doors();
-        load_level_doors(2);
+        load_level_doors(current_level);
         break;
     }
 }
@@ -401,6 +400,7 @@ inline void update_game() {
         player_init(10, GROUND_Y, current_level, player.max_vx);
         enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        hud_last_level = -1; // force HUD redraw on stage restart
         world_state = GAME_RUN;
         break;
     case GAME_RUN:
