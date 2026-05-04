@@ -4,6 +4,7 @@
 #include "book.h"
 #include "dat_manager.h"
 #include "game.h"
+#include "helpers.h"
 #include "object.h"
 #include "player.h"
 
@@ -27,7 +28,6 @@
 #define ALMANAC_DIALOG_TEXT_X 72
 #define ALMANAC_DIALOG_TEXT_Y 96
 
-#define JUMP_VY -8
 
 #define PLAYER_ACCEL 1
 
@@ -47,7 +47,7 @@ static animeItem car_animations[18] = {
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
     { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
     { 16, { 2 }, 1, 2 },     // BREAKING
-    { 60, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 3, { 0, 1 }, 2, 1 },  // JUMP_UP
     { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL
@@ -68,7 +68,7 @@ static animeItem martin_animations[18] = {
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
     { 4, { 9 }, 1, 2 },                                          // BREAKING
-    { 12, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 2, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL
@@ -136,12 +136,13 @@ void player_new_game() {
     pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
 }
 
-void player_init(int x, int y, int current_level, int max_vx) {
+void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.pos.x = x;
     player.pos.y = y;
     player.vx = 0;
     player.vy = 0;
     player.state = STOP;
+    player.jump_vy = jump_vy;
     player.prev_state = 0;
     player.anime_count = 0;
     player.anime_index = 0;
@@ -253,6 +254,7 @@ void player_on_hit() {
 
     if (player.energy <= 0) {
         player_change_state(DEAD);
+        player.vx = 0;
     } else {
         player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
     }
@@ -265,7 +267,7 @@ void player_on_hit() {
  * @param vy vert velocity
  *
  */
-static void player_affect_force(int vx, int vy) {
+static void player_affect_force(int vx, int vy) {    
     player.vy += vy;
     player.vx += vx;
 }
@@ -585,7 +587,7 @@ static inline void player_do_jump() {
             player.vx = player.max_vx;
         }
     }
-    player.vy = JUMP_VY;
+    player.vy = player.jump_vy;
     player_change_state(JUMP_UP);
 }
 
@@ -791,7 +793,9 @@ static void player_action_jump_up() {
         player_do_kick();
     }
 
-    player_count_move(player.vx, 0);
+    if (player_count_move(player.vx, 0) == FINISHED) {
+        player_change_state(JUMP_DOWN);
+    }
 }
 
 static void player_action_jump_down() {
@@ -942,7 +946,9 @@ void player_update() {
         player.hurt_cooldown--;
     }
 
-    player_affect_force(0, (player.anime_index & 1) == 0);
+    if (player.state != JUMP_UP) {
+        player_affect_force(0, (player.anime_index & 1) == 0);
+    }
     player_update_position();
 
     if (player_is_over_almanac_tile()) {
