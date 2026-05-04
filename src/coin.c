@@ -112,6 +112,9 @@ inline void draw_coins(int scroll_x) {
 }
 
 void coin_spawn_enemy_drop(int x, int y) {
+    if (y < 90) {
+        y = 90;
+    }
     for (int i = 0; i < MAX_ENEMY_COINS; i++) {
         if (!enemy_drop_coins[i].active || enemy_drop_coins[i].collected) {
             enemy_drop_coins[i].x = x;
