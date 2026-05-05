@@ -119,13 +119,13 @@ int wheels_on_tiles() {
 
     collisionType f1 = rear_wheels_area();
     result = rect_over_tile_types(f1, TRUE);
-    if (result != ROAD) {
+    if (result != PLATFORM) {
         return result;
     }
 
     collisionType f2 = front_wheels_area();
     result = rect_over_tile_types(f2, TRUE);
-    if (result != ROAD) {
+    if (result != PLATFORM) {
         return result;
     }
 
@@ -205,7 +205,7 @@ int martin_is_on_obj() {
 int car_is_on_obj() {
     collisionType rear = rear_wheels_area();
     collisionType front = front_wheels_area();
-    return checkOverObj(rear) || checkOverObj(front);
+    return checkOverObj(rear) && checkOverObj(front);
 }
 
 int player_is_over_almanac_tile() {
