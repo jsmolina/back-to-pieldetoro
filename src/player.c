@@ -603,7 +603,7 @@ static void player_action_fall() {
         } else {
             player_change_state(BREAKING);
         }
-    } else if (player.pos.y > SCREEN_H - player.data->height) {
+    } else if (player.pos.y > 130) {
         player_change_state(FALL_END);
         player.vx = 0;
     }
@@ -879,7 +879,16 @@ static void player_action_kick() {
 
 void player_action_fall_end() {
     if (player_count_move(0, 0) == FINISHED) {
+        player.lives--;
+        player.energy = PLAYER_DEFAULT_ENERGY;
         player_change_state(DEAD_END);
+        if (player.lives <= 0) {
+            pending_flow_event.type = PLAYER_FLOW_GAME_OVER;
+            return;
+        } else {
+            pending_flow_event.type = PLAYER_FLOW_RESTART_STAGE;
+        }
+        
     }
 }
 
