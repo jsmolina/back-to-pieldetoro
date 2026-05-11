@@ -47,7 +47,7 @@ static animeItem car_animations[18] = {
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
     { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
     { 16, { 2 }, 1, 2 },     // BREAKING
-    { 4, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 3, { 0, 1 }, 2, 1 },  // JUMP_UP
     { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL
@@ -68,7 +68,7 @@ static animeItem martin_animations[18] = {
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
     { 4, { 9 }, 1, 2 },                                          // BREAKING
-    { 2, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 4, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL

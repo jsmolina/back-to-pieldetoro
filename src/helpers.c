@@ -175,7 +175,7 @@ int level_to_dat_id(int level) {
     case 2:
         return BG1_TMX;
     case 3:
-        return BG4_TMX;
+        return BG2_TMX;
     default:
         return -1;
     }

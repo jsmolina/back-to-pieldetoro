@@ -56,24 +56,51 @@ int stage_elapsed_seconds = 0;
 static int flash_count = 0;
 static int flash_state = 0;
 static int pal_slowdown_cycle = 0;
+static int pal_cycle_step = 0;
 
 static void _stage_tick() { stage_tick_count++; }
 END_OF_FUNCTION(_stage_tick)
 
-
 /**
- * @brief cascade effect to swap palette indexes 55 and 52
+ * @brief cascade effect rotating palette indexes 31, 11, 9 and 3
  */
-static void swap_palette_indexes_55_52() {
+static void cascade_palette() {
     PALETTE current_pal;
-    RGB tmp;
+    static const int target_idx[4] = { 30, 11, 9, 3 };
+    static const int cycle_map[3][4] = {
+        { 3, 30, 11, 9 },
+        { 9, 3, 30, 11 },
+        { 11, 9, 3, 30 }
+    };
     pal_slowdown_cycle++;
-    if (pal_slowdown_cycle == 10) {
+    if (pal_slowdown_cycle >= 10) {
+        int i;
         pal_slowdown_cycle = 0;
         get_palette(current_pal);
-        tmp = current_pal[55];
-        current_pal[55] = current_pal[52];
-        current_pal[52] = tmp;
+
+        for (i = 0; i < 4; i++) {
+            current_pal[target_idx[i]] = palette[cycle_map[pal_cycle_step][i]];
+        }
+
+        pal_cycle_step++;
+        if (pal_cycle_step >= 3) {
+            pal_cycle_step = 0;
+        }
+
+        set_palette(current_pal);
+    }
+}
+
+static void sea_sparkle() {
+    PALETTE current_pal;
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle >= 20) {
+        pal_slowdown_cycle = 0;
+        RGB tmp;
+        get_palette(current_pal);
+        tmp = current_pal[54];
+        current_pal[54] = current_pal[33];
+        current_pal[33] = tmp;
         set_palette(current_pal);
     }
 }
@@ -196,6 +223,8 @@ void start_new_game() {
     stop_midi();
     // current_background = load_background(BG0_TMX);
     current_level = 0;
+    pal_cycle_step = 0;
+    pal_slowdown_cycle = 0;
     coins_collected = 0;
     game_money = 0;
     room_reset_purchased_items();
@@ -325,6 +354,7 @@ inline void draw_game() {
     switch (current_level) {
 
     case 1:
+        sea_sparkle();
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
@@ -335,9 +365,10 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
+
         break;
     case 3:
-        swap_palette_indexes_55_52();
+        cascade_palette();
     default:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
@@ -393,8 +424,6 @@ void start_stage() {
         break;
     }
 }
-
-
 
 void palete_flash() {
     flash_count++;
