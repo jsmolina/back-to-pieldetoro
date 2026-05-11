@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg0.tmx",
+    "activeFile": "bg4.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -18,22 +18,22 @@
             }
         },
         "bg0.tmx": {
-            "scale": 2.2606,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2283.2433867114923,
-                "y": 49.54436875165885
+                "x": 1376,
+                "y": 94
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.5251,
-            "selectedLayer": 0,
+            "scale": 1,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1199.9524771296185,
-                "y": 99.99603976080155
+                "x": 1200,
+                "y": 100
             }
         },
         "bg1_shop.tmx": {
@@ -41,26 +41,34 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 159.9128540305011,
-                "y": 100.10893246187364
+                "y": 100.00000000000001
             }
         },
         "bg2.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.7683,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 320.0520174836542,
-                "y": 99.88079326662574
+                "x": 193.75,
+                "y": 68.25
             }
         },
         "bg3.tmx": {
-            "scale": 2.9497,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 184.086517272943,
-                "y": 99.8406617622131
+                "x": 183.75,
+                "y": 99.75
+            }
+        },
+        "bg4.tmx": {
+            "scale": 2.1619,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 800.4533049632269,
+                "y": 100.14339238632684
             }
         },
         "level1.tmx": {
@@ -76,7 +84,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 99.75
+                "y": 100
             }
         },
         "tiles.tsx": {
@@ -94,19 +102,22 @@
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
-        "bg3.tmx",
+        "bg4.tmx",
         "bg1_shop.tmx",
-        "bg2.tmx"
+        "bg2.tmx",
+        "test.tmx",
+        "bg3.tmx"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "bg0.tmx",
+        "bg1.tmx",
+        "tiles.tsx",
+        "bg3.tmx",
+        "test.tmx",
         "bg2.tmx",
         "bg1_shop.tmx",
-        "bg3.tmx",
-        "tiles.tsx",
-        "bg1.tmx",
-        "bg0.tmx",
-        "test.tmx",
+        "bg4.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

@@ -47,7 +47,7 @@ static animeItem car_animations[18] = {
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
     { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
     { 16, { 2 }, 1, 2 },     // BREAKING
-    { 3, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 4, { 0, 1 }, 2, 1 },  // JUMP_UP
     { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL

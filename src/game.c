@@ -5,11 +5,11 @@
 #include "door.h"
 #include "enemy.h"
 #include "helpers.h"
+#include "intros.h"
 #include "object.h"
 #include "pause.h"
 #include "player.h"
 #include "room.h"
-#include "intros.h"
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -53,9 +53,34 @@ static int game_money = 0;
 static volatile int stage_tick_count = 0;
 int stage_elapsed_minutes = 0;
 int stage_elapsed_seconds = 0;
+static int flash_count = 0;
+static int flash_state = 0;
+static int pal_slowdown_cycle = 0;
 
 static void _stage_tick() { stage_tick_count++; }
 END_OF_FUNCTION(_stage_tick)
+
+
+/**
+ * @brief cascade effect to swap palette indexes 55 and 52
+ */
+static void swap_palette_indexes_55_52() {
+    PALETTE current_pal;
+    RGB tmp;
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle == 10) {
+        pal_slowdown_cycle = 0;
+        get_palette(current_pal);
+        tmp = current_pal[55];
+        current_pal[55] = current_pal[52];
+        current_pal[52] = tmp;
+        set_palette(current_pal);
+    }
+}
+
+static void reset_palette_to_vga_original() {
+    set_palette(default_palette);
+}
 
 void game_on_coin_collected() {
     coins_collected++;
@@ -150,8 +175,8 @@ void advance_stage() {
     }
     stage_elapsed_seconds = secs;
     if (current_level != 0) {
-        char buf[32];
-        snprintf(buf, sizeof(buf), "FINISHED!! %02dm %02ds", stage_elapsed_minutes, stage_elapsed_seconds);
+        char buf[40];
+        snprintf(buf, sizeof(buf), "  FINISHED!! %02dm %02ds  ", stage_elapsed_minutes, stage_elapsed_seconds);
         print_at_slow(90, 40, buf, 31, 16);
         wait_for_space();
     }
@@ -164,7 +189,6 @@ void advance_stage() {
     } else {
         world_state = GAME_OVER;
     }
-  
 }
 
 // loads first level and passes it to scroller bitmap
@@ -312,6 +336,8 @@ inline void draw_game() {
         lifebar();
         // draw objects, player, enemies
         break;
+    case 3:
+        swap_palette_indexes_55_52();
     default:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
@@ -368,12 +394,13 @@ void start_stage() {
     }
 }
 
-int flash_count = 0;
-int flash_state = 0;
+
 
 void palete_flash() {
     flash_count++;
-    if ((flash_count % 4) == 0) {
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle == 4) {
+        pal_slowdown_cycle = 0;
         flash_state = !flash_state;
         if (flash_state) {
             set_palette(pal_flash);
