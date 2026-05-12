@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1_shop.tmx",
+    "activeFile": "tiles.tsx",
     "expandedProjectPaths": [
         "."
     ],
@@ -18,30 +18,57 @@
             }
         },
         "bg0.tmx": {
-            "scale": 2.2578,
+            "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1280.0070865444236,
-                "y": 99.87598547258392
+                "x": 1376,
+                "y": 98.5
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.6619,
-            "selectedLayer": 0,
+            "scale": 1,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 376.3764366087009,
-                "y": 199.77134604970215
+                "x": 1200,
+                "y": 100
             }
         },
         "bg1_shop.tmx": {
             "scale": 4.59,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 129.520697167756,
-                "y": 31.154684095860567
+                "x": 159.9128540305011,
+                "y": 100.00000000000001
+            }
+        },
+        "bg2.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 320,
+                "y": 100
+            }
+        },
+        "bg3.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 184,
+                "y": 100
+            }
+        },
+        "bg4.tmx": {
+            "scale": 2.1619,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 800.2220269207642,
+                "y": 99.91211434386418
             }
         },
         "level1.tmx": {
@@ -52,9 +79,17 @@
                 "y": 132.88225446428572
             }
         },
+        "test.tmx": {
+            "scale": 2,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 320,
+                "y": 100
+            }
+        },
         "tiles.tsx": {
-            "scaleInDock": 2.2471,
-            "scaleInEditor": 2.33
+            "scaleInDock": 2.2578,
+            "scaleInEditor": 4.05
         }
     },
     "last.imagePath": "/Users/jordism/repos/back-to-pieldetoro",
@@ -64,17 +99,25 @@
     "map.tileWidth": 8,
     "map.width": 378,
     "openFiles": [
-        "bg1_shop.tmx",
         "bg0.tmx",
         "bg1.tmx",
-        "tiles.tsx"
+        "tiles.tsx",
+        "bg4.tmx",
+        "bg1_shop.tmx",
+        "bg2.tmx",
+        "test.tmx",
+        "bg3.tmx"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
-        "tiles.tsx",
-        "bg1.tmx",
         "bg0.tmx",
+        "bg1.tmx",
+        "bg3.tmx",
+        "test.tmx",
+        "bg2.tmx",
         "bg1_shop.tmx",
+        "bg4.tmx",
+        "tiles.tsx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

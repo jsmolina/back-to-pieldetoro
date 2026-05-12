@@ -32,7 +32,7 @@
 
 // Attack threshold: if close enough, throw objects
 #define ATTACK_DISTANCE 80
-FILE* enemy_log_file;
+//FILE* enemy_log_file;
 #define GRAVITY 1
 static EnemyData enemy_data[TOTAL_ENEMY_DATA] = {
     { 0, 0, 0, 0, 0, 0, NULL, NULL },
@@ -127,55 +127,6 @@ void enemy_pool_init() {
     }
 }
 
-void load_level_enemies(int level_id) {
-    enemy_log_file = fopen("enemy_log.txt", "w");
-
-    char* data = dat_file[STAGE_ENEMIES_DEF].dat;
-    if (data == NULL) {
-        die("cannot load stage_enemies.def");
-    }
-
-    // Skip header line
-    char* cursor = strchr(data, '\n');
-    if (cursor == NULL) {
-        die("stage_enemies.def has no header line");
-    }
-    cursor++; // move past the '\n'
-
-    int enemy_index = 0;
-    int current_level, enemy_type, enemy_x, enemy_y, enemy_vx, enemy_spawn_x;
-
-    while (*cursor != '\0' && enemy_index < MAX_SPAWNABLE_ENEMIES) {
-        int parsed = sscanf(cursor, "%d,%d,%d,%d,%d,%d",
-            &current_level, &enemy_type,
-            &enemy_x, &enemy_y, &enemy_vx, &enemy_spawn_x);
-        if (parsed == 0) {
-            cursor = strchr(cursor, '\n');
-            if (cursor == NULL)
-                break;
-            cursor++;
-            continue;
-        }
-        if (parsed != 6) {
-            die("invalid line in stage_enemies.def %d", parsed);
-        }
-
-        if (current_level == level_id) {
-            // enemy_x + enemy_spawn_x because enemies are defined relative to their spawn point, which allows us to reuse the same enemy definition
-            // for multiple spawn points just by changing the spawn_x value
-            init_enemy(enemy_index, (enum EnemyType)enemy_type, enemy_x + enemy_spawn_x, enemy_y, enemy_vx, enemy_spawn_x);
-            enemy_index++;
-        }
-
-        // Advance cursor to next line
-        cursor = strchr(cursor, '\n');
-        if (cursor == NULL)
-            break;
-        cursor++;
-    }
-
-    enemy_pool_init();
-}
 
 static enum EnemyType parse_enemy_type(const char* name) {
     if (strcmp(name, "ENEMY_DOG") == 0)
@@ -192,7 +143,7 @@ void load_level_enemies_v2(int level_id) {
     const char* cursor;
     int enemy_index = 0;
 
-    enemy_log_file = fopen("enemy_log.txt", "w");
+    ///enemy_log_file = fopen("enemy_log.txt", "w");
 
     if (tmx_id < 0) {
         die("invalid level id %d for TMX", level_id);
@@ -300,9 +251,9 @@ void destroy_enemy_spritesheets() {
             }
         }
     }
-    if (enemy_log_file) {
+    /*if (enemy_log_file) {
         fclose(enemy_log_file);
-    }
+    }*/
 }
 
 static void enemy_change_state(int index, unsigned int state) {
@@ -670,9 +621,9 @@ void enemy_pool_update(int camera_x) {
         }
 
         if (spawnable_enemies[i].screen_spawn_x == camera_x) {
-            if (enemy_log_file) {
+            /*if (enemy_log_file) {
                 fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
-            }
+            }*/
             _spawn_from_static(i);
         }
     }

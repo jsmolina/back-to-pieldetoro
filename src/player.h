@@ -30,10 +30,12 @@ typedef enum {
 } playerEnum;
 
 typedef enum {
-    PLAYER_FLOW_NONE = 0,
-    PLAYER_FLOW_RESTART_STAGE = 1,
-    PLAYER_FLOW_GAME_OVER = 2,
-    PLAYER_ENTER_ROOM = 3,
+    PLAYER_FLOW_NONE,
+    PLAYER_FLOW_RESTART_STAGE,
+    PLAYER_FLOW_GAME_OVER,
+    PLAYER_ENTER_ROOM,
+    PLAYER_FLOW_BACK_IN_TIME,
+    PLAYER_ADVANCE_STAGE,
 } PlayerFlowEvent;
 
 typedef struct {
@@ -64,8 +66,10 @@ struct playerType {
     int anime_index;
     int sprite_index;
     int type;
+    int has_almanac;
     unsigned int state;
     unsigned int prev_state;
+    int jump_vy;
     PlayerData* data;      // pointer to static data for current player type (car or martin)
     animeItem* animations; // pointer to current level animations, should be injected during player initialization
 };
@@ -73,7 +77,7 @@ struct playerType {
 /**
  * @brief __init__ :)
  */
-void player_init(int x, int y, int current_level, int max_vx);
+void player_init(int x, int y, int current_level, int max_vx, int jump_vy);
 
 /**
  * @brief called only on first level, starting new game, by resetting player lives and energy to default values.
@@ -113,6 +117,19 @@ void destroy_martin_spritesheet();
  *
  */
 void player_killed();
+
+/**
+ * @brief Marks the almanac as collected for the current run.
+ *
+ */
+void player_took_almanac();
+
+/**
+ * @brief Returns whether the player currently has the almanac.
+ *
+ * @return TRUE if the almanac has been collected in the current run
+ */
+int player_has_almanac();
 
 /**
  * @brief Restores the player's energy to the default value
@@ -159,6 +176,5 @@ FlowEventType player_consume_flow_event();
 void player_energy_up();
 
 extern struct playerType player;
-
 
 #endif

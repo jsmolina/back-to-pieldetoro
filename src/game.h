@@ -32,6 +32,8 @@ enum PauseMenuResult {
 extern BITMAP* current_background;
 extern int game_pause;
 extern int GROUND_Y;
+extern int stage_elapsed_minutes;
+extern int stage_elapsed_seconds;
 
 /**
  * @brief Initializes a new game session

@@ -5,7 +5,7 @@
 #include <allegro.h>
 
 #define TILES_SIZE 8
-#define MAX_HORIZ_TILES 325
+#define MAX_HORIZ_TILES 410
 #define MAX_VERT_TILES 25
 #define SCREEN_VIRTUAL 320
 

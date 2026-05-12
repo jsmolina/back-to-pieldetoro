@@ -1,5 +1,6 @@
 # Allegro 4.2.2 for DOS example
 # MIT license
+# -mno-80387 -mno-fp-ret-in-387 
 
 CC        = $(DJGPP_CC)
 VENDOR    = vendor

@@ -5,15 +5,15 @@
 #include "door.h"
 #include "enemy.h"
 #include "helpers.h"
+#include "intros.h"
 #include "object.h"
 #include "pause.h"
 #include "player.h"
 #include "room.h"
-#include "stage1.h"
-#include "stage2.h"
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
+#include <stdio.h>
 
 #define START_STAGE 0
 #define GAME_RUN 1
@@ -50,6 +50,64 @@ static int hud_last_lives = -1;
 static int hud_last_coins = -1;
 static int coins_collected = 0;
 static int game_money = 0;
+static volatile int stage_tick_count = 0;
+int stage_elapsed_minutes = 0;
+int stage_elapsed_seconds = 0;
+static int flash_count = 0;
+static int flash_state = 0;
+static int pal_slowdown_cycle = 0;
+static int pal_cycle_step = 0;
+
+static void _stage_tick() { stage_tick_count++; }
+END_OF_FUNCTION(_stage_tick)
+
+/**
+ * @brief cascade effect rotating palette indexes 31, 11, 9 and 3
+ */
+static void cascade_palette() {
+    PALETTE current_pal;
+    static const int target_idx[4] = { 30, 11, 9, 3 };
+    static const int cycle_map[3][4] = {
+        { 3, 30, 11, 9 },
+        { 9, 3, 30, 11 },
+        { 11, 9, 3, 30 }
+    };
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle >= 10) {
+        int i;
+        pal_slowdown_cycle = 0;
+        get_palette(current_pal);
+
+        for (i = 0; i < 4; i++) {
+            current_pal[target_idx[i]] = palette[cycle_map[pal_cycle_step][i]];
+        }
+
+        pal_cycle_step++;
+        if (pal_cycle_step >= 3) {
+            pal_cycle_step = 0;
+        }
+
+        set_palette(current_pal);
+    }
+}
+
+static void sea_sparkle() {
+    PALETTE current_pal;
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle >= 20) {
+        pal_slowdown_cycle = 0;
+        RGB tmp;
+        get_palette(current_pal);
+        tmp = current_pal[54];
+        current_pal[54] = current_pal[33];
+        current_pal[33] = tmp;
+        set_palette(current_pal);
+    }
+}
+
+static void reset_palette_to_vga_original() {
+    set_palette(default_palette);
+}
 
 void game_on_coin_collected() {
     coins_collected++;
@@ -134,20 +192,29 @@ void lifebar() {
 }
 
 void advance_stage() {
+    remove_int(_stage_tick);
+    int secs = stage_tick_count;
+    stage_tick_count = 0;
+    stage_elapsed_minutes = 0;
+    while (secs >= 60) {
+        secs -= 60;
+        stage_elapsed_minutes++;
+    }
+    stage_elapsed_seconds = secs;
+    if (current_level != 0) {
+        char buf[40];
+        snprintf(buf, sizeof(buf), "  FINISHED!! %02dm %02ds  ", stage_elapsed_minutes, stage_elapsed_seconds);
+        print_at_slow(90, 40, buf, 31, 16);
+        wait_for_space();
+    }
+
     current_level++;
     int dat_id = level_to_dat_id(current_level);
-    switch (current_level) {
-    case 1:
+    if (current_level > 0 && current_level < 4) {
         current_background = load_background(dat_id);
-        break;
-    case 2:
-        current_background = load_background(dat_id);
-
         world_state = START_STAGE;
-        break;
-    default:
+    } else {
         world_state = GAME_OVER;
-        break;
     }
 }
 
@@ -156,6 +223,8 @@ void start_new_game() {
     stop_midi();
     // current_background = load_background(BG0_TMX);
     current_level = 0;
+    pal_cycle_step = 0;
+    pal_slowdown_cycle = 0;
     coins_collected = 0;
     game_money = 0;
     room_reset_purchased_items();
@@ -219,7 +288,7 @@ void update_game_run() {
             // next_x++;
         }
         break;
-    case 2:
+    default:
         player_update();
 
         flow_event = player_consume_flow_event();
@@ -235,6 +304,9 @@ void update_game_run() {
             int room_choice = enter_room(flow_event.data, current_level);
             (void)room_choice;
             hud_last_level = -1; // force HUD redraw on room exit
+            return;
+        } else if (flow_event.type == PLAYER_ADVANCE_STAGE) {
+            world_state = STAGE_CLEAR;
             return;
         }
         if (player_is_deading()) {
@@ -282,6 +354,7 @@ inline void draw_game() {
     switch (current_level) {
 
     case 1:
+        sea_sparkle();
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
@@ -292,8 +365,11 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
+
         break;
-    case 2:
+    case 3:
+        cascade_palette();
+    default:
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
@@ -315,37 +391,45 @@ inline void draw_game() {
 }
 
 void start_stage() {
+    static int _timer_locked = FALSE;
+    if (!_timer_locked) {
+        LOCK_VARIABLE(stage_tick_count);
+        LOCK_FUNCTION(_stage_tick);
+        _timer_locked = TRUE;
+    }
+    remove_int(_stage_tick);
+    stage_tick_count = 0;
+    install_int_ex(_stage_tick, BPS_TO_TIMER(1));
     switch (current_level) {
     case 1:
         level1_intro();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_new_game();
-        player_init(10, GROUND_Y, current_level, MAX_CAR_VX);
+        player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
         break;
-    case 2:
-        level2_intro();
+    default:
+        show_intro(current_level);
         GROUND_Y = LEVEL2_GROUND_Y;
-        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX);
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -4);
         // initializes level enemies
         // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
         // load_level_enemies(2);
-        load_level_enemies_v2(2);
+        load_level_enemies_v2(current_level);
         reset_coins();
-        load_level_coins(2);
+        load_level_coins(current_level);
         reset_doors();
-        load_level_doors(2);
+        load_level_doors(current_level);
         break;
     }
 }
 
-int flash_count = 0;
-int flash_state = 0;
-
 void palete_flash() {
     flash_count++;
-    if ((flash_count % 4) == 0) {
+    pal_slowdown_cycle++;
+    if (pal_slowdown_cycle >= 4) {
+        pal_slowdown_cycle = 0;
         flash_state = !flash_state;
         if (flash_state) {
             set_palette(pal_flash);
@@ -369,9 +453,10 @@ inline void update_game() {
         world_state = GAME_RUN;
         break;
     case RESTART_STAGE:
-        player_init(10, GROUND_Y, current_level, player.max_vx);
+        player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
         enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
+        hud_last_level = -1; // force HUD redraw on stage restart
         world_state = GAME_RUN;
         break;
     case GAME_RUN:

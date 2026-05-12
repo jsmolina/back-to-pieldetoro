@@ -4,6 +4,7 @@
 #include "book.h"
 #include "dat_manager.h"
 #include "game.h"
+#include "helpers.h"
 #include "object.h"
 #include "player.h"
 
@@ -20,8 +21,13 @@
 #define PLAYER_DEFAULT_LIVES 3
 #define PLAYER_HURT_COOLDOWN_FRAMES 60
 #define PLAYER_BLINK_INTERVAL 2
+#define ALMANAC_DIALOG_X 64
+#define ALMANAC_DIALOG_Y 84
+#define ALMANAC_DIALOG_W 192
+#define ALMANAC_DIALOG_H 32
+#define ALMANAC_DIALOG_TEXT_X 72
+#define ALMANAC_DIALOG_TEXT_Y 96
 
-#define JUMP_VY -8
 
 #define PLAYER_ACCEL 1
 
@@ -33,6 +39,7 @@ PlayerData coche = { 0, 0, 0, { NULL } };  // static data for car player type
 PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 
 FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
+static int almanac_tile_trigger_available = TRUE;
 
 static animeItem car_animations[18] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -40,7 +47,7 @@ static animeItem car_animations[18] = {
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
     { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
     { 16, { 2 }, 1, 2 },     // BREAKING
-    { 60, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 3, { 0, 1 }, 2, 1 },  // JUMP_UP
     { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL
@@ -61,13 +68,13 @@ static animeItem martin_animations[18] = {
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
     { 4, { 9 }, 1, 2 },                                          // BREAKING
-    { 12, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 4, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL
     { 1, { 13 }, 1, 1 },                                         // FALL2
     { 150, { 0, 17 }, 2, 5 },                                    // DEAD
-    { 60, { 14 }, 1, 60 },                                       // FALL_END
+    { 60, { 0, 17 }, 2, 5 },                                      // FALL_END (play dead animation)
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
@@ -120,18 +127,22 @@ static int kick_key_freed() {
     return FALSE;
 }
 
+static void player_clamp_to_map_bounds();
+
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
     player.lives = PLAYER_DEFAULT_LIVES;
+    player.has_almanac = FALSE;
     pending_flow_event = (FlowEventType){ PLAYER_FLOW_NONE, 0 };
 }
 
-void player_init(int x, int y, int current_level, int max_vx) {
+void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.pos.x = x;
     player.pos.y = y;
     player.vx = 0;
     player.vy = 0;
     player.state = STOP;
+    player.jump_vy = jump_vy;
     player.prev_state = 0;
     player.anime_count = 0;
     player.anime_index = 0;
@@ -142,6 +153,42 @@ void player_init(int x, int y, int current_level, int max_vx) {
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+}
+
+void player_took_almanac() {
+    player.has_almanac = TRUE;
+}
+
+/**
+@brief shows the reminder of buying the almanac when stepping on the almanac tile without having it,
+ */
+static void player_show_almanac_dialog() {
+    rectfill(
+        screen,
+        ALMANAC_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(255, 255, 255));
+    rect(
+        screen,
+        ALMANAC_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(0, 0, 0));
+    print_at(
+        ALMANAC_DIALOG_TEXT_X,
+        ALMANAC_DIALOG_TEXT_Y,
+        game_text(TXT_ROOM_05),
+        makecol(0, 0, 0),
+        makecol(255, 255, 255));
+
+    clear_keybuf();
+    do {
+    } while (!key[KEY_SPACE]);
+    do {
+    } while (key[KEY_SPACE]);
 }
 
 void load_coche_spritesheet() {
@@ -207,6 +254,7 @@ void player_on_hit() {
 
     if (player.energy <= 0) {
         player_change_state(DEAD);
+        player.vx = 0;
     } else {
         player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
     }
@@ -219,7 +267,7 @@ void player_on_hit() {
  * @param vy vert velocity
  *
  */
-static void player_affect_force(int vx, int vy) {
+static void player_affect_force(int vx, int vy) {    
     player.vy += vy;
     player.vx += vx;
 }
@@ -338,22 +386,44 @@ inline collisionType player_aabb() {
     }
 }
 
+static void player_clamp_to_map_bounds() {
+    if (player.pos.x < 2) {
+        player.pos.x = 2;
+        if (player.vx < 0) {
+            player.vx = 0;
+        }
+    }
+
+    if (player.data != NULL && map_pixel_width > 0) {
+        int max_x = map_pixel_width - player.data->width;
+        if (max_x < 2) {
+            max_x = 2;
+        }
+
+        if (player.pos.x > max_x) {
+            player.pos.x = max_x;
+        }
+        if (player.pos.x >= max_x && player.vx > 0) {
+            player.vx = 0;
+            player.pos.x = max_x;
+        }
+    }
+}
+
 /**
  * @brief Checks player speed
  *
  */
 static void player_check_vy() {
-    if (player.state == DEAD) {
+    /*if (player.state == DEAD) {
         return;
-    }
+    }*/
 
-    if (player.state == JUMP_HIT || player.state == DEAD) {
+    if (player.state == JUMP_HIT || player.state == DEAD || player.state == FALL_END ) {
         player.vy = 0;
         return;
     }
 
-    if (player.state == FALL_END)
-        return;
 
     if (player.vy > 0) {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
@@ -369,10 +439,7 @@ static void player_check_vy() {
  * @brief Checks vx for hits
  */
 static void player_check_vx() {
-    if (player.pos.x <= 2 && player.vx < 0) {
-        player.vx = 0;
-        player.pos.x = 2;
-    }
+    player_clamp_to_map_bounds();
 
     if (player.vx != 0) {
         if (checkHitObj()) {
@@ -429,6 +496,9 @@ static void player_update_position() {
     player_check_vx();
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
+
+    player_clamp_to_map_bounds();
+
     player_move_y_substeps();
 }
 
@@ -517,7 +587,7 @@ static inline void player_do_jump() {
             player.vx = player.max_vx;
         }
     }
-    player.vy = JUMP_VY;
+    player.vy = player.jump_vy;
     player_change_state(JUMP_UP);
 }
 
@@ -533,8 +603,9 @@ static void player_action_fall() {
         } else {
             player_change_state(BREAKING);
         }
-    } else if (player.pos.y > SCREEN_H - player.data->height) {
+    } else if (player.pos.y > 130) {
         player_change_state(FALL_END);
+        player.vx = 0;
     }
 
     if (action_key_freed()) {
@@ -722,7 +793,9 @@ static void player_action_jump_up() {
         player_do_kick();
     }
 
-    player_count_move(player.vx, 0);
+    if (player_count_move(player.vx, 0) == FINISHED) {
+        player_change_state(JUMP_DOWN);
+    }
 }
 
 static void player_action_jump_down() {
@@ -805,11 +878,23 @@ static void player_action_kick() {
 }
 
 void player_action_fall_end() {
+    if (player_count_move(0, 0) == FINISHED) {
+        player.lives--;
+        player.energy = PLAYER_DEFAULT_ENERGY;
+        player_change_state(DEAD_END);
+        if (player.lives <= 0) {
+            pending_flow_event.type = PLAYER_FLOW_GAME_OVER;
+            return;
+        } else {
+            pending_flow_event.type = PLAYER_FLOW_RESTART_STAGE;
+        }
+        
+    }
 }
 
 // conditional
 int player_is_deading() {
-    if (player.state == DEAD_END || player.state == FALL_END) {
+    if (player.state == DEAD_END) {
         return TRUE;
     } else {
         return FALSE;
@@ -870,8 +955,23 @@ void player_update() {
         player.hurt_cooldown--;
     }
 
-    player_affect_force(0, (player.anime_index & 1) == 0);
+    if (player.state != JUMP_UP) {
+        player_affect_force(0, (player.anime_index & 1) == 0);
+    }
     player_update_position();
+
+    if (player_is_over_almanac_tile()) {
+        if (almanac_tile_trigger_available == TRUE) {
+            almanac_tile_trigger_available = FALSE;
+            if (player.has_almanac) {
+                pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+            } else {
+                player_show_almanac_dialog();
+            }
+        }
+    } else {
+        almanac_tile_trigger_available = TRUE;
+    }
 
     switch (player.state) {
     case MOVE_LEFT:
