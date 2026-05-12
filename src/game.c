@@ -428,7 +428,7 @@ void start_stage() {
 void palete_flash() {
     flash_count++;
     pal_slowdown_cycle++;
-    if (pal_slowdown_cycle == 4) {
+    if (pal_slowdown_cycle >= 4) {
         pal_slowdown_cycle = 0;
         flash_state = !flash_state;
         if (flash_state) {
