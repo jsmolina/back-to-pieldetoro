@@ -27,10 +27,9 @@
 #define BDEAD 4
 #define BDEAD_END 5*/
 
-
 // Attack threshold: if close enough, throw objects
 #define ATTACK_DISTANCE 80
-//FILE* enemy_log_file;
+// FILE* enemy_log_file;
 #define GRAVITY 1
 static EnemyData enemy_data[TOTAL_ENEMY_DATA] = {
     { 0, 0, 0, 0, 0, 0, NULL, NULL },
@@ -84,14 +83,20 @@ static animeItem dog_animations[11] = {
 
 static animeItem lamp_animations[4] = {
     { 0, { 0 }, 0, -1 }, // NONE
-    { 1, { 0 }, 1, 0 }, // STOP
-    { 1, { 0,  }, 1, 0 }, // LEFT
-    { 1, { 0, }, 1, 0 }, // RIGHT
+    { 1, { 0 }, 1, 0 },  // STOP
+    { 1, {
+             0,
+         },
+        1, 0 }, // LEFT
+    { 1, {
+             0,
+         },
+        1, 0 }, // RIGHT
 };
 
 static animeItem bomb_animations[4] = {
-    { 0, { 0 }, 0, -1 },               // NONE
-    { 1, { 0 }, 0, 0 }, // STOP
+    { 0, { 0 }, 0, -1 },   // NONE
+    { 1, { 0 }, 0, 0 },    // STOP
     { 5, { 0, 1 }, 2, 0 }, // LEFT
     { 5, { 0, 1 }, 2, 0 }, // RIGHT
 };
@@ -139,6 +144,11 @@ void enemy_pool_init() {
     }
 }
 
+void enemy_spawn_init() {
+    for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; i++) {
+        spawnable_enemies[i].active = FALSE;
+    }
+}
 
 static enum EnemyType parse_enemy_type(const char* name) {
     if (strcmp(name, "ENEMY_DOG") == 0)
@@ -159,7 +169,10 @@ void load_level_enemies_v2(int level_id) {
     const char* cursor;
     int enemy_index = 0;
 
-    ///enemy_log_file = fopen("enemy_log.txt", "w");
+    // Reset static spawn list so only TMX-loaded enemies can spawn.
+    reset_spawnable_enemies();
+
+    /// enemy_log_file = fopen("enemy_log.txt", "w");
 
     if (tmx_id < 0) {
         die("invalid level id %d for TMX", level_id);
@@ -192,7 +205,7 @@ void load_level_enemies_v2(int level_id) {
                     enemy_spawn_x = 0;
                 }
                 if (enemy_type == ENEMY_LAMP) {
-                    y += 14; // adjust lamp y to be on the ground
+                    //y += 14; // adjust lamp y to be on the ground
                 }
                 int vx = 0;
                 init_enemy(enemy_index, enemy_type, x, y, vx, enemy_spawn_x);
@@ -698,13 +711,13 @@ void draw_enemies(int scroll_x) {
         if (e->sprite_index >= 0 && e->sprite_index < data->total_frames && data->sprites[e->sprite_index] != NULL) {
             if (e->flip == TRUE) {
                 draw_sprite_h_flip(
-                    screen,
+                    current_screen,
                     data->sprites[e->sprite_index],
                     e->pos.x - scroll_x,
                     e->pos.y);
             } else {
                 draw_sprite(
-                    screen,
+                    current_screen,
                     data->sprites[e->sprite_index],
                     e->pos.x - scroll_x,
                     e->pos.y);

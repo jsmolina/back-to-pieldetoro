@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Fri May 15 21:39:46 2026 */
+/* Date: Fri May 15 22:45:58 2026 */
 /* Do not hand edit! */
 
 #define BG0_TMX                          0        /* DATA */
@@ -24,7 +24,7 @@
 #define JORDI_LOGO_BMP                   18       /* BMP  */
 #define JOVEN_SPRITESHEET_BMP            19       /* BMP  */
 #define LEVEL2_INTRO_BMP                 20       /* BMP  */
-#define LEVEL3_INTRO3_BMP                21       /* ÿÿÿÃ */
+#define LEVEL3_INTRO3_BMP                21       /* BMP  */
 #define LIFEBAR_BMP                      22       /* BMP  */
 #define LIFEBAR_BRUNO_BMP                23       /* BMP  */
 #define LIFEBAR_MARTIN_BMP               24       /* BMP  */

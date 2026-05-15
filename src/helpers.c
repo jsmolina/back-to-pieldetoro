@@ -9,6 +9,7 @@
 #include <pc.h>
 #include <stdio.h>
 
+
 #if !defined(LANG_EN) && !defined(LANG_ES)
 #define LANG_ES 1
 #endif
@@ -56,6 +57,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "DE UNA, BASADO, POR EL!",
 };
 #endif
+
+BITMAP* current_screen;
 
 const char* game_text(gameTextId id) {
     if (id < 0 || id >= TXT_COUNT) {

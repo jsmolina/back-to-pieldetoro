@@ -36,7 +36,7 @@ inline void draw_throwable(int scroll_x) {
 
     for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
-            draw_sprite(screen, book_bmp, throwable_objects[i].x - scroll_x, throwable_objects[i].y);
+            draw_sprite(current_screen, book_bmp, throwable_objects[i].x - scroll_x, throwable_objects[i].y);
         }
     }
 }

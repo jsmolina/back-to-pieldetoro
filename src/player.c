@@ -384,7 +384,14 @@ inline collisionType player_aabb() {
             .w = 24,
             .h = 40
         };
-    } else {
+    } else if(player.state == RUNNING_CROUCH) {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y + 10,
+            .w = 20,
+            .h = 36
+        };
+    }else {
         return (collisionType){
             .x = player.pos.x,
             .y = player.pos.y,
@@ -995,12 +1002,12 @@ inline void player_draw(int scroll_x) {
 
     if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
         if (player.flip == TRUE && player.type != CAR_TYPE) { // cars don't flip
-            draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            draw_sprite_h_flip(current_screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         } else {
-            draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            draw_sprite(current_screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         }
     } else {
-        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
+        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
     }
 }
 

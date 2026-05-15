@@ -126,6 +126,11 @@ void load_level_enemies_v2(int level_id);
  */
 void enemy_pool_init();
 
+/** @brief initializes the list of spawnable enemies, marking all as inactive.
+ Called at the start of each stage before loading new enemies.
+ */
+void enemy_spawn_init();
+
 /** @brief Updates the enemy pool based on the camera position.
  *
  * @param camera_x The horizontal position of the camera.
