@@ -45,6 +45,9 @@ typedef enum {
     TXT_ROOM_03,
     TXT_ROOM_04,
     TXT_ROOM_05,
+    TXT_STAGE3_01,
+    TXT_STAGE3_02,
+    TXT_STAGE3_03,
     TXT_COUNT
 } gameTextId;
 
@@ -94,5 +97,8 @@ const char* game_text(gameTextId id);
 
 /** @brief Converts a level number to its corresponding data ID. */
 int level_to_dat_id(int level);
+
+extern BITMAP* current_screen;
+
 
 #endif

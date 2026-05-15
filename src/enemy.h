@@ -10,6 +10,8 @@
 #define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2
 #define DOG_FRAMES 7
+#define BOMB_FRAMES 2
+#define LAMP_FRAMES 1
 
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
@@ -61,6 +63,9 @@ enum EnemyType {
     ENEMY_JOVEN,
     ENEMY_BIRD,
     ENEMY_DOG,
+    ENEMY_LAMP,
+    ENEMY_BOMB,
+    TOTAL_ENEMY_DATA
 };
 
 typedef struct {
@@ -120,6 +125,11 @@ void load_level_enemies_v2(int level_id);
  *
  */
 void enemy_pool_init();
+
+/** @brief initializes the list of spawnable enemies, marking all as inactive.
+ Called at the start of each stage before loading new enemies.
+ */
+void enemy_spawn_init();
 
 /** @brief Updates the enemy pool based on the camera position.
  *

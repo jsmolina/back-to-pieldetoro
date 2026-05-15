@@ -1,11 +1,12 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
+#include "intro_statics.h"
 #include "dat_manager.h"
 
 
 DATAFILE *dat_file;
+DATAFILE *intro_dat_file;
 
 #define MAX_FILENAME_LEN 16
 
@@ -31,7 +32,8 @@ END_OF_FUNCTION(rotar_paleta)
 
 
 DATAFILE * extract_data() {
-
+    intro_dat_file = load_datafile("intro.dat");
+    blit(intro_dat_file[CARS2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     //install_int(rotar_paleta, 100);
     install_int_ex(rotar_paleta, BPS_TO_TIMER(40));
     dat_file = load_datafile("datos.dat");

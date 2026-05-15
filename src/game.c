@@ -148,7 +148,7 @@ void lifebar() {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
         if (current_level == 1) {
             print_year(1, 9, 8, 4);
-        } else if (current_level == 2) {
+        } else if (current_level == 2 || current_level == 3) {
             print_year(2, 0, 2, 5);
         }
     }
@@ -248,7 +248,7 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - SCREEN_W / 3;
+    scroll_x = player.pos.x - 130;
     if (scroll_x < 0)
         scroll_x = 0;
 
@@ -356,7 +356,7 @@ inline void draw_game() {
     case 1:
         sea_sparkle();
         // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
-        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
+        blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
             draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         } else {
@@ -365,14 +365,18 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
-
+        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
         break;
-    case 3:
+
+    case 4:
         cascade_palette();
     default:
+        if(current_level == 3) {
+            sea_sparkle();
+        }
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
-        blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
+        blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
@@ -384,7 +388,8 @@ inline void draw_game() {
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
+        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, player.state);
+        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
     }
@@ -416,6 +421,7 @@ void start_stage() {
         // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
         // enemy_pool_init();
         // load_level_enemies(2);
+        enemy_spawn_init();
         load_level_enemies_v2(current_level);
         reset_coins();
         load_level_coins(current_level);

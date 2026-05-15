@@ -16,6 +16,7 @@
 #define CAR_WIDTH 105
 #define MARTIN_WIDTH 24
 #define LEVEL_ID_INTRO 1
+#define LEVEL_ID_RUNNING_START 3
 
 #define PLAYER_DEFAULT_ENERGY 6
 #define PLAYER_DEFAULT_LIVES 3
@@ -27,7 +28,6 @@
 #define ALMANAC_DIALOG_H 32
 #define ALMANAC_DIALOG_TEXT_X 72
 #define ALMANAC_DIALOG_TEXT_Y 96
-
 
 #define PLAYER_ACCEL 1
 
@@ -41,13 +41,13 @@ PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
 static int almanac_tile_trigger_available = TRUE;
 
-static animeItem car_animations[18] = {
+static animeItem car_animations[22] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
     { 12, { 0, 1 }, 2, 2 },  // MOVE_RIGHT
     { 16, { 2 }, 1, 2 },     // BREAKING
-    { 3, { 0, 1 }, 2, 1 },  // JUMP_UP
+    { 3, { 0, 1 }, 2, 1 },   // JUMP_UP
     { 60, { 0, 1 }, 2, 1 },  // JUMP_DOWN
     { 16, { 0, 1 }, 2, 1 },  // JUMP_HIT
     { 1, { 0 }, 1, 1 },      // FALL
@@ -60,27 +60,35 @@ static animeItem car_animations[18] = {
     { 0, {}, 0, 0 },         // THROWING (cars don't throw)
     { 0, {}, 0, 0 },         // FALL_TO_FLOOR (cars don't fall to floor)
     { 0, {}, 0, 0 },         // KICKING (cars don't kick)
+    { 0, {}, 0, 0 },         // RUNNING (cars don't run)
+    { 0, {}, 0, 0 },         // RUNNING_JUMP (cars don't run)
+    { 0, {}, 0, 0 },         // RUNNING_CROUCH (cars don't run)
+    { 0, {}, 0, 0 },         // RUNNING_JUMP_DOWN (cars don't run)
 };
 
-static animeItem martin_animations[18] = {
+static animeItem martin_animations[22] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
     { 4, { 9 }, 1, 2 },                                          // BREAKING
-    { 4, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 4, { 13 }, 1, 1 },                                         // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
     { 1, { 13 }, 1, 1 },                                         // FALL
     { 1, { 13 }, 1, 1 },                                         // FALL2
     { 150, { 0, 17 }, 2, 5 },                                    // DEAD
-    { 60, { 0, 17 }, 2, 5 },                                      // FALL_END (play dead animation)
+    { 60, { 0, 17 }, 2, 5 },                                     // FALL_END (play dead animation)
     { 70, { 0 }, 1, 70 },                                        // DEAD_END
     { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
     { 1, { 14 }, 1, 30 },                                        // CROUCHING
     { 5, { 15 }, 0, 0 },                                         // THROWING OBJECT
     { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
     { 10, { 16 }, 0, 0 },                                        // KICKING
+    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // RUN RIGHT
+    { 8, { 13 }, 1, 1 },                                         // RUNNING_JUMP
+    { 8, { 18, 19 }, 2, 5 },                                         // RUNNING_CROUCH
+    { 12, { 13 }, 1, 1 },                                        // RUNNING_JUMP_DOWN
 };
 
 static uint8_t space_was_pressed = 0;
@@ -141,18 +149,18 @@ void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.pos.y = y;
     player.vx = 0;
     player.vy = 0;
-    player.state = STOP;
     player.jump_vy = jump_vy;
     player.prev_state = 0;
     player.anime_count = 0;
     player.anime_index = 0;
     player.flip = FALSE;
-    player.move_count = 0;
     player.max_vx = max_vx;
     player.sprite_index = 0;
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
     player.data = current_level == LEVEL_ID_INTRO ? &coche : &martin;
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
+    player.state = current_level == LEVEL_ID_RUNNING_START ? RUNNING : STOP;
+    player.move_count = player.animations[player.state].move_count;
 }
 
 void player_took_almanac() {
@@ -267,7 +275,7 @@ void player_on_hit() {
  * @param vy vert velocity
  *
  */
-static void player_affect_force(int vx, int vy) {    
+static void player_affect_force(int vx, int vy) {
     player.vy += vy;
     player.vx += vx;
 }
@@ -376,7 +384,14 @@ inline collisionType player_aabb() {
             .w = 24,
             .h = 40
         };
-    } else {
+    } else if(player.state == RUNNING_CROUCH) {
+        return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y + 10,
+            .w = 20,
+            .h = 36
+        };
+    }else {
         return (collisionType){
             .x = player.pos.x,
             .y = player.pos.y,
@@ -419,11 +434,10 @@ static void player_check_vy() {
         return;
     }*/
 
-    if (player.state == JUMP_HIT || player.state == DEAD || player.state == FALL_END ) {
+    if (player.state == JUMP_HIT || player.state == DEAD || player.state == FALL_END) {
         player.vy = 0;
         return;
     }
-
 
     if (player.vy > 0) {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
@@ -739,6 +753,59 @@ static void player_action_stop() {
         player_count_move(0, 0);
     }
 }
+// special cases for auto-running
+static void player_action_running() {
+    player.vx = 1;
+    if (jump_key_freed()) {
+        player.vy = player.jump_vy; // extra boost for running jumps
+        player_change_state(RUNNING_JUMP);
+    } else if (key[KEY_DOWN]) {
+        player_change_state(RUNNING_CROUCH);
+    }
+}
+
+static void player_action_running_jump() {
+    player.vx = 1;
+    player.flip = FALSE;
+
+    if (player.vy > 0) {
+        player_change_state(RUNNING_JUMP_DOWN);
+        return;
+    }
+    if (player.vy == 0) {
+        player_change_state(RUNNING_JUMP_DOWN);
+    }
+
+    if (player_count_move(player.vx, 0) == FINISHED) {
+        player_change_state(RUNNING_JUMP_DOWN);
+    }
+}
+
+static void player_action_running_crouch() {
+    player.vx = 1;
+    player.flip = FALSE;
+
+    if (jump_key_freed()) {
+        player.vy = player.jump_vy;
+        player_change_state(RUNNING_JUMP);
+        return;
+    }
+
+    if (!key[KEY_DOWN]) {
+        player_change_state(RUNNING);
+        return;
+    }
+
+    player_count_move(player.vx, 0);
+}
+
+static void player_action_running_jump_down() {
+    if (player.vy != 0) {
+        player_count_move(player.vx, 0);
+        return;
+    }
+    player_change_state(RUNNING);
+}
 
 static void player_action_crouch() {
     if ((key[KEY_RCONTROL] || key[KEY_LCONTROL])) {
@@ -888,7 +955,6 @@ void player_action_fall_end() {
         } else {
             pending_flow_event.type = PLAYER_FLOW_RESTART_STAGE;
         }
-        
     }
 }
 
@@ -936,12 +1002,12 @@ inline void player_draw(int scroll_x) {
 
     if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
         if (player.flip == TRUE && player.type != CAR_TYPE) { // cars don't flip
-            draw_sprite_h_flip(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            draw_sprite_h_flip(current_screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         } else {
-            draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
+            draw_sprite(current_screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
         }
     } else {
-        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
+        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
     }
 }
 
@@ -955,7 +1021,7 @@ void player_update() {
         player.hurt_cooldown--;
     }
 
-    if (player.state != JUMP_UP) {
+    if (player.state != JUMP_UP && player.state != RUNNING_JUMP) {
         player_affect_force(0, (player.anime_index & 1) == 0);
     }
     player_update_position();
@@ -986,6 +1052,18 @@ void player_update() {
         break;
     case STOP:
         player_action_stop();
+        break;
+    case RUNNING:
+        player_action_running();
+        break;
+    case RUNNING_JUMP:
+        player_action_running_jump();
+        break;
+    case RUNNING_CROUCH:
+        player_action_running_crouch();
+        break;
+    case RUNNING_JUMP_DOWN:
+        player_action_running_jump_down();
         break;
     case JUMP_UP:
         player_action_jump_up();

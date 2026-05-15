@@ -173,3 +173,8 @@ void player_init(int x, int y, int current_level, int max_vx) {
 ### Performance
 - This game is intended for a 486 DX, so avoid multiplications and divisions when possible.
 - Try to reuse existing code.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->

@@ -91,7 +91,7 @@ int main(void) {
     }
     set_color_depth(8);
     set_color_conversion(COLORCONV_NONE);
-
+    current_screen = create_bitmap(320, 200);
     /* the scrolling area is twice the width of the screen (640x240) */
     // scroller = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
     // scroller = create_video_bitmap(SCREEN_W, SCREEN_H);

@@ -1,7 +1,10 @@
 dist
 # Contains my personal temporary files.
 _stuff/
-
+.vscode
+.specify
+.opencode
+.github
 # Object files
 *.o
 *.ko

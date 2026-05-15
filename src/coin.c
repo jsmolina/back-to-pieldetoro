@@ -94,7 +94,7 @@ inline void draw_coins(int scroll_x) {
             int screen_x = coins[i].x - scroll_x;
             // only draw if visible on screen
             if (screen_x > -coin_sprite->w && screen_x < SCREEN_W) {
-                draw_sprite(screen, coin_sprite, screen_x, coins[i].y);
+                draw_sprite(current_screen, coin_sprite, screen_x, coins[i].y);
             }
         }
     }
@@ -106,7 +106,7 @@ inline void draw_coins(int scroll_x) {
                 enemy_drop_coins[i].active = FALSE;
                 continue;
             }
-            draw_sprite(screen, coin_sprite, screen_x, enemy_drop_coins[i].y);
+            draw_sprite(current_screen, coin_sprite, screen_x, enemy_drop_coins[i].y);
         }
     }
 }

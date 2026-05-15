@@ -9,6 +9,7 @@
 #include <pc.h>
 #include <stdio.h>
 
+
 #if !defined(LANG_EN) && !defined(LANG_ES)
 #define LANG_ES 1
 #endif
@@ -31,6 +32,9 @@ static const char* const game_texts[TXT_COUNT] = {
     "BOUGHT BRO",
     "NO STOCK BRO",
     "I NEED THAT ALMANAC",
+    "ARE YOU IN OR WHAT, BRO?",
+    "NAH, BASED",
+    "HELL YEAH, BASED, FOR HIM!",
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -48,8 +52,13 @@ static const char* const game_texts[TXT_COUNT] = {
     "COMPRADO BRO",
     "NO QUEDA BRO",
     "NECESITO ESE ALMANAQUE",
+    "TE APUNTAS, BRO?",
+    "NAH, BASADO",
+    "DE UNA, BASADO, POR EL!",
 };
 #endif
+
+BITMAP* current_screen;
 
 const char* game_text(gameTextId id) {
     if (id < 0 || id >= TXT_COUNT) {
@@ -175,7 +184,9 @@ int level_to_dat_id(int level) {
     case 2:
         return BG1_TMX;
     case 3:
-        return BG2_TMX;
+        return BG4_TMX;
+    case 4:
+        return BG4_TMX;
     default:
         return -1;
     }

@@ -20,9 +20,13 @@
 #define THROWING 15
 #define FALL_TO_FLOOR 16
 #define KICKING 17
+#define RUNNING 18
+#define RUNNING_JUMP 19
+#define RUNNING_CROUCH 20
+#define RUNNING_JUMP_DOWN 21
 
 #define COCHE_FRAMES 4
-#define MARTIN_FRAMES 18
+#define MARTIN_FRAMES 20
 
 typedef enum {
     CAR_TYPE = 0,
