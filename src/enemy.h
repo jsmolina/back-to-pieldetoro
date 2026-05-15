@@ -10,6 +10,8 @@
 #define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2
 #define DOG_FRAMES 7
+#define BOMB_FRAMES 2
+#define LAMP_FRAMES 1
 
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
@@ -61,6 +63,9 @@ enum EnemyType {
     ENEMY_JOVEN,
     ENEMY_BIRD,
     ENEMY_DOG,
+    ENEMY_LAMP,
+    ENEMY_BOMB,
+    TOTAL_ENEMY_DATA
 };
 
 typedef struct {

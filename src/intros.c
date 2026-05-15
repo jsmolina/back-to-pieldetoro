@@ -36,11 +36,12 @@ void level2_intro() {
 }
 
 void level3_intro() {
-    /*blit(dat_file[LEVEL3_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    blit(dat_file[LEVEL3_INTRO3_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     rectfill(screen, 0, 180, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
-    print_at(10, 180, game_text(TXT_STAGE3_01), makecol(255, 205, 205), 16);
-    print_at(10, 190, game_text(TXT_STAGE3_02), makecol(255, 255, 255), 16);*/
-
+    print_at(10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE3_02), makecol(255, 255, 255), 16);
+    wait_for_space();
+    print_at(10, START_Y, game_text(TXT_STAGE3_03), 43, 16);
     wait_for_space();
 }
 

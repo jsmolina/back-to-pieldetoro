@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tiles.tsx",
+    "activeFile": "bg4.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -22,26 +22,26 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1376,
-                "y": 98.5
+                "y": 98.625
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1,
+            "scale": 1.5,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1200,
-                "y": 100
+                "x": 412.66666666666663,
+                "y": 163.66666666666669
             }
         },
         "bg1_shop.tmx": {
             "scale": 4.59,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 159.9128540305011,
-                "y": 100.00000000000001
+                "x": 159.91285403050108,
+                "y": 100.10893246187365
             }
         },
         "bg2.tmx": {
@@ -51,8 +51,8 @@
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 320,
-                "y": 100
+                "x": 177.66666666666666,
+                "y": 117.16666666666666
             }
         },
         "bg3.tmx": {
@@ -60,15 +60,15 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 184,
-                "y": 100
+                "y": 99.75
             }
         },
         "bg4.tmx": {
-            "scale": 2.1619,
-            "selectedLayer": 0,
+            "scale": 3.0052,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 800.2220269207642,
-                "y": 99.91211434386418
+                "x": 79.86157327299348,
+                "y": 138.92586183947822
             }
         },
         "level1.tmx": {
@@ -84,7 +84,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 100
+                "y": 99.75
             }
         },
         "tiles.tsx": {
@@ -112,12 +112,12 @@
     "recentFiles": [
         "bg0.tmx",
         "bg1.tmx",
+        "tiles.tsx",
         "bg3.tmx",
         "test.tmx",
         "bg2.tmx",
         "bg1_shop.tmx",
         "bg4.tmx",
-        "tiles.tsx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

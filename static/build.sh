@@ -9,7 +9,6 @@ dat datos.dat -a ./martin_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./bird_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./dog_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./joven_spritesheet.bmp -h statics.h -t BMP
-dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./bg*.tmx -h statics.h
 dat datos.dat -a ./jordi_logo.bmp -h statics.h -t BMP
 dat datos.dat -a ./palete_jordi_logo.bmp -h statics.h -t PAL
@@ -27,6 +26,10 @@ dat datos.dat -a ./numbers.bmp -h statics.h -t BMP
 dat datos.dat -a ./money.bmp -h statics.h -t BMP
 dat datos.dat -a ./font.fnt -h statics.h
 dat datos.dat -a ./bg1_shop2.bmp -h statics.h -t BMP
+dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
+dat datos.dat -a ./level3_intro3.bmp -h statics.h -t BMPç
+dat datos.dat -a ./farola.bmp -h statics.h -t BMP
+dat datos.dat -a ./bomb_spritesheet.bmp -h statics.h -t BMP
 
 dat -l datos.dat
 cp statics.h /src

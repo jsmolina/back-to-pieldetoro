@@ -148,7 +148,7 @@ void lifebar() {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
         if (current_level == 1) {
             print_year(1, 9, 8, 4);
-        } else if (current_level == 2) {
+        } else if (current_level == 2 || current_level == 3) {
             print_year(2, 0, 2, 5);
         }
     }
@@ -248,7 +248,7 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - SCREEN_W / 3;
+    scroll_x = player.pos.x - 130;
     if (scroll_x < 0)
         scroll_x = 0;
 
@@ -367,9 +367,13 @@ inline void draw_game() {
         // draw objects, player, enemies
 
         break;
-    case 3:
+
+    case 4:
         cascade_palette();
     default:
+        if(current_level == 3) {
+            sea_sparkle();
+        }
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
@@ -384,7 +388,7 @@ inline void draw_game() {
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, scroll_x);
+        textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, player.state);
 
         break;
     }

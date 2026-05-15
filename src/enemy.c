@@ -8,7 +8,6 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #define ESTOP 1
@@ -28,7 +27,6 @@
 #define BDEAD 4
 #define BDEAD_END 5*/
 
-#define TOTAL_ENEMY_DATA 3
 
 // Attack threshold: if close enough, throw objects
 #define ATTACK_DISTANCE 80
@@ -71,7 +69,7 @@ static animeItem bird_animations[11] = {
 };
 
 static animeItem dog_animations[11] = {
-    { 0, { 6 }, 0, -1 },               // NONE
+    { 0, { 0 }, 0, -1 },               // NONE
     { 1, { 0 }, 1, 60 },               // BSTOP
     { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_LEFT
     { 6, { 0, 1, 2, 3, 4, 5 }, 6, 4 }, // BMOVE_RIGHT
@@ -82,6 +80,20 @@ static animeItem dog_animations[11] = {
     { 2, { 0 }, 2, 4 },                // BDEAD_END
     { 1, { 0 }, 1, 30 },               // ECROUCHING
     { 5, { 0 }, 1, 0 },                // ETHROWING OBJECT
+};
+
+static animeItem lamp_animations[4] = {
+    { 0, { 0 }, 0, -1 }, // NONE
+    { 1, { 0 }, 1, 0 }, // STOP
+    { 1, { 0,  }, 1, 0 }, // LEFT
+    { 1, { 0, }, 1, 0 }, // RIGHT
+};
+
+static animeItem bomb_animations[4] = {
+    { 0, { 0 }, 0, -1 },               // NONE
+    { 1, { 0 }, 0, 0 }, // STOP
+    { 5, { 0, 1 }, 2, 0 }, // LEFT
+    { 5, { 0, 1 }, 2, 0 }, // RIGHT
 };
 
 // called on stage init to load bitmaps and initialize static data for enemy types
@@ -131,10 +143,14 @@ void enemy_pool_init() {
 static enum EnemyType parse_enemy_type(const char* name) {
     if (strcmp(name, "ENEMY_DOG") == 0)
         return ENEMY_DOG;
-    if (strcmp(name, "ENEMY_JOVEN") == 0)
+    else if (strcmp(name, "ENEMY_JOVEN") == 0)
         return ENEMY_JOVEN;
-    if (strcmp(name, "ENEMY_BIRD") == 0)
+    else if (strcmp(name, "ENEMY_BIRD") == 0)
         return ENEMY_BIRD;
+    else if (strcmp(name, "ENEMY_LAMP") == 0)
+        return ENEMY_LAMP;
+    else if (strcmp(name, "ENEMY_BOMB") == 0)
+        return ENEMY_BOMB;
     return -1;
 }
 
@@ -175,6 +191,9 @@ void load_level_enemies_v2(int level_id) {
                 if (enemy_spawn_x < 0) {
                     enemy_spawn_x = 0;
                 }
+                if (enemy_type == ENEMY_LAMP) {
+                    y += 14; // adjust lamp y to be on the ground
+                }
                 int vx = 0;
                 init_enemy(enemy_index, enemy_type, x, y, vx, enemy_spawn_x);
                 enemy_index++;
@@ -190,10 +209,9 @@ void load_level_enemies_v2(int level_id) {
 }
 
 // load bitmaps and initialize static data for enemy types
-static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap_id) {
+static void _load_enemy_generic(enum EnemyType type, int frame_count, int frame_width, int bitmap_id) {
     EnemyData* enem = &enemy_data[type];
     BITMAP* enemy_spritesheet = dat_file[bitmap_id].dat;
-    int frame_width = (int)enemy_spritesheet->w / frame_count;
     enem->width = frame_width;
     enem->height = enemy_spritesheet->h;
     int offset = 0;
@@ -202,20 +220,27 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int bitmap
         offset += frame_width;
     }
     enem->total_frames = frame_count;
+
     if (type == ENEMY_JOVEN) {
         enem->animations = joven_animations;
     } else if (type == ENEMY_BIRD) {
         enem->animations = bird_animations;
     } else if (type == ENEMY_DOG) {
         enem->animations = dog_animations;
+    } else if (type == ENEMY_LAMP) {
+        enem->animations = lamp_animations;
+    } else if (type == ENEMY_BOMB) {
+        enem->animations = bomb_animations;
     }
 }
 
 // load bitmaps and initialize static data
 void load_enemy_spritesheets() {
-    _load_enemy_generic(ENEMY_JOVEN, JOVEN_FRAMES, JOVEN_SPRITESHEET_BMP);
-    _load_enemy_generic(ENEMY_BIRD, BIRD_FRAMES, BIRD_SPRITESHEET_BMP);
-    _load_enemy_generic(ENEMY_DOG, DOG_FRAMES, DOG_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_JOVEN, JOVEN_FRAMES, 24, JOVEN_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_BIRD, BIRD_FRAMES, 8, BIRD_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_DOG, DOG_FRAMES, 24, DOG_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_LAMP, LAMP_FRAMES, 54, FAROLA_BMP);
+    _load_enemy_generic(ENEMY_BOMB, BOMB_FRAMES, 20, BOMB_SPRITESHEET_BMP);
 }
 
 void reset_spawnable_enemies() {
