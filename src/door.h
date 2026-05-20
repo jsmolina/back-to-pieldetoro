@@ -28,4 +28,12 @@ void load_level_doors(int level_id);
  */
 void door_get_all_aabb(collisionType* boxes);
 
+/**
+ * @brief Draws the get-in arrow for the given door destination id.
+ *        The arrow is only rendered if that door overlaps the current scroll window.
+ * @param door_static_id Destination TMX id stored on the door object.
+ * @param scroll_x Current horizontal camera scroll in world pixels.
+ */
+void draw_door_getin(int scroll_x);
+
 #endif

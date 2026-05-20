@@ -30,6 +30,7 @@ dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level3_intro3.bmp -h statics.h -t BMP
 dat datos.dat -a ./farola.bmp -h statics.h -t BMP
 dat datos.dat -a ./bomb_spritesheet.bmp -h statics.h -t BMP
+dat datos.dat -a ./arrow_getin.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

@@ -69,8 +69,8 @@ static animeItem car_animations[22] = {
 static animeItem martin_animations[22] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
     { 1, { 0 }, 1, 60 },                                         // STOP
-    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
-    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
+    { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
+    { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
     { 4, { 9 }, 1, 2 },                                          // BREAKING
     { 4, { 13 }, 1, 1 },                                         // JUMP_UP
     { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
@@ -724,10 +724,7 @@ static void player_action_move_right() {
 }
 
 static void player_action_stop() {
-    if (key[KEY_F2]) {
-        pending_flow_event.type = PLAYER_ENTER_ROOM;
-        pending_flow_event.data = 2;
-    }
+
     if (player.vy > 0) {
         if (player.vx == 0) {
             player_change_state(FALL);
@@ -867,21 +864,10 @@ static void player_action_jump_up() {
 
 static void player_action_jump_down() {
     if (player.vy != 0) {
-        player_count_move(player.vx, 0);
+        if (player_count_move(player.vx, 0) == FINISHED) {
+            player.vx = 0;
+        }
         return;
-    }
-    if (player.vx > 0) {
-        if (key[KEY_RIGHT]) {
-            player_change_state(MOVE_RIGHT);
-        } else {
-            player_change_state(BREAKING);
-        }
-    } else if (player.vx < 0) {
-        if (key[KEY_LEFT]) {
-            player_change_state(MOVE_LEFT);
-        } else {
-            player_change_state(BREAKING);
-        }
     } else {
         player_change_state(STOP);
     }

@@ -54,7 +54,7 @@ void load_level_doors(int level_id) {
             &id, name, object_type, &x, &y, &width, &height);
 
         if (matched == 7 && strcmp(name, "DOOR") == 0) {
-            doors[idx].static_id = atoi(object_type);  // store destination tmx in static_id for later use
+            doors[idx].static_id = atoi(object_type); // store destination tmx in static_id for later use
             doors[idx].x = x;
             doors[idx].y = y;
             doors[idx].width = width;
@@ -83,6 +83,19 @@ void door_get_all_aabb(collisionType* boxes) {
             };
         } else {
             boxes[i] = (collisionType){ .x = 0, .y = 0, .w = 0, .h = 0 };
+        }
+    }
+}
+
+void draw_door_getin(int scroll_x) {
+
+    for (int i = 0; i < MAX_DOORS; i++) {
+        if (!doors[i].active) {
+            continue;
+        }
+        int screen_x = doors[i].x - scroll_x;
+        if (screen_x < SCREEN_W) {
+            draw_sprite(current_screen, dat_file[ARROW_GETIN_BMP].dat, screen_x, 100);
         }
     }
 }

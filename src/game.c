@@ -350,18 +350,14 @@ inline void draw_game() {
             ; // wait key release
     }
     collisionType f2;
+    int current_door_id;
 
     switch (current_level) {
 
     case 1:
         sea_sparkle();
-        // textprintf_ex(scroller, font, 10 + scroll_x, 220, makecol(255, 255, 255), makecol(1, 1, 1), "t1:%d,t2:%d,t3:%d,t4:%d", tiles_at_positions[0],tiles_at_positions[1], tiles_at_positions[2], tiles_at_positions[3]);
         blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
-        /*if (player.data && player.sprite_index >= 0 && player.sprite_index < player.data->total_frames && player.data->sprites[player.sprite_index] != NULL) {
-            draw_sprite(screen, player.data->sprites[player.sprite_index], player.pos.x - scroll_x, player.pos.y);
-        } else {
-            textprintf_ex(screen, font, 10, 10, makecol(255, 0, 0), -1, "DEBUG: invalid sprite idx %d", player.sprite_index);
-        }*/
+
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
@@ -371,12 +367,13 @@ inline void draw_game() {
     case 4:
         cascade_palette();
     default:
-        if(current_level == 3) {
+        if (current_level == 3 || current_level == 2) {
             sea_sparkle();
         }
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
+        draw_door_getin(scroll_x);
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
