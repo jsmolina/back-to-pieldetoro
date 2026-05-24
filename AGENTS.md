@@ -176,5 +176,6 @@ void player_init(int x, int y, int current_level, int max_vx) {
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+shell commands, and other important information, read the current plan:
+specs/002-lamp-one-way-enemy/plan.md
 <!-- SPECKIT END -->

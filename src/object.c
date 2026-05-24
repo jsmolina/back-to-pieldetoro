@@ -159,7 +159,7 @@ void collision_check_throwable_vs_enemy() {
             if (enemies[enemy_id].w == 0)
                 continue;
 
-            if (collision(boxes[throw_id], enemies[enemy_id])) {
+            if (enemies[enemy_id].meta != ENEMY_DOG && collision(boxes[throw_id], enemies[enemy_id])) {
                 book_on_hit(throw_id);
                 enemy_on_hit(enemy_id);
             }

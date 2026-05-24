@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1.tmx",
+    "activeFile": "bg3.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -22,7 +22,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1376,
-                "y": 98.625
+                "y": 119.75
             }
         },
         "bg1.tmx": {
@@ -30,18 +30,18 @@
                 2
             ],
             "scale": 3.6252,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 996.9105152819154,
-                "y": 126.19993379675606
+                "x": 1078.4232594063774,
+                "y": 175.57651991614256
             }
         },
         "bg1_shop.tmx": {
             "scale": 4.59,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 159.91285403050108,
-                "y": 100.10893246187365
+                "x": 159.9128540305011,
+                "y": 100
             }
         },
         "bg2.tmx": {
@@ -52,15 +52,15 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 99.83333333333334
+                "y": 100
             }
         },
         "bg3.tmx": {
-            "scale": 2,
+            "scale": 3.7693,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 184,
-                "y": 99.75
+                "x": 159.5787016156846,
+                "y": 87.41676173294775
             }
         },
         "bg4.tmx": {
@@ -68,10 +68,10 @@
                 2
             ],
             "scale": 3.0052,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 124.11819512844403,
-                "y": 147.24477572208173
+                "x": 1599.8935179023028,
+                "y": 100.15972314654599
             }
         },
         "level1.tmx": {
@@ -87,7 +87,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 99.75
+                "y": 100
             }
         },
         "tiles.tsx": {
@@ -114,13 +114,13 @@
     "project": "level1.tiled-project",
     "recentFiles": [
         "bg0.tmx",
-        "bg3.tmx",
-        "test.tmx",
-        "bg2.tmx",
-        "bg1_shop.tmx",
-        "bg4.tmx",
-        "tiles.tsx",
         "bg1.tmx",
+        "tiles.tsx",
+        "bg4.tmx",
+        "bg1_shop.tmx",
+        "bg2.tmx",
+        "test.tmx",
+        "bg3.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

@@ -313,8 +313,8 @@ void update_game_run() {
             world_state = PLAYER_FALL;
             return;
         }
-        enemy_update(scroll_x);
         enemy_pool_update(scroll_x);
+        enemy_update(scroll_x);
         throwable_update(scroll_x);
 
         break;
@@ -413,11 +413,6 @@ void start_stage() {
         show_intro(current_level);
         GROUND_Y = LEVEL2_GROUND_Y;
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -4);
-        // initializes level enemies
-        // init_enemy(0, ENEMY_BIRD, 310, GROUND_Y - 5, -1, 93);
-        // init_enemy(1, ENEMY_JOVEN, 20, GROUND_Y, 0, 160);
-        // enemy_pool_init();
-        // load_level_enemies(2);
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
         reset_coins();
@@ -457,6 +452,8 @@ inline void update_game() {
         break;
     case RESTART_STAGE:
         player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
+        //enemy_pool_init();
+        enemy_spawn_init();
         enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart
