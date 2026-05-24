@@ -87,17 +87,6 @@ typedef struct {
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
 } Enemy;
 
-/** @brief Initializes an enemy at the specified index with the given type and position for a new level.
- *  The enemy is added to the spawnable enemies list and will be activated when the camera reaches its position.
- *
- * @param index The index in the spawnable enemies array.
- * @param type The type of the enemy.
- * @param x The horizontal position of the enemy.
- * @param y The vertical position of the enemy.
- * @param vx The horizontal velocity of the enemy.
- * @param screen_spawn_x The horizontal scroll position at which the enemy should be spawned.
- */
-void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x);
 
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *

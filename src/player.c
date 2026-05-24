@@ -563,7 +563,7 @@ static inline void player_do_throw() {
     // throw logic, create throwable object (book), set its position and velocity based on player state and direction
     init_book(
         player.pos.x + (player.flip ? -6 : 6),
-        player.pos.y + 5,
+        player.pos.y + 3,
         player.flip);
 }
 

@@ -21,6 +21,8 @@
 #define ECROUCHING 9
 #define ETHROWING 10
 
+#define BOMB_GROUND 155
+
 /*#define BSTOP 1
 #define BMOVE_LEFT 2
 #define BMOVE_RIGHT 3
@@ -101,8 +103,18 @@ static animeItem bomb_animations[4] = {
     { 5, { 0, 1 }, 2, 0 }, // RIGHT
 };
 
-// called on stage init to load bitmaps and initialize static data for enemy types
-void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen_spawn_x) {
+/** @brief Initializes an enemy at the specified index with the given type and position for a new level.
+ *  The enemy is added to the spawnable enemies list and will be activated when the camera reaches its position.
+ *
+ * @param index The index in the spawnable enemies array.
+ * @param type The type of the enemy.
+ * @param x The horizontal position of the enemy.
+ * @param y The vertical position of the enemy.
+ * @param vx The horizontal velocity of the enemy.
+ * @param vy The vertical velocity of the enemy.
+ * @param screen_spawn_x The horizontal scroll position at which the enemy should be spawned.
+ */
+void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int vy, int screen_spawn_x) {
     if (index < 0 || index >= MAX_SPAWNABLE_ENEMIES)
         return;
     spawnable_enemies[index].type = type;
@@ -110,7 +122,7 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int screen
     spawnable_enemies[index].pos.y = y;
     spawnable_enemies[index].screen_spawn_x = screen_spawn_x;
     spawnable_enemies[index].vx = vx;
-    spawnable_enemies[index].vy = 0;
+    spawnable_enemies[index].vy = vy;
     spawnable_enemies[index].active = FALSE;
     spawnable_enemies[index].move_count = 0;
     spawnable_enemies[index].anime_count = 0;
@@ -147,6 +159,7 @@ void enemy_pool_init() {
 void enemy_spawn_init() {
     for (int i = 0; i < MAX_SPAWNABLE_ENEMIES; i++) {
         spawnable_enemies[i].active = FALSE;
+        spawnable_enemies[i].killed = FALSE;
     }
 }
 
@@ -187,7 +200,7 @@ void load_level_enemies_v2(int level_id) {
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
         char name[64], object_type[8];
-        int x, y;
+        int x, y, vx = 0, vy = 0;
 
         int matched = sscanf(cursor,
             "<object id=\"%d\" name=\"%63[^\"]\" type=\"%7[^\"]\" x=\"%d\" y=\"%d\"",
@@ -204,11 +217,11 @@ void load_level_enemies_v2(int level_id) {
                 if (enemy_spawn_x < 0) {
                     enemy_spawn_x = 0;
                 }
-                if (enemy_type == ENEMY_LAMP) {
-                    //y += 14; // adjust lamp y to be on the ground
+                if (enemy_type == ENEMY_BOMB) {
+                    vx = 2;
+                    vy = 1;
                 }
-                int vx = 0;
-                init_enemy(enemy_index, enemy_type, x, y, vx, enemy_spawn_x);
+                init_enemy(enemy_index, enemy_type, x, y, vx, vy, enemy_spawn_x);
                 enemy_index++;
                 if (enemy_index >= MAX_SPAWNABLE_ENEMIES) {
                     break;
@@ -424,6 +437,16 @@ static void enemy_check_vy(int index) {
         return;
     }
 
+    if (active_enemies[index].type == ENEMY_BOMB) {
+        if (active_enemies[index].pos.y <= (20)) {
+            active_enemies[index].vy = 1;
+        } else if (active_enemies[index].pos.y >= BOMB_GROUND) {
+            active_enemies[index].pos.y = BOMB_GROUND;
+            active_enemies[index].vy = -1;
+        }
+        return;
+    }
+
     if (active_enemies[index].vy > 0) {
         if (enemy_is_on_obj(index)) {
             active_enemies[index].vy = 0;
@@ -431,17 +454,38 @@ static void enemy_check_vy(int index) {
     }
 }
 
+static void stop_and_deactivate(int index) {
+    active_enemies[index].vx = 0;
+    enemy_change_state(index, ESTOP);
+    active_enemies[index].active = FALSE;
+}
+
+static inline void flip_right(int index) {
+    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_BOMB) {
+        // not expected to move left so won't flip, just stop and deactivate
+        stop_and_deactivate(index);
+        return;
+    }
+    active_enemies[index].vx = 2;
+    active_enemies[index].flip = FALSE;
+    enemy_change_state(index, EMOVE_RIGHT);
+}
+
+static inline void flip_left(int index) {
+    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_BOMB) {
+        stop_and_deactivate(index);
+        return;
+    }
+    active_enemies[index].vx = -2;
+    active_enemies[index].flip = TRUE;
+    enemy_change_state(index, EMOVE_LEFT);
+}
+
 static inline void enemy_check_vx(int index, int scroll_x) {
     if (active_enemies[index].pos.x < (scroll_x - 50)) {
-        active_enemies[index].vx = 2;
-        // active_enemies[index].state = BMOVE_RIGHT;
-        active_enemies[index].flip = FALSE;
-        enemy_change_state(index, EMOVE_RIGHT);
+        flip_right(index);
     } else if (active_enemies[index].pos.x > (scroll_x + SCREEN_W + 50)) {
-        active_enemies[index].vx = -2;
-        // active_enemies[index].state = BMOVE_LEFT;
-        active_enemies[index].flip = TRUE;
-        enemy_change_state(index, EMOVE_LEFT);
+        flip_left(index);
     }
 }
 
@@ -482,30 +526,6 @@ void joven_action_stop(int index) {
         enemy_change_state(index, EMOVE_RIGHT);
         // active_enemies[index].state = EMOVE_RIGHT;
         active_enemies[index].vx = 2; // Move right
-        active_enemies[index].flip = FALSE;
-    }
-    // Otherwise maintain current position (player directly above/below)
-}
-
-void bird_action_stop(int index) {
-    // Only process if this is a valid active bird enemy
-    if (index < 0 || index >= MAX_ACTIVE_ENEMIES)
-        return;
-
-    // Calculate distance to player
-    int enemy_x = active_enemies[index].pos.x;
-    int player_x = player.pos.x;
-
-    // Move toward player
-    if (player_x < enemy_x) {
-        // Player is to the left, move left
-        enemy_change_state(index, EMOVE_LEFT);
-        active_enemies[index].vx = -1; // Move left
-        active_enemies[index].flip = TRUE;
-    } else if (player_x > enemy_x) {
-        // Player is to the right, move right
-        enemy_change_state(index, EMOVE_RIGHT);
-        active_enemies[index].vx = 1; // Move right
         active_enemies[index].flip = FALSE;
     }
     // Otherwise maintain current position (player directly above/below)
@@ -631,6 +651,7 @@ void enemy_get_all_aabb(collisionType* enemies) {
             enemies[i].w = 0;
             enemies[i].h = 0;
         }
+        enemies[i].meta = active_enemies[i].type;
     }
 }
 
@@ -722,6 +743,10 @@ void draw_enemies(int scroll_x) {
                     e->pos.x - scroll_x,
                     e->pos.y);
             }
+            // temporary: draw red box for enemy bounds
+            int x1 = e->pos.x - scroll_x;
+            int y1 = e->pos.y;
+            rect(current_screen, x1, y1, x1 + data->width, y1 + data->height, makecol(255, 0, 0));
         }
     }
 }

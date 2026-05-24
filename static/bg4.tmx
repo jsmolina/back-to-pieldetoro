@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="400" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="2">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="400" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="12">
  <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="400" height="25">
   <data encoding="csv">
@@ -32,6 +32,33 @@
  </layer>
  <objectgroup id="2" name="Object Layer 1">
   <object id="1" name="ENEMY_LAMP" type="EL" x="103" y="111">
+   <point/>
+  </object>
+  <object id="2" name="ENEMY_BOMB" type="EL" x="356" y="49">
+   <point/>
+  </object>
+  <object id="3" name="ENEMY_BOMB" type="EL" x="545" y="50">
+   <point/>
+  </object>
+  <object id="4" name="ENEMY_LAMP" type="EL" x="705" y="111">
+   <point/>
+  </object>
+  <object id="5" name="ENEMY_LAMP" type="EL" x="274" y="111">
+   <point/>
+  </object>
+  <object id="6" name="ENEMY_BOMB" type="EL" x="897" y="18">
+   <point/>
+  </object>
+  <object id="7" name="ENEMY_BOMB" type="EL" x="1092" y="23">
+   <point/>
+  </object>
+  <object id="8" name="ENEMY_BOMB" type="EL" x="1338" y="19">
+   <point/>
+  </object>
+  <object id="10" name="ENEMY_LAMP" type="EL" x="1472" y="111">
+   <point/>
+  </object>
+  <object id="11" name="ENEMY_BOMB" type="EL" x="1593" y="20">
    <point/>
   </object>
  </objectgroup>
