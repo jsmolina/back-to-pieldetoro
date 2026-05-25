@@ -4,7 +4,7 @@
 #include "helpers.h"
 #include <allegro.h>
 
-#define MAX_SPAWNABLE_ENEMIES 10
+#define MAX_SPAWNABLE_ENEMIES 20
 #define MAX_ACTIVE_ENEMIES 4
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
@@ -12,6 +12,7 @@
 #define DOG_FRAMES 7
 #define BOMB_FRAMES 2
 #define LAMP_FRAMES 1
+#define SYRINGE_FRAMES 1
 
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
@@ -64,6 +65,7 @@ enum EnemyType {
     ENEMY_BIRD,
     ENEMY_DOG,
     ENEMY_LAMP,
+    ENEMY_SYRINGE,
     ENEMY_BOMB,
     TOTAL_ENEMY_DATA
 };
@@ -86,7 +88,6 @@ typedef struct {
     int killed; // to mark if the enemy has been killed for static data
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
 } Enemy;
-
 
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *

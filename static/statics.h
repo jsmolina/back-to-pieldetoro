@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Sun May 24 22:24:10 2026 */
+/* Date: Mon May 25 16:16:51 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -22,21 +22,22 @@
 #define INTRO2_FLI                       16       /* FLIC */
 #define INTRO_FLI                        17       /* FLIC */
 #define INTRO_MID                        18       /* MIDI */
-#define JORDI_LOGO_BMP                   19       /* BMP  */
-#define JOVEN_SPRITESHEET_BMP            20       /* BMP  */
-#define LEVEL2_INTRO_BMP                 21       /* BMP  */
-#define LEVEL3_INTRO3_BMP                22       /* BMP  */
-#define LIFEBAR_BMP                      23       /* BMP  */
-#define LIFEBAR_BRUNO_BMP                24       /* BMP  */
-#define LIFEBAR_MARTIN_BMP               25       /* BMP  */
-#define MARTIN_SPRITESHEET_BMP           26       /* BMP  */
-#define MENU2_BMP                        27       /* BMP  */
-#define MONEY_BMP                        28       /* BMP  */
-#define MSDOS_MID                        29       /* MIDI */
-#define MSDOSCLUB_BMP                    30       /* BMP  */
-#define NUMBERS_BMP                      31       /* BMP  */
-#define PALETE_INTRO_BMP                 32       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            33       /* PAL  */
-#define PIELDETORO_INTRO3_BMP            34       /* BMP  */
-#define TILES_BMP                        35       /* BMP  */
+#define JERINGA_BMP                      19       /* BMP  */
+#define JORDI_LOGO_BMP                   20       /* BMP  */
+#define JOVEN_SPRITESHEET_BMP            21       /* BMP  */
+#define LEVEL2_INTRO_BMP                 22       /* BMP  */
+#define LEVEL3_INTRO3_BMP                23       /* BMP  */
+#define LIFEBAR_BMP                      24       /* BMP  */
+#define LIFEBAR_BRUNO_BMP                25       /* BMP  */
+#define LIFEBAR_MARTIN_BMP               26       /* BMP  */
+#define MARTIN_SPRITESHEET_BMP           27       /* BMP  */
+#define MENU2_BMP                        28       /* BMP  */
+#define MONEY_BMP                        29       /* BMP  */
+#define MSDOS_MID                        30       /* MIDI */
+#define MSDOSCLUB_BMP                    31       /* BMP  */
+#define NUMBERS_BMP                      32       /* BMP  */
+#define PALETE_INTRO_BMP                 33       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            34       /* PAL  */
+#define PIELDETORO_INTRO3_BMP            35       /* BMP  */
+#define TILES_BMP                        36       /* BMP  */
 

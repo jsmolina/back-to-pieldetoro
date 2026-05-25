@@ -86,7 +86,7 @@ static animeItem martin_animations[22] = {
     { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
     { 10, { 16 }, 0, 0 },                                        // KICKING
     { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // RUN RIGHT
-    { 8, { 13 }, 1, 1 },                                         // RUNNING_JUMP
+    { 20, { 13 }, 1, 1 },                                         // RUNNING_JUMP
     { 8, { 18, 19 }, 2, 5 },                                         // RUNNING_CROUCH
     { 12, { 13 }, 1, 1 },                                        // RUNNING_JUMP_DOWN
 };
@@ -1012,17 +1012,17 @@ void player_update() {
     }
     player_update_position();
 
-    if (player_is_over_almanac_tile()) {
-        if (almanac_tile_trigger_available == TRUE) {
-            almanac_tile_trigger_available = FALSE;
-            if (player.has_almanac) {
-                pending_flow_event.type = PLAYER_ADVANCE_STAGE;
-            } else {
-                player_show_almanac_dialog();
-            }
+    if (almanac_tile_trigger_available == TRUE && player_is_over_almanac_tile()) {
+        almanac_tile_trigger_available = FALSE;
+        if (player.has_almanac) {
+            pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+        } else {
+            player_show_almanac_dialog();
         }
-    } else {
+    } else if (almanac_tile_trigger_available == FALSE) {
         almanac_tile_trigger_available = TRUE;
+    } else if (player_is_over_advance_tile()) {
+        pending_flow_event.type = PLAYER_ADVANCE_STAGE;
     }
 
     switch (player.state) {

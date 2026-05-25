@@ -22,6 +22,8 @@
 #define ETHROWING 10
 
 #define BOMB_GROUND 155
+#define BOMB_HURTBOX_TOP_CUT 6
+#define BOMB_HURTBOX_SIDE_CUT 1
 
 /*#define BSTOP 1
 #define BMOVE_LEFT 2
@@ -33,11 +35,7 @@
 #define ATTACK_DISTANCE 80
 // FILE* enemy_log_file;
 #define GRAVITY 1
-static EnemyData enemy_data[TOTAL_ENEMY_DATA] = {
-    { 0, 0, 0, 0, 0, 0, NULL, NULL },
-    { 0, 0, 0, 0, 0, 0, NULL, NULL },
-    { 0, 0, 0, 0, 0, 0, NULL, NULL }
-}; // static data for each enemy type
+static EnemyData enemy_data[TOTAL_ENEMY_DATA]; // static data for each enemy type
 static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
 static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
 
@@ -172,6 +170,8 @@ static enum EnemyType parse_enemy_type(const char* name) {
         return ENEMY_BIRD;
     else if (strcmp(name, "ENEMY_LAMP") == 0)
         return ENEMY_LAMP;
+    else if (strcmp(name, "ENEMY_SYRINGE") == 0)
+        return ENEMY_SYRINGE;
     else if (strcmp(name, "ENEMY_BOMB") == 0)
         return ENEMY_BOMB;
     return -1;
@@ -220,6 +220,8 @@ void load_level_enemies_v2(int level_id) {
                 if (enemy_type == ENEMY_BOMB) {
                     vx = 2;
                     vy = 1;
+                } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
+                    vx = 3;
                 }
                 init_enemy(enemy_index, enemy_type, x, y, vx, vy, enemy_spawn_x);
                 enemy_index++;
@@ -238,6 +240,9 @@ void load_level_enemies_v2(int level_id) {
 static void _load_enemy_generic(enum EnemyType type, int frame_count, int frame_width, int bitmap_id) {
     EnemyData* enem = &enemy_data[type];
     BITMAP* enemy_spritesheet = dat_file[bitmap_id].dat;
+    if (frame_width <= 0) {
+        frame_width = enemy_spritesheet->w;
+    }
     enem->width = frame_width;
     enem->height = enemy_spritesheet->h;
     int offset = 0;
@@ -253,7 +258,7 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int frame_
         enem->animations = bird_animations;
     } else if (type == ENEMY_DOG) {
         enem->animations = dog_animations;
-    } else if (type == ENEMY_LAMP) {
+    } else if (type == ENEMY_LAMP || type == ENEMY_SYRINGE) {
         enem->animations = lamp_animations;
     } else if (type == ENEMY_BOMB) {
         enem->animations = bomb_animations;
@@ -266,7 +271,8 @@ void load_enemy_spritesheets() {
     _load_enemy_generic(ENEMY_BIRD, BIRD_FRAMES, 8, BIRD_SPRITESHEET_BMP);
     _load_enemy_generic(ENEMY_DOG, DOG_FRAMES, 24, DOG_SPRITESHEET_BMP);
     _load_enemy_generic(ENEMY_LAMP, LAMP_FRAMES, 54, FAROLA_BMP);
-    _load_enemy_generic(ENEMY_BOMB, BOMB_FRAMES, 20, BOMB_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_SYRINGE, SYRINGE_FRAMES, 0, JERINGA_BMP);
+    _load_enemy_generic(ENEMY_BOMB, BOMB_FRAMES, 16, BOMB_SPRITESHEET_BMP);
 }
 
 void reset_spawnable_enemies() {
@@ -461,7 +467,7 @@ static void stop_and_deactivate(int index) {
 }
 
 static inline void flip_right(int index) {
-    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_BOMB) {
+    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_SYRINGE || active_enemies[index].type == ENEMY_BOMB) {
         // not expected to move left so won't flip, just stop and deactivate
         stop_and_deactivate(index);
         return;
@@ -472,7 +478,7 @@ static inline void flip_right(int index) {
 }
 
 static inline void flip_left(int index) {
-    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_BOMB) {
+    if (active_enemies[index].type == ENEMY_LAMP || active_enemies[index].type == ENEMY_SYRINGE || active_enemies[index].type == ENEMY_BOMB) {
         stop_and_deactivate(index);
         return;
     }
@@ -571,7 +577,9 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         // joven_action_fall();
         break;
     case ESTOP:
-        joven_action_stop(index);
+        if (active_enemies[index].type == ENEMY_JOVEN) {
+            joven_action_stop(index);
+        }
         break;
     case EDEAD:
         // joven_action_dead();
@@ -641,6 +649,21 @@ void enemy_get_all_aabb(collisionType* enemies) {
             if (data) {
                 enemies[i].w = data->width;
                 enemies[i].h = data->height;
+
+                if (active_enemies[i].type == ENEMY_BOMB) {
+                    int side_cut = BOMB_HURTBOX_SIDE_CUT;
+                    int top_cut = BOMB_HURTBOX_TOP_CUT;
+
+                    if (enemies[i].w > (side_cut << 1)) {
+                        enemies[i].x += side_cut;
+                        enemies[i].w -= side_cut << 1;
+                    }
+
+                    if (enemies[i].h > top_cut) {
+                        enemies[i].y += top_cut;
+                        enemies[i].h -= top_cut;
+                    }
+                }
             } else {
                 enemies[i].w = 0;
                 enemies[i].h = 0;
@@ -743,10 +766,6 @@ void draw_enemies(int scroll_x) {
                     e->pos.x - scroll_x,
                     e->pos.y);
             }
-            // temporary: draw red box for enemy bounds
-            int x1 = e->pos.x - scroll_x;
-            int y1 = e->pos.y;
-            rect(current_screen, x1, y1, x1 + data->width, y1 + data->height, makecol(255, 0, 0));
         }
     }
 }
