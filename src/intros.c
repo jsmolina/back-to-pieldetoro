@@ -45,6 +45,12 @@ void level3_intro() {
     wait_for_space();
 }
 
+void level4_intro() {
+    //blit(dat_file[INTRO2_FLI].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
+    wait_for_space();
+}
+
 void show_intro(int level) {
     switch (level) {
     case 1:
@@ -55,6 +61,9 @@ void show_intro(int level) {
         break;
     case 3:
         level3_intro();
+        break;
+    case 4:
+        level4_intro();
         break;
     default:
         break;

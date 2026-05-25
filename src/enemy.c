@@ -577,7 +577,7 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         // joven_action_fall();
         break;
     case ESTOP:
-        if (active_enemies[index].type == ENEMY_JOVEN) {
+        if (active_enemies[index].type < ENEMY_LAMP) {
             joven_action_stop(index);
         }
         break;

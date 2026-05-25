@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="300" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="25">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="300" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="28">
  <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="300" height="25">
   <data encoding="csv">
@@ -76,6 +76,15 @@
    <point/>
   </object>
   <object id="24" name="ENEMY_DOG" type="ER" x="798" y="139">
+   <point/>
+  </object>
+  <object id="25" name="ENEMY_DOG" type="ER" x="1334" y="139">
+   <point/>
+  </object>
+  <object id="26" name="ENEMY_DOG" type="ER" x="1965" y="139">
+   <point/>
+  </object>
+  <object id="27" name="ENEMY_DOG" type="ER" x="2207" y="139">
    <point/>
   </object>
  </objectgroup>

@@ -1012,16 +1012,20 @@ void player_update() {
     }
     player_update_position();
 
-    if (almanac_tile_trigger_available == TRUE && player_is_over_almanac_tile()) {
-        almanac_tile_trigger_available = FALSE;
-        if (player.has_almanac) {
-            pending_flow_event.type = PLAYER_ADVANCE_STAGE;
-        } else {
-            player_show_almanac_dialog();
+    if (player_is_over_almanac_tile()) {
+        if (almanac_tile_trigger_available == TRUE) {
+            almanac_tile_trigger_available = FALSE;
+            if (player.has_almanac) {
+                pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+            } else {
+                player_show_almanac_dialog();
+            }
         }
-    } else if (almanac_tile_trigger_available == FALSE) {
+    } else {
         almanac_tile_trigger_available = TRUE;
-    } else if (player_is_over_advance_tile()) {
+    }
+    
+    if (player_is_over_advance_tile()) {
         pending_flow_event.type = PLAYER_ADVANCE_STAGE;
     }
 
