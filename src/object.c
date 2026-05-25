@@ -9,6 +9,8 @@
 
 #define CAR_PLATFORM_SIZE 9
 #define ALMANAC_TILE_ID 1040
+#define ADVANCE_TILE_ID 1071
+#define BOMB_JUMP_CLEARANCE_MARGIN 5
 
 // simple AABB collision detection
 int collision(collisionType obj1, collisionType obj2) {
@@ -102,6 +104,8 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
             } else {
                 if (tile_id == ALMANAC_TILE_ID)
                     return ALMANAC;
+                if (tile_id == ADVANCE_TILE_ID)
+                    return ADVANCE;
                 if (is_a_platform(tile_id))
                     return PLATFORM;
                 if (is_back_in_time_tile(tile_id))
@@ -135,7 +139,7 @@ int wheels_on_tiles() {
 // will check if player is over a walkable thing
 int checkOverObj(collisionType area) {
     int result = rect_over_tile_types(area, FALSE);
-    if (result == PLATFORM || result == ALMANAC) {
+    if (result == PLATFORM || result == ALMANAC || result == ADVANCE) {
         return TRUE;
     }
 
@@ -188,6 +192,15 @@ void collision_check_enemy_vs_player(int scroll_x) {
 
         // Check for collision
         if (collision(player_area, enemies[enemy_id])) {
+            if (enemies[enemy_id].meta == ENEMY_BOMB) {
+                int player_bottom = player_area.y + player_area.h;
+                int bomb_top = enemies[enemy_id].y;
+
+                if (player_bottom <= bomb_top + BOMB_JUMP_CLEARANCE_MARGIN) {
+                    continue;
+                }
+            }
+
             if (player.state == KICKING) {
                 enemy_on_hit(enemy_id);
             } else {
@@ -211,6 +224,11 @@ int car_is_on_obj() {
 int player_is_over_almanac_tile() {
     collisionType foot = player_foot_area();
     return rect_over_tile_types(foot, FALSE) == ALMANAC;
+}
+
+int player_is_over_advance_tile() {
+    collisionType foot = player_foot_area();
+    return rect_over_tile_types(foot, FALSE) == ADVANCE;
 }
 
 int martin_is_over_door() {
