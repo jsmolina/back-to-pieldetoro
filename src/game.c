@@ -135,22 +135,24 @@ int game_try_spend_money(int amount) {
     return TRUE;
 }
 
-void print_year(int n1, int n2, int n3, int n4) {
+/*void print_year(int n1, int n2, int n3, int n4) {
     draw_sprite(screen, numbers_sprites[n1], 42, 182);
     draw_sprite(screen, numbers_sprites[n2], 62, 182);
     draw_sprite(screen, numbers_sprites[n3], 82, 182);
     draw_sprite(screen, numbers_sprites[n4], 102, 182);
-}
+}*/
 
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
     if (force_full_redraw) {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
-        if (current_level == 1) {
-            print_year(1, 9, 8, 4);
-        } else if (current_level == 2 || current_level == 3) {
-            print_year(2, 0, 2, 5);
+        int year = 1982;
+        if (current_level ==1 ||current_level == 2) {
+            year = 2026;
+        } else if (current_level == 4) {
+            year = 1954;
         }
+        printf_at_simple(26, 185, 46, -1, "%d", year);
     }
 
     int e = player.energy;
@@ -184,7 +186,7 @@ void lifebar() {
     int money = game_get_money();
     if (force_full_redraw || hud_last_coins != money) {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
-        printf_at_simple(250, 185, 41, 43, "%6d", money);
+        printf_at_simple(255, 185, 41, -1, "%6d", money);
         hud_last_coins = money;
     }
 
