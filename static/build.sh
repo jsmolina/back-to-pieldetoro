@@ -22,7 +22,6 @@ dat datos.dat -a ./lifebar_bruno.bmp -h statics.h -t BMP
 dat datos.dat -a ./lifebar_martin.bmp -h statics.h -t BMP
 dat datos.dat -a ./lifebar.bmp -h statics.h -t BMP
 dat datos.dat -a ./head.bmp -h statics.h -t BMP
-dat datos.dat -a ./numbers.bmp -h statics.h -t BMP
 dat datos.dat -a ./money.bmp -h statics.h -t BMP
 dat datos.dat -a ./font.fnt -h statics.h
 dat datos.dat -a ./bg1_shop2.bmp -h statics.h -t BMP

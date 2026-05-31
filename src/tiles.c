@@ -13,7 +13,6 @@ BITMAP* tiles;
 // width="80" height="25"
 // char dirty_tiles[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
 int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES] = { 0 };
-BITMAP* numbers_sprites[10] = { NULL }; // spritesheet for numbers used in score display
 // defines the current width in tiles of the loaded background (e.g., 80 for 640px)
 int curr_tiles_width = 0;
 int map_width = 0;
@@ -47,15 +46,6 @@ inline void load_tiles() {
     }
 }
 
-void load_numbers_spritesheet() {
-    BITMAP* numbers_spritesheet = dat_file[NUMBERS_BMP].dat;
-    int frame_width = 4; // each number sprite is 4 pixels wide
-    int curr_x = 0;
-    for (int i = 0; i < 10; i++) {
-        numbers_sprites[i] = create_sub_bitmap(numbers_spritesheet, curr_x, 0, frame_width, numbers_spritesheet->h);
-        curr_x += frame_width;
-    }
-}
 
 BITMAP* load_shop_bg(int id) {
     char* in_file = dat_file[id].dat;

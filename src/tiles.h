@@ -18,7 +18,6 @@ struct coords {
 Tiles image
 */
 extern BITMAP* tiles;
-extern BITMAP* numbers_sprites[10]; // spritesheet for numbers used in score display
 extern PALETTE palette;
 // dirty tiles array
 extern char dirty_tiles[25][MAX_HORIZ_TILES];

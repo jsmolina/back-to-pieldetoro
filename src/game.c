@@ -135,12 +135,6 @@ int game_try_spend_money(int amount) {
     return TRUE;
 }
 
-/*void print_year(int n1, int n2, int n3, int n4) {
-    draw_sprite(screen, numbers_sprites[n1], 42, 182);
-    draw_sprite(screen, numbers_sprites[n2], 62, 182);
-    draw_sprite(screen, numbers_sprites[n3], 82, 182);
-    draw_sprite(screen, numbers_sprites[n4], 102, 182);
-}*/
 
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
