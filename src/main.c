@@ -136,7 +136,6 @@ int main(void) {
     load_enemy_spritesheets();
     load_coche_spritesheet();
     load_martin_spritesheet();
-    load_numbers_spritesheet();
     load_coin_spritesheet();
 
     short exit_game = 0;

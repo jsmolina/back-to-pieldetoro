@@ -85,7 +85,7 @@ static animeItem martin_animations[22] = {
     { 5, { 15 }, 0, 0 },                                         // THROWING OBJECT
     { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
     { 10, { 16 }, 0, 0 },                                        // KICKING
-    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // RUN RIGHT
+    { 12, { 0,2, 6, 8 }, 4, 5 }, // RUN RIGHT
     { 20, { 13 }, 1, 1 },                                         // RUNNING_JUMP
     { 8, { 18, 19 }, 2, 5 },                                         // RUNNING_CROUCH
     { 12, { 13 }, 1, 1 },                                        // RUNNING_JUMP_DOWN
