@@ -66,7 +66,7 @@ int game_try_spend_money(int amount);
  *
  * @note This is an inline function for performance optimization
  */
-inline void update_game();
+inline int update_game();
 
 /**
  * @brief Renders the current game frame
