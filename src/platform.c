@@ -81,9 +81,9 @@ void load_level_platforms(int level_id) {
             platforms[idx].x = x;
             platforms[idx].y = y;
             platforms[idx].pos.x = x;
-            platforms[idx].pos.y = y;
+            platforms[idx].pos.y = (object_type[0] == 'L') ? y : (y + MOVING_PLATFORM_H); // for vertical platforms, start at bottom edge
             platforms[idx].prev_pos.x = x;
-            platforms[idx].prev_pos.y = y;
+            platforms[idx].prev_pos.y = platforms[idx].pos.y;
             // type: first char of object_type (L for LR, D for DT)
             platforms[idx].type = object_type[0];
             // distance: width for LR, height for DT
