@@ -8,10 +8,10 @@
 #include "intros.h"
 #include "object.h"
 #include "pause.h"
+#include "platform.h"
 #include "player.h"
 #include "room.h"
 #include "statics.h"
-#include "platform.h"
 #include "tiles.h"
 #include <allegro.h>
 #include <stdio.h>
@@ -136,13 +136,12 @@ int game_try_spend_money(int amount) {
     return TRUE;
 }
 
-
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
     if (force_full_redraw) {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
         int year = 1982;
-        if (current_level ==1 ||current_level == 2) {
+        if (current_level == 1 || current_level == 2) {
             year = 2026;
         } else if (current_level == 4) {
             year = 1954;
@@ -286,6 +285,7 @@ void update_game_run() {
         }
         break;
     default:
+        platform_update(scroll_x);
         player_update();
 
         flow_event = player_consume_flow_event();
@@ -312,7 +312,6 @@ void update_game_run() {
         }
         enemy_pool_update(scroll_x);
         enemy_update(scroll_x);
-        platform_update(scroll_x);
         throwable_update(scroll_x);
 
         break;
@@ -452,7 +451,7 @@ inline int update_game() {
         break;
     case RESTART_STAGE:
         player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
-        //enemy_pool_init();
+        // enemy_pool_init();
         enemy_spawn_init();
         enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);

@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1.tmx",
+    "activeFile": "bg2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -48,11 +48,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3,
-            "selectedLayer": 0,
+            "scale": 5.5,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 636.8333333333333,
-                "y": 104.16666666666667
+                "x": 785.2727272727273,
+                "y": 105.54545454545456
             }
         },
         "bg3.tmx": {
@@ -115,13 +115,13 @@
     "property.type": "int",
     "recentFiles": [
         "bg0.tmx",
+        "bg1.tmx",
+        "tiles.tsx",
+        "bg4.tmx",
+        "bg1_shop.tmx",
         "bg3.tmx",
         "test.tmx",
         "bg2.tmx",
-        "bg1_shop.tmx",
-        "bg4.tmx",
-        "tiles.tsx",
-        "bg1.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

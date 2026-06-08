@@ -74,6 +74,7 @@ struct playerType {
     unsigned int state;
     unsigned int prev_state;
     int jump_vy;
+    int riding_platform_idx;
     PlayerData* data;      // pointer to static data for current player type (car or martin)
     animeItem* animations; // pointer to current level animations, should be injected during player initialization
 };

@@ -41,4 +41,23 @@ void draw_platforms(int scroll_x);
  */
 void platform_get_all_aabb(collisionType* boxes);
 
+/**
+ * @brief Returns movement delta applied during the last platform_update for a platform index.
+ * @param index Platform pool index.
+ * @param dx Output horizontal delta.
+ * @param dy Output vertical delta.
+ * @return TRUE if index is valid and active, FALSE otherwise.
+ */
+int platform_get_delta(int index, int* dx, int* dy);
+
+/**
+ * @brief Finds a platform that supports the provided collision area from below.
+ * @param area Area used as support probe (typically player feet area).
+ * @param max_snap_pixels Vertical tolerance around platform top.
+ * @param platform_index Output supported platform index.
+ * @param platform_top_y Output top y coordinate of the platform.
+ * @return TRUE when support is found, FALSE otherwise.
+ */
+int platform_find_support(collisionType area, int max_snap_pixels, int* platform_index, int* platform_top_y);
+
 #endif

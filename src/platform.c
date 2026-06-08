@@ -15,6 +15,8 @@ typedef struct {
     int y;
     // current position
     coordsType pos;
+    // previous position from the prior frame
+    coordsType prev_pos;
     // platform type: 'L' for LR (horizontal), 'D' for DT (vertical)
     char type;
     // max displacement for movement
@@ -41,6 +43,8 @@ void reset_platforms() {
         platforms[i].y = 0;
         platforms[i].pos.x = 0;
         platforms[i].pos.y = 0;
+        platforms[i].prev_pos.x = 0;
+        platforms[i].prev_pos.y = 0;
         platforms[i].type = 'L';
         platforms[i].distance = 0;
         platforms[i].dir = 1;
@@ -78,6 +82,8 @@ void load_level_platforms(int level_id) {
             platforms[idx].y = y;
             platforms[idx].pos.x = x;
             platforms[idx].pos.y = y;
+            platforms[idx].prev_pos.x = x;
+            platforms[idx].prev_pos.y = y;
             // type: first char of object_type (L for LR, D for DT)
             platforms[idx].type = object_type[0];
             // distance: width for LR, height for DT
@@ -102,6 +108,8 @@ void platform_update(int scroll_x) {
         if (!platforms[i].active) {
             continue;
         }
+
+        platforms[i].prev_pos = platforms[i].pos;
 
         if (platforms[i].type == 'L') {
             // LR (horizontal) movement
@@ -150,4 +158,58 @@ void platform_get_all_aabb(collisionType* boxes) {
             boxes[i].h = 0;
         }
     }
+}
+
+int platform_get_delta(int index, int* dx, int* dy) {
+    if (!dx || !dy) {
+        return FALSE;
+    }
+
+    *dx = 0;
+    *dy = 0;
+
+    if (index < 0 || index >= platform_count || !platforms[index].active) {
+        return FALSE;
+    }
+
+    *dx = platforms[index].pos.x - platforms[index].prev_pos.x;
+    *dy = platforms[index].pos.y - platforms[index].prev_pos.y;
+    return TRUE;
+}
+
+int platform_find_support(collisionType area, int max_snap_pixels, int* platform_index, int* platform_top_y) {
+    if (!platform_index || !platform_top_y || area.w <= 0 || area.h <= 0) {
+        return FALSE;
+    }
+
+    if (max_snap_pixels < 0) {
+        max_snap_pixels = 0;
+    }
+
+    int area_left = area.x;
+    int area_right = area.x + area.w;
+    int area_bottom = area.y + area.h;
+
+    for (int i = 0; i < platform_count; i++) {
+        if (!platforms[i].active) {
+            continue;
+        }
+
+        int platform_left = platforms[i].pos.x;
+        int platform_right = platforms[i].pos.x + MOVING_PLATFORM_W;
+        int platform_top = platforms[i].pos.y;
+
+        int overlap_x = area_left < platform_right && area_right > platform_left;
+        if (!overlap_x) {
+            continue;
+        }
+
+        if (area_bottom >= platform_top - max_snap_pixels && area_bottom <= platform_top + max_snap_pixels) {
+            *platform_index = i;
+            *platform_top_y = platform_top;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
