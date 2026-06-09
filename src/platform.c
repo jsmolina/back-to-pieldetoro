@@ -78,12 +78,13 @@ void load_level_platforms(int level_id) {
             &id, name, object_type, &x, &y, &width, &height);
 
         if (matched >= 6 && strcmp(name, "PLATFORM") == 0) {
+            int yy = (object_type[0] == 'L') ? y : (y + height); // for vertical platforms, adjust y to bottom edge
             platforms[idx].x = x;
             platforms[idx].y = y;
             platforms[idx].pos.x = x;
-            platforms[idx].pos.y = (object_type[0] == 'L') ? y : (y + MOVING_PLATFORM_H); // for vertical platforms, start at bottom edge
+            platforms[idx].pos.y = yy;
             platforms[idx].prev_pos.x = x;
-            platforms[idx].prev_pos.y = platforms[idx].pos.y;
+            platforms[idx].prev_pos.y = yy;
             // type: first char of object_type (L for LR, D for DT)
             platforms[idx].type = object_type[0];
             // distance: width for LR, height for DT
@@ -122,9 +123,9 @@ void platform_update(int scroll_x) {
         } else if (platforms[i].type == 'D') {
             // DT (vertical) movement
             platforms[i].pos.y += platforms[i].dir;
-            if (platforms[i].pos.y <= platforms[i].y - platforms[i].distance) {
+            if (platforms[i].pos.y <= platforms[i].y) {
                 platforms[i].dir = 1;
-            } else if (platforms[i].pos.y >= platforms[i].y) {
+            } else if (platforms[i].pos.y >= platforms[i].y + platforms[i].distance) {
                 platforms[i].dir = -1;
             }
         }

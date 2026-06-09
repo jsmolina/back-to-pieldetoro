@@ -48,11 +48,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 5.5,
-            "selectedLayer": 1,
+            "scale": 2.4121,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 556.0909090909091,
-                "y": 100.0909090909091
+                "x": 556.1543882923594,
+                "y": 100.12022718792755
             }
         },
         "bg3.tmx": {
