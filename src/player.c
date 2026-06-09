@@ -73,7 +73,7 @@ static animeItem martin_animations[22] = {
     { 1, { 0 }, 1, 60 },                                        // STOP
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 4, { 9 }, 1, 2 },                                         // BREAKING
+    { 4, { 20 }, 1, 2 },                                         // BREAKING
     { 4, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                       // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                       // JUMP_HIT

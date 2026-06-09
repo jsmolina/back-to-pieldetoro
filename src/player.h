@@ -26,7 +26,7 @@
 #define RUNNING_JUMP_DOWN 21
 
 #define COCHE_FRAMES 4
-#define MARTIN_FRAMES 20
+#define MARTIN_FRAMES 21
 
 typedef enum {
     CAR_TYPE = 0,
