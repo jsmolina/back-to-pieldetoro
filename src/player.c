@@ -6,6 +6,7 @@
 #include "game.h"
 #include "helpers.h"
 #include "object.h"
+#include "platform.h"
 #include "player.h"
 
 #include "statics.h"
@@ -30,6 +31,7 @@
 #define ALMANAC_DIALOG_TEXT_Y 96
 
 #define PLAYER_ACCEL 1
+#define PLATFORM_SUPPORT_SNAP_PIXELS 2
 
 struct playerType player;
 
@@ -67,28 +69,28 @@ static animeItem car_animations[22] = {
 };
 
 static animeItem martin_animations[22] = {
-    { 0, { 0 }, 0, -1 },                                         // NONE
-    { 1, { 0 }, 1, 60 },                                         // STOP
+    { 0, { 0 }, 0, -1 },                                        // NONE
+    { 1, { 0 }, 1, 60 },                                        // STOP
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 4, { 9 }, 1, 2 },                                          // BREAKING
-    { 4, { 13 }, 1, 1 },                                         // JUMP_UP
-    { 12, { 13 }, 1, 1 },                                        // JUMP_DOWN
-    { 16, { 13 }, 1, 1 },                                        // JUMP_HIT
-    { 1, { 13 }, 1, 1 },                                         // FALL
-    { 1, { 13 }, 1, 1 },                                         // FALL2
-    { 150, { 0, 17 }, 2, 5 },                                    // DEAD
-    { 60, { 0, 17 }, 2, 5 },                                     // FALL_END (play dead animation)
-    { 70, { 0 }, 1, 70 },                                        // DEAD_END
-    { 20, { 0, 2 }, 2, 30 },                                     // BOUNCING
-    { 1, { 14 }, 1, 30 },                                        // CROUCHING
-    { 5, { 15 }, 0, 0 },                                         // THROWING OBJECT
-    { 5, { 13 }, 0, 0 },                                         // FALL_TO_FLOOR
-    { 10, { 16 }, 0, 0 },                                        // KICKING
-    { 12, { 0,2, 6, 8 }, 4, 5 }, // RUN RIGHT
-    { 20, { 13 }, 1, 1 },                                         // RUNNING_JUMP
-    { 8, { 18, 19 }, 2, 5 },                                         // RUNNING_CROUCH
-    { 12, { 13 }, 1, 1 },                                        // RUNNING_JUMP_DOWN
+    { 4, { 20 }, 1, 2 },                                         // BREAKING
+    { 4, { 13 }, 1, 1 },                                        // JUMP_UP
+    { 12, { 13 }, 1, 1 },                                       // JUMP_DOWN
+    { 16, { 13 }, 1, 1 },                                       // JUMP_HIT
+    { 1, { 13 }, 1, 1 },                                        // FALL
+    { 1, { 13 }, 1, 1 },                                        // FALL2
+    { 150, { 0, 17 }, 2, 5 },                                   // DEAD
+    { 60, { 0, 17 }, 2, 5 },                                    // FALL_END (play dead animation)
+    { 70, { 0 }, 1, 70 },                                       // DEAD_END
+    { 20, { 0, 2 }, 2, 30 },                                    // BOUNCING
+    { 1, { 14 }, 1, 30 },                                       // CROUCHING
+    { 5, { 15 }, 0, 0 },                                        // THROWING OBJECT
+    { 5, { 13 }, 0, 0 },                                        // FALL_TO_FLOOR
+    { 10, { 16 }, 0, 0 },                                       // KICKING
+    { 12, { 0, 2, 6, 8 }, 4, 5 },                               // RUN RIGHT
+    { 20, { 13 }, 1, 1 },                                       // RUNNING_JUMP
+    { 8, { 18, 19 }, 2, 5 },                                    // RUNNING_CROUCH
+    { 12, { 13 }, 1, 1 },                                       // RUNNING_JUMP_DOWN
 };
 
 static uint8_t space_was_pressed = 0;
@@ -161,6 +163,7 @@ void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.type = current_level == LEVEL_ID_INTRO ? CAR_TYPE : MARTIN_TYPE;
     player.state = current_level == LEVEL_ID_RUNNING_START ? RUNNING : STOP;
     player.move_count = player.animations[player.state].move_count;
+    player.riding_platform_idx = -1;
 }
 
 void player_took_almanac() {
@@ -384,14 +387,14 @@ inline collisionType player_aabb() {
             .w = 24,
             .h = 40
         };
-    } else if(player.state == RUNNING_CROUCH) {
+    } else if (player.state == RUNNING_CROUCH) {
         return (collisionType){
             .x = player.pos.x,
             .y = player.pos.y + 10,
             .w = 20,
             .h = 36
         };
-    }else {
+    } else {
         return (collisionType){
             .x = player.pos.x,
             .y = player.pos.y,
@@ -425,6 +428,47 @@ static void player_clamp_to_map_bounds() {
     }
 }
 
+static void player_clear_platform_support() {
+    player.riding_platform_idx = -1;
+}
+
+static int player_update_platform_support() {
+    int platform_index = -1;
+    int platform_top = 0;
+
+    if (player.type != MARTIN_TYPE || player.data == NULL) {
+        player_clear_platform_support();
+        return FALSE;
+    }
+
+    collisionType foot = player_foot_area();
+    if (platform_find_support(foot, PLATFORM_SUPPORT_SNAP_PIXELS, &platform_index, &platform_top)) {
+        player.riding_platform_idx = platform_index;
+        return TRUE;
+    }
+
+    player_clear_platform_support();
+    return FALSE;
+}
+
+static void player_apply_platform_carry() {
+    int dx = 0;
+    int dy = 0;
+
+    if (player.type != MARTIN_TYPE || player.riding_platform_idx < 0) {
+        return;
+    }
+
+    if (!platform_get_delta(player.riding_platform_idx, &dx, &dy)) {
+        player_clear_platform_support();
+        return;
+    }
+
+    player.pos.x += dx;
+    player.pos.y += dy;
+    player_clamp_to_map_bounds();
+}
+
 /**
  * @brief Checks player speed
  *
@@ -441,6 +485,7 @@ static void player_check_vy() {
 
     if (player.vy > 0) {
         if (player.type == MARTIN_TYPE && martin_is_on_obj()) {
+            player_clear_platform_support();
             player.vy = 0;
         }
         if (player.type == CAR_TYPE && car_is_on_obj()) {
@@ -467,6 +512,7 @@ static void player_check_vx() {
  */
 static void player_move_y_substeps() {
     if (player.vy == 0) {
+        player_update_platform_support();
         return;
     }
 
@@ -486,10 +532,22 @@ static void player_move_y_substeps() {
                     int tile_top = tile_row << 3;
                     player.pos.y = tile_top - player.data->height;
                 }
+                player_clear_platform_support();
                 player.vy = 0;
                 break;
-            }
-            if (player.type == CAR_TYPE && car_is_on_obj()) {
+            } else if (player.type == MARTIN_TYPE) {
+                int platform_index = -1;
+                int platform_top = 0;
+                collisionType foot = player_foot_area();
+                if (platform_find_support(foot, PLATFORM_SUPPORT_SNAP_PIXELS, &platform_index, &platform_top)) {
+                    if (player.data != NULL) {
+                        player.pos.y = platform_top - player.data->height;
+                    }
+                    player.riding_platform_idx = platform_index;
+                    player.vy = 0;
+                    break;
+                }
+            } else if (player.type == CAR_TYPE && car_is_on_obj()) {
                 collisionType rear = rear_wheels_area();
                 if (player.data != NULL && rear.h > 0) {
                     int support_bottom = rear.y + rear.h - 1;
@@ -507,6 +565,8 @@ static void player_move_y_substeps() {
 }
 
 static void player_update_position() {
+    player_apply_platform_carry();
+
     player_check_vx();
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
@@ -585,14 +645,20 @@ static inline void player_do_open() {
  * @brief Player performs a jump, that could be diagonal
  */
 static inline void player_do_jump() {
+    player_clear_platform_support();
+
     if (key[KEY_LEFT]) {
-        player.vx = -1;
         player.flip = TRUE;
+        if (player.vx > -player.max_vx) {
+            player.vx -= PLAYER_ACCEL;
+            if (player.vx < -player.max_vx)
+                player.vx = -player.max_vx;
+        } else {
+            player.vx = -player.max_vx;
+        }
     }
     if (key[KEY_RIGHT]) {
-        // player.vx = 1;
         player.flip = FALSE;
-
         if (player.vx < player.max_vx) {
             player.vx += PLAYER_ACCEL;
             if (player.vx > player.max_vx)
@@ -754,6 +820,7 @@ static void player_action_stop() {
 static void player_action_running() {
     player.vx = 1;
     if (jump_key_freed()) {
+        player_clear_platform_support();
         player.vy = player.jump_vy; // extra boost for running jumps
         player_change_state(RUNNING_JUMP);
     } else if (key[KEY_DOWN]) {
@@ -783,6 +850,7 @@ static void player_action_running_crouch() {
     player.flip = FALSE;
 
     if (jump_key_freed()) {
+        player_clear_platform_support();
         player.vy = player.jump_vy;
         player_change_state(RUNNING_JUMP);
         return;
@@ -869,6 +937,7 @@ static void player_action_jump_down() {
         }
         return;
     } else {
+        // player.vx = 0; // ensure no slipping on landing
         player_change_state(STOP);
     }
 }
@@ -1024,7 +1093,7 @@ void player_update() {
     } else {
         almanac_tile_trigger_available = TRUE;
     }
-    
+
     if (player_is_over_advance_tile()) {
         pending_flow_event.type = PLAYER_ADVANCE_STAGE;
     }

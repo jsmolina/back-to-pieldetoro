@@ -93,7 +93,17 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
 
     for (int ty = sy; ty <= ey; ++ty) {
         for (int tx = sx; tx <= ex; ++tx) {
+            int tile_x = tx << 3;        // tile left edge
+            int tile_bottom = (ty + 1) << 3;  // tile bottom edge
+            
+            // Calculate vertical overlap (how deep into the tile)
+            int overlap = tile_bottom - r.y;  // distance from foot to tile bottom
+            
+            if (overlap < 4)  // margin of 2px
+                continue;     // ignore shallow collisions
+
             int tile_id = tiles_values[ty][tx] - 1;
+            
             if (is_wheel) {
                 if (is_harmful_tile(tile_id))
                     return HARMFUL;

@@ -6,11 +6,13 @@
 #include "allegro/midi.h"
 #include "allegro/timer.h"
 #include "coin.h"
+#include "platform.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
 #include "player.h"
 #include "tiles.h"
+
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
 
@@ -137,6 +139,7 @@ int main(void) {
     load_coche_spritesheet();
     load_martin_spritesheet();
     load_coin_spritesheet();
+    load_platform_spritesheet();
 
     short exit_game = 0;
     do {
@@ -151,9 +154,15 @@ int main(void) {
             }
             break;
         case GAME:
-            update_game();
+            if(update_game() == 1) {
+                game_state = GAME_OVER;                
+            }
             break;
         case GAME_OVER:
+            print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
+            wait_for_space();
+            show_main_menu();
+            game_state = TITLE;
             break;
         }
 

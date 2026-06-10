@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Sun May 31 10:58:00 2026 */
+/* Date: Wed Jun 10 07:58:03 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -37,6 +37,10 @@
 #define MSDOSCLUB_BMP                    31       /* BMP  */
 #define PALETE_INTRO_BMP                 32       /* PAL  */
 #define PALETE_JORDI_LOGO_BMP            33       /* PAL  */
-#define PIELDETORO_INTRO3_BMP            34       /* BMP  */
-#define TILES_BMP                        35       /* BMP  */
+#define PCONDENSER_BMP                   34       /* BMP  */
+#define PFLOW_BMP                        35       /* BMP  */
+#define PFUEL_BMP                        36       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            37       /* BMP  */
+#define PLATAFORMA_BMP                   38       /* BMP  */
+#define TILES_BMP                        39       /* BMP  */
 

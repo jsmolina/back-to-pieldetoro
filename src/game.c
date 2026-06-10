@@ -8,6 +8,7 @@
 #include "intros.h"
 #include "object.h"
 #include "pause.h"
+#include "platform.h"
 #include "player.h"
 #include "room.h"
 #include "statics.h"
@@ -24,7 +25,7 @@
 #define WBACK_IN_TIME 6
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 118
-#define MAX_MARTIN_VX 1
+#define MAX_MARTIN_VX 2
 #define MAX_CAR_VX 5
 #define HUD_MAX_ENERGY 6
 
@@ -135,13 +136,12 @@ int game_try_spend_money(int amount) {
     return TRUE;
 }
 
-
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
     if (force_full_redraw) {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
         int year = 1982;
-        if (current_level ==1 ||current_level == 2) {
+        if (current_level == 1 || current_level == 2) {
             year = 2026;
         } else if (current_level == 4) {
             year = 1954;
@@ -206,7 +206,7 @@ void advance_stage() {
 
     current_level++;
     int dat_id = level_to_dat_id(current_level);
-    if (current_level > 0 && current_level < 4) {
+    if (current_level > 0) {
         current_background = load_background(dat_id);
         world_state = START_STAGE;
     } else {
@@ -285,6 +285,7 @@ void update_game_run() {
         }
         break;
     default:
+        platform_update(scroll_x);
         player_update();
 
         flow_event = player_consume_flow_event();
@@ -360,11 +361,11 @@ inline void draw_game() {
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
         break;
 
-    case 4:
-        cascade_palette();
     default:
         if (current_level == 3 || current_level == 2) {
             sea_sparkle();
+        } else if (current_level == 4) {
+            cascade_palette();
         }
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
@@ -374,6 +375,7 @@ inline void draw_game() {
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         draw_coins(scroll_x);
+        draw_platforms(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
@@ -411,6 +413,7 @@ void start_stage() {
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -4);
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
+        load_level_platforms(current_level);
         reset_coins();
         load_level_coins(current_level);
         reset_doors();
@@ -438,7 +441,7 @@ void palete_flash() {
     }
 }
 
-inline void update_game() {
+inline int update_game() {
     switch (world_state) {
     case START_STAGE:
         // start title
@@ -448,7 +451,7 @@ inline void update_game() {
         break;
     case RESTART_STAGE:
         player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
-        //enemy_pool_init();
+        // enemy_pool_init();
         enemy_spawn_init();
         enemy_pool_init();
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
@@ -478,8 +481,10 @@ inline void update_game() {
         // draw_game();
         break;
     case GAME_OVER:
+        return 1;
         break;
     }
+    return 0;
 }
 
 enum PauseMenuResult game_handle_pause(void) {
