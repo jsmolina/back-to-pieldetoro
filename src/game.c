@@ -8,6 +8,7 @@
 #include "intros.h"
 #include "object.h"
 #include "pause.h"
+#include "piece.h"
 #include "platform.h"
 #include "player.h"
 #include "room.h"
@@ -49,6 +50,8 @@ static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
 static int hud_last_coins = -1;
+static int hud_last_pieces_collected = -1;
+static int hud_last_pieces_total = -1;
 static int coins_collected = 0;
 static int game_money = 0;
 static volatile int stage_tick_count = 0;
@@ -375,15 +378,21 @@ inline void draw_game() {
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         draw_coins(scroll_x);
+        if (current_level == 4) {
+            draw_pieces(scroll_x);
+        }
         draw_platforms(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
+        if (current_level == 4) {
+            collision_check_player_vs_pieces();
+        }
         lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, player.state);
+        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
@@ -416,6 +425,12 @@ void start_stage() {
         load_level_platforms(current_level);
         reset_coins();
         load_level_coins(current_level);
+        if (current_level == 4) {
+            reset_pieces();
+            load_level_pieces(current_level);
+        } else {
+            reset_pieces();
+        }
         reset_doors();
         load_level_doors(current_level);
         break;
@@ -454,6 +469,14 @@ inline int update_game() {
         // enemy_pool_init();
         enemy_spawn_init();
         enemy_pool_init();
+        if (current_level != 1) {
+            reset_coins();
+            load_level_coins(current_level);
+        }
+        if (current_level == 4) {
+            reset_pieces();
+            load_level_pieces(current_level);
+        }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart
         world_state = GAME_RUN;

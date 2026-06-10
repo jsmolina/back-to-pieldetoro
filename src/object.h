@@ -30,6 +30,9 @@ int checkOverObj(collisionType area);
  */
 int checkHitObj();
 
+/** @brief Returns TRUE when a tile id is considered a walkable platform tile. */
+int is_a_platform(int id);
+
 /**
  * @brief Checks if any wheels are positioned on harmful tile types. Equivalent of checkOverObj for car.
  * @return int - Result of check (FALSE = no wheels on harmful tiles, TRUE = wheels detected on harmful tiles)
@@ -66,5 +69,11 @@ int martin_is_over_door();
  * If the player overlaps a coin, it is collected.
  */
 void collision_check_player_vs_coins();
+
+/**
+ * @brief Checks for collisions between the player and pieces.
+ * If the player overlaps a piece, it is collected.
+ */
+void collision_check_player_vs_pieces();
 
 #endif

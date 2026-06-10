@@ -4,6 +4,7 @@
 #include "door.h"
 #include "enemy.h"
 #include "helpers.h"
+#include "piece.h"
 #include "player.h"
 #include "tiles.h"
 
@@ -51,7 +52,7 @@ static const int platform_ids2[GAME_PLATFORMS_SIZE2] = {
     1016, 1017, 1018
 };*/
 
-static inline int is_a_platform(int id) {
+int is_a_platform(int id) {
     // two rows of tiles are considered platforms, this check is faster
     // than looping through an array of platform ids and works because platforms are grouped together in the tileset
     if (id > 1023 && id < 1088) {
@@ -93,17 +94,17 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
 
     for (int ty = sy; ty <= ey; ++ty) {
         for (int tx = sx; tx <= ex; ++tx) {
-            int tile_x = tx << 3;        // tile left edge
-            int tile_bottom = (ty + 1) << 3;  // tile bottom edge
-            
+            int tile_x = tx << 3;            // tile left edge
+            int tile_bottom = (ty + 1) << 3; // tile bottom edge
+
             // Calculate vertical overlap (how deep into the tile)
-            int overlap = tile_bottom - r.y;  // distance from foot to tile bottom
-            
-            if (overlap < 4)  // margin of 2px
-                continue;     // ignore shallow collisions
+            int overlap = tile_bottom - r.y; // distance from foot to tile bottom
+
+            if (overlap < 4) // margin of 2px
+                continue;    // ignore shallow collisions
 
             int tile_id = tiles_values[ty][tx] - 1;
-            
+
             if (is_wheel) {
                 if (is_harmful_tile(tile_id))
                     return HARMFUL;
@@ -270,6 +271,21 @@ void collision_check_player_vs_coins() {
 
         if (collision(player_area, coin_boxes[i])) {
             coin_on_collect(i);
+        }
+    }
+}
+
+void collision_check_player_vs_pieces() {
+    collisionType player_area = player_aabb();
+    collisionType piece_boxes[MAX_PIECES];
+    piece_get_all_aabb(piece_boxes);
+
+    for (int i = 0; i < MAX_PIECES; i++) {
+        if (piece_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, piece_boxes[i])) {
+            piece_on_collect(i);
         }
     }
 }

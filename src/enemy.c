@@ -4,8 +4,10 @@
 #include "errors.h"
 #include "game.h"
 #include "helpers.h"
+#include "object.h"
 #include "player.h"
 #include "statics.h"
+#include "tiles.h"
 #include <allegro.h>
 #include <stdio.h>
 #include <string.h>
@@ -495,6 +497,32 @@ static inline void enemy_check_vx(int index, int scroll_x) {
     }
 }
 
+static inline int enemy_uses_platform_edge_check(int index) {
+    enum EnemyType type = active_enemies[index].type;
+    return type == ENEMY_JOVEN || type == ENEMY_DOG;
+}
+
+static inline int enemy_should_flip_for_missing_ground(int index) {
+    Enemy* enemy = &active_enemies[index];
+
+    if (!enemy_uses_platform_edge_check(index) || enemy->vx == 0 || enemy->data == NULL) {
+        return FALSE;
+    }
+
+    int next_x = enemy->pos.x + enemy->vx;
+    int foot_y = enemy->pos.y + enemy->data->height + 1;
+    int probe_x = enemy->vx > 0
+        ? (next_x + enemy->data->width)
+        : (next_x - 1);
+
+    int tile = get_tile_at_position(probe_x, foot_y);
+    if (tile <= 0) {
+        return TRUE;
+    }
+
+    return !is_a_platform(tile - 1);
+}
+
 static inline void _enemy_update_position(int index, int scroll_x) {
     // TODO: apply enemy-specific logic and forces here, for now just apply gravity and simple movement
     enemy_check_vx(index, scroll_x);
@@ -502,6 +530,15 @@ static inline void _enemy_update_position(int index, int scroll_x) {
 
     if (active_enemies[index].active == FALSE)
         return;
+
+    if (enemy_should_flip_for_missing_ground(index)) {
+        if (active_enemies[index].vx > 0) {
+            flip_left(index);
+        } else if (active_enemies[index].vx < 0) {
+            flip_right(index);
+        }
+        return;
+    }
 
     active_enemies[index].pos.x = active_enemies[index].pos.x + active_enemies[index].vx;
     active_enemies[index].pos.y = active_enemies[index].pos.y + active_enemies[index].vy;

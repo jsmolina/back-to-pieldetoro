@@ -6,10 +6,11 @@
 #include "allegro/midi.h"
 #include "allegro/timer.h"
 #include "coin.h"
-#include "platform.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
+#include "piece.h"
+#include "platform.h"
 #include "player.h"
 #include "tiles.h"
 
@@ -139,6 +140,7 @@ int main(void) {
     load_coche_spritesheet();
     load_martin_spritesheet();
     load_coin_spritesheet();
+    load_piece_spritesheet();
     load_platform_spritesheet();
 
     short exit_game = 0;
@@ -154,13 +156,14 @@ int main(void) {
             }
             break;
         case GAME:
-            if(update_game() == 1) {
-                game_state = GAME_OVER;                
+            if (update_game() == 1) {
+                game_state = GAME_OVER;
             }
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
             wait_for_space();
+            set_palette(palette);
             show_main_menu();
             game_state = TITLE;
             break;
