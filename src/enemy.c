@@ -504,6 +504,9 @@ static inline int enemy_uses_platform_edge_check(int index) {
 
 static inline int enemy_should_flip_for_missing_ground(int index) {
     Enemy* enemy = &active_enemies[index];
+    if (enemy->state == EDEAD || enemy->state == EDEAD_END) {
+        return FALSE; // dead enemies don't care about edges
+    }
 
     if (!enemy_uses_platform_edge_check(index) || enemy->vx == 0 || enemy->data == NULL) {
         return FALSE;
@@ -537,7 +540,6 @@ static inline void _enemy_update_position(int index, int scroll_x) {
         } else if (active_enemies[index].vx < 0) {
             flip_right(index);
         }
-        return;
     }
 
     active_enemies[index].pos.x = active_enemies[index].pos.x + active_enemies[index].vx;

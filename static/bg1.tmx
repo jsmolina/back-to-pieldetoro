@@ -75,16 +75,16 @@
   <object id="23" name="ENEMY_JOVEN" type="ER" x="687" y="121">
    <point/>
   </object>
-  <object id="24" name="ENEMY_DOG" type="ER" x="798" y="139">
+  <object id="24" name="ENEMY_DOG" type="ER" x="799" y="143">
    <point/>
   </object>
-  <object id="25" name="ENEMY_DOG" type="ER" x="1334" y="139">
+  <object id="25" name="ENEMY_DOG" type="ER" x="1334" y="143">
    <point/>
   </object>
-  <object id="26" name="ENEMY_DOG" type="ER" x="1965" y="139">
+  <object id="26" name="ENEMY_DOG" type="ER" x="1965" y="143">
    <point/>
   </object>
-  <object id="27" name="ENEMY_DOG" type="ER" x="2207" y="139">
+  <object id="27" name="ENEMY_DOG" type="ER" x="2207" y="143">
    <point/>
   </object>
  </objectgroup>
