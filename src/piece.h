@@ -31,7 +31,7 @@ void piece_get_all_aabb(collisionType* boxes);
 void piece_on_collect(int index);
 
 /** @brief Returns number of collected pieces for current stage. */
-int piece_get_collected_count();
+int piece_get_remaining();
 
 /** @brief Returns number of pieces loaded for current stage. */
 int piece_get_total_count();

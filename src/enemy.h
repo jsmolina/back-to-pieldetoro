@@ -5,7 +5,7 @@
 #include <allegro.h>
 
 #define MAX_SPAWNABLE_ENEMIES 20
-#define MAX_ACTIVE_ENEMIES 4
+#define MAX_ACTIVE_ENEMIES 10
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
 #define BIRD_FRAMES 2

@@ -224,6 +224,8 @@ void load_level_enemies_v2(int level_id) {
                     vy = 1;
                 } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
                     vx = 3;
+                } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG) {
+                    y = y - enemy_data[enemy_type].height; // adjust for sprite height
                 }
                 init_enemy(enemy_index, enemy_type, x, y, vx, vy, enemy_spawn_x);
                 enemy_index++;
@@ -422,12 +424,47 @@ static int enemy_is_on_obj(int index) {
     Enemy* enemy = &active_enemies[index];
     // returns true if sprite is over a walkable tile
     // todo foot_area collision
-    if (enemy->pos.y > GROUND_Y) {
+    /*if (enemy->pos.y > GROUND_Y - 20) {
         return TRUE;
-    }
+    }*/
+    int foot_y = enemy->pos.y + enemy->data->height + 1;
+    int left_probe_x = enemy->pos.x + 2;
+    int right_probe_x = enemy->pos.x + enemy->data->width - 3;
+
+    int left_tile = get_tile_at_position(left_probe_x, foot_y);
+    int right_tile = get_tile_at_position(right_probe_x, foot_y);
+
+    int left_on_platform = (left_tile > 0) && is_a_platform(left_tile - 1);
+    int right_on_platform = (right_tile > 0) && is_a_platform(right_tile - 1);
+
+    return left_on_platform || right_on_platform;
+
     // collisionType f1 = enemy_foot_area();
     // return checkOverObj(f1);
-    return FALSE;
+    // return FALSE;
+}
+
+static int enemy_get_ground_y_for_pos(const Enemy* enemy, int test_pos_y) {
+    if (enemy == NULL || enemy->data == NULL) {
+        return -1;
+    }
+
+    int foot_y = test_pos_y + enemy->data->height + 1;
+    int left_probe_x = enemy->pos.x + 2;
+    int right_probe_x = enemy->pos.x + enemy->data->width - 3;
+
+    int left_tile = get_tile_at_position(left_probe_x, foot_y);
+    int right_tile = get_tile_at_position(right_probe_x, foot_y);
+
+    int left_on_platform = (left_tile > 0) && is_a_platform(left_tile - 1);
+    int right_on_platform = (right_tile > 0) && is_a_platform(right_tile - 1);
+
+    if (!left_on_platform && !right_on_platform) {
+        return -1;
+    }
+
+    int tile_top_y = (foot_y >> 3) << 3;
+    return tile_top_y - enemy->data->height;
 }
 
 /**
@@ -456,8 +493,21 @@ static void enemy_check_vy(int index) {
     }
 
     if (active_enemies[index].vy > 0) {
-        if (enemy_is_on_obj(index)) {
-            active_enemies[index].vy = 0;
+        Enemy* enemy = &active_enemies[index];
+        int current_y = enemy->pos.y;
+        int predicted_y = current_y + enemy->vy;
+
+        int current_ground_y = enemy_get_ground_y_for_pos(enemy, current_y);
+        if (current_ground_y >= 0) {
+            enemy->pos.y = current_ground_y;
+            enemy->vy = 0;
+            return;
+        }
+
+        int predicted_ground_y = enemy_get_ground_y_for_pos(enemy, predicted_y);
+        if (predicted_ground_y >= 0) {
+            enemy->pos.y = predicted_ground_y;
+            enemy->vy = 0;
         }
     }
 }
@@ -741,7 +791,7 @@ void enemy_pool_update(int camera_x) {
             continue;
         }
 
-        if (spawnable_enemies[i].screen_spawn_x == camera_x) {
+        if (spawnable_enemies[i].screen_spawn_x >= camera_x && spawnable_enemies[i].screen_spawn_x <= camera_x + 31) {
             /*if (enemy_log_file) {
                 fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
             }*/

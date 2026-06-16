@@ -17,21 +17,13 @@ typedef struct {
 static Piece pieces[MAX_PIECES];
 static BITMAP* piece_sprites[PIECE_TYPE_COUNT];
 static int piece_count = 0;
-static int collected_count = 0;
+static int remaining_pieces = 0;
 
 static inline BITMAP* _get_piece_sprite(PieceType type) {
     if (type < 0 || type >= PIECE_TYPE_COUNT) {
         return NULL;
     }
     return piece_sprites[type];
-}
-
-static void _clear_piece(Piece* piece) {
-    piece->x = 0;
-    piece->y = 0;
-    piece->type = PIECE_TYPE_CONDENSER;
-    piece->active = FALSE;
-    piece->collected = FALSE;
 }
 
 void load_piece_spritesheet() {
@@ -52,10 +44,14 @@ void load_piece_spritesheet() {
 
 void reset_pieces() {
     for (int i = 0; i < MAX_PIECES; i++) {
-        _clear_piece(&pieces[i]);
+        pieces[i].x = 0;
+        pieces[i].y = 0;
+        pieces[i].type = PIECE_TYPE_CONDENSER;
+        pieces[i].active = FALSE;
+        pieces[i].collected = FALSE;
     }
     piece_count = 0;
-    collected_count = 0;
+    remaining_pieces = 0;
 }
 
 void load_level_pieces(int level_id) {
@@ -97,6 +93,7 @@ void load_level_pieces(int level_id) {
         cursor++;
     }
     piece_count = idx;
+    remaining_pieces = piece_count;
 }
 
 inline void draw_pieces(int scroll_x) {
@@ -136,12 +133,12 @@ void piece_get_all_aabb(collisionType* boxes) {
 void piece_on_collect(int index) {
     if (index >= 0 && index < piece_count && !pieces[index].collected) {
         pieces[index].collected = TRUE;
-        collected_count++;
+        remaining_pieces--;
     }
 }
 
-int piece_get_collected_count() {
-    return collected_count;
+int piece_get_remaining() {
+    return remaining_pieces;
 }
 
 int piece_get_total_count() {
