@@ -29,11 +29,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 4,
+            "scale": 2.2513,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2099.5,
-                "y": 127.25
+                "x": 1070.4926042730867,
+                "y": 90.1701239283969
             }
         },
         "bg1_shop.tmx": {
@@ -48,19 +48,19 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3.3115,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1482.1078061301523,
-                "y": 56.16789974331874
+                "x": 1934.5,
+                "y": 96.5
             }
         },
         "bg3.tmx": {
-            "scale": 3.7693,
+            "scale": 3.1204,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 312.1269201177937,
-                "y": 99.88592046268538
+                "x": 559.8641199846173,
+                "y": 90.69350083322652
             }
         },
         "bg4.tmx": {
@@ -114,6 +114,7 @@
     "project": "level1.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "bg2.tmx",
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
@@ -121,7 +122,6 @@
         "bg1_shop.tmx",
         "bg3.tmx",
         "test.tmx",
-        "bg2.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],
