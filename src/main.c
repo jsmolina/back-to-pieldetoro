@@ -80,7 +80,11 @@ inline void show_main_menu() {
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    if (argc > 1 && strcmp(argv[1], "megahit") == 0) {
+        megahit_mode = 1;
+    }
+
     RGB black = { 16, 16, 16, 0 };
 
     if (allegro_init() != 0)

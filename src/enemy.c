@@ -55,6 +55,20 @@ static animeItem joven_animations[11] = {
     { 5, { 15 }, 1, 0 },                                         // ETHROWING OBJECT
 };
 
+static animeItem bruno_animations[11] = {
+    { 0, { 0 }, 0, -1 },                                         // NONE
+    { 1, { 0 }, 1, 60 },                                         // ESTOP
+    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // EMOVE_LEFT
+    { 12, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // EMOVE_RIGHT
+    { 1, { 13 }, 1, 1 },                                         // EFALL
+    { 1, { 13 }, 1, 1 },                                         // EFALL2
+    { 30, { 0 }, 1, 30 },                                        // EDEAD
+    { 60, { 14 }, 1, 60 },                                       // EFALL_END
+    { 70, { 0 }, 1, 70 },                                        // EDEAD_END
+    { 1, { 14 }, 1, 30 },                                        // ECROUCHING
+    { 5, { 15 }, 1, 0 },                                         // ETHROWING OBJECT
+};
+
 static animeItem bird_animations[11] = {
     { 0, { 0 }, 0, -1 },   // NONE
     { 1, { 0 }, 1, 60 },   // BSTOP
@@ -132,6 +146,7 @@ void init_enemy(int index, enum EnemyType type, int x, int y, int vx, int vy, in
     spawnable_enemies[index].flip = FALSE;
     spawnable_enemies[index].prev_state = 0;
     spawnable_enemies[index].killed = FALSE;
+    spawnable_enemies[index].hits = 0;
     spawnable_enemies[index].origin = index;
     spawnable_enemies[index].data = &enemy_data[type];
 }
@@ -152,6 +167,7 @@ void enemy_pool_init() {
         active_enemies[i].sprite_index = 0;
         active_enemies[i].state = 0;
         active_enemies[i].prev_state = 0;
+        active_enemies[i].hits = 0;
         active_enemies[i].data = &enemy_data[ENEMY_BIRD];
     }
 }
@@ -176,6 +192,8 @@ static enum EnemyType parse_enemy_type(const char* name) {
         return ENEMY_SYRINGE;
     else if (strcmp(name, "ENEMY_BOMB") == 0)
         return ENEMY_BOMB;
+    else if (strcmp(name, "ENEMY_BRUNO") == 0)
+        return ENEMY_BRUNO;
     return -1;
 }
 
@@ -224,7 +242,7 @@ void load_level_enemies_v2(int level_id) {
                     vy = 1;
                 } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
                     vx = 3;
-                } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG) {
+                } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG || enemy_type == ENEMY_BRUNO) {
                     y = y - enemy_data[enemy_type].height; // adjust for sprite height
                 }
                 init_enemy(enemy_index, enemy_type, x, y, vx, vy, enemy_spawn_x);
@@ -266,6 +284,8 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int frame_
         enem->animations = lamp_animations;
     } else if (type == ENEMY_BOMB) {
         enem->animations = bomb_animations;
+    } else if (type == ENEMY_BRUNO) {
+        enem->animations = bruno_animations;
     }
 }
 
@@ -277,6 +297,7 @@ void load_enemy_spritesheets() {
     _load_enemy_generic(ENEMY_LAMP, LAMP_FRAMES, 54, FAROLA_BMP);
     _load_enemy_generic(ENEMY_SYRINGE, SYRINGE_FRAMES, 0, JERINGA_BMP);
     _load_enemy_generic(ENEMY_BOMB, BOMB_FRAMES, 16, BOMB_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_BRUNO, BRUNO_FRAMES, 24, BRUNO_SPRITESHEET_BMP);
 }
 
 void reset_spawnable_enemies() {
@@ -296,6 +317,7 @@ void reset_spawnable_enemies() {
         spawnable_enemies[i].sprite_index = 0;
         spawnable_enemies[i].state = 0;
         spawnable_enemies[i].prev_state = -1;
+        spawnable_enemies[i].hits = 0;
     }
 }
 
@@ -324,7 +346,7 @@ static void enemy_change_state(int index, unsigned int state) {
 }
 
 static inline unsigned int _enemy_dead_state(enum EnemyType type) {
-    if (type == ENEMY_JOVEN) {
+    if (type == ENEMY_JOVEN || type == ENEMY_BRUNO) {
         return EDEAD;
     }
 
@@ -332,7 +354,7 @@ static inline unsigned int _enemy_dead_state(enum EnemyType type) {
 }
 
 static inline int _enemy_uses_forces(int index) {
-    if (active_enemies[index].type == ENEMY_JOVEN) {
+    if (active_enemies[index].type == ENEMY_JOVEN || active_enemies[index].type == ENEMY_BRUNO) {
         return TRUE;
     }
 
@@ -549,7 +571,7 @@ static inline void enemy_check_vx(int index, int scroll_x) {
 
 static inline int enemy_uses_platform_edge_check(int index) {
     enum EnemyType type = active_enemies[index].type;
-    return type == ENEMY_JOVEN || type == ENEMY_DOG;
+    return type == ENEMY_JOVEN || type == ENEMY_DOG || type == ENEMY_BRUNO;
 }
 
 static inline int enemy_should_flip_for_missing_ground(int index) {
@@ -771,10 +793,14 @@ void enemy_on_hit(int enemy_id) {
     if (enemy_id < 0 || enemy_id >= MAX_ACTIVE_ENEMIES) {
         return;
     }
-    // active_enemies[enemy_id].killed = TRUE;
-    // active_enemies[enemy_id].active = FALSE;
-    enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
     _enemy_apply_death_impulse(enemy_id);
+    if (active_enemies[enemy_id].type == ENEMY_BRUNO) {
+        active_enemies[enemy_id].hits++;
+        if (active_enemies[enemy_id].hits < ENEMY_HITS_TO_KILL) {
+            return; // first hit: knockback only
+        }
+    }
+    enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
 }
 
 void enemy_pool_update(int camera_x) {

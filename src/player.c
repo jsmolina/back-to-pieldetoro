@@ -901,14 +901,14 @@ static void player_action_jump_up() {
             player.flip = TRUE;
         } else if (player.vx > 0) {
             player.flip = FALSE;
-        } else {
-            if (key[KEY_LEFT]) {
-                player.flip = TRUE;
-                player.vx = -1;
-            } else if (key[KEY_RIGHT]) {
-                player.flip = FALSE;
-                player.vx = 1;
-            }
+        } 
+        // allow move in air
+        if (key[KEY_LEFT]) {
+            player.flip = TRUE;
+            player.vx = -1;
+        } else if (key[KEY_RIGHT]) {
+            player.flip = FALSE;
+            player.vx = 1;
         }
     }
     if (player.vy > 0) {
@@ -961,8 +961,9 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
-
-        player.lives--;
+        if (megahit_mode == 0) {          
+             player.lives--;
+        } 
         player_change_state(DEAD_END);
         if (player.lives <= 0) {
             pending_flow_event.type = PLAYER_FLOW_GAME_OVER;

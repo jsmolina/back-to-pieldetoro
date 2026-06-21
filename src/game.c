@@ -40,6 +40,7 @@ int scroll_x;
 
 int current_level = 0;
 short world_state = 0;
+int megahit_mode = 0;
 int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;

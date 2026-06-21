@@ -34,6 +34,7 @@ extern int game_pause;
 extern int GROUND_Y;
 extern int stage_elapsed_minutes;
 extern int stage_elapsed_seconds;
+extern int megahit_mode; // flag to enable megahit mode for testing
 
 /**
  * @brief Initializes a new game session

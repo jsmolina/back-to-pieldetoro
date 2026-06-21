@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Fri Jun 19 06:58:32 2026 */
+/* Date: Sun Jun 21 15:02:08 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -14,33 +14,34 @@
 #define BIRD_SPRITESHEET_BMP             8        /* BMP  */
 #define BOMB_SPRITESHEET_BMP             9        /* BMP  */
 #define BOOK_BMP                         10       /* BMP  */
-#define COCHE_SPRITESHEET_BMP            11       /* BMP  */
-#define DOG_SPRITESHEET_BMP              12       /* BMP  */
-#define FAROLA_BMP                       13       /* BMP  */
-#define FONT_FNT                         14       /* FONT */
-#define HEAD_BMP                         15       /* BMP  */
-#define INTRO2_FLI                       16       /* FLIC */
-#define INTRO_FLI                        17       /* FLIC */
-#define INTRO_MID                        18       /* MIDI */
-#define JERINGA_BMP                      19       /* BMP  */
-#define JORDI_LOGO_BMP                   20       /* BMP  */
-#define JOVEN_SPRITESHEET_BMP            21       /* BMP  */
-#define LEVEL2_INTRO_BMP                 22       /* BMP  */
-#define LEVEL3_INTRO3_BMP                23       /* BMP  */
-#define LIFEBAR_BMP                      24       /* BMP  */
-#define LIFEBAR_BRUNO_BMP                25       /* BMP  */
-#define LIFEBAR_MARTIN_BMP               26       /* BMP  */
-#define MARTIN_SPRITESHEET_BMP           27       /* BMP  */
-#define MENU2_BMP                        28       /* BMP  */
-#define MONEY_BMP                        29       /* BMP  */
-#define MSDOS_MID                        30       /* MIDI */
-#define MSDOSCLUB_BMP                    31       /* BMP  */
-#define PALETE_INTRO_BMP                 32       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            33       /* PAL  */
-#define PCONDENSER_BMP                   34       /* BMP  */
-#define PFLOW_BMP                        35       /* BMP  */
-#define PFUEL_BMP                        36       /* BMP  */
-#define PIELDETORO_INTRO3_BMP            37       /* BMP  */
-#define PLATAFORMA_BMP                   38       /* BMP  */
-#define TILES_BMP                        39       /* BMP  */
+#define BRUNO_SPRITESHEET_BMP            11       /* BMP  */
+#define COCHE_SPRITESHEET_BMP            12       /* BMP  */
+#define DOG_SPRITESHEET_BMP              13       /* BMP  */
+#define FAROLA_BMP                       14       /* BMP  */
+#define FONT_FNT                         15       /* FONT */
+#define HEAD_BMP                         16       /* BMP  */
+#define INTRO2_FLI                       17       /* FLIC */
+#define INTRO_FLI                        18       /* FLIC */
+#define INTRO_MID                        19       /* MIDI */
+#define JERINGA_BMP                      20       /* BMP  */
+#define JORDI_LOGO_BMP                   21       /* BMP  */
+#define JOVEN_SPRITESHEET_BMP            22       /* BMP  */
+#define LEVEL2_INTRO_BMP                 23       /* BMP  */
+#define LEVEL3_INTRO3_BMP                24       /* BMP  */
+#define LIFEBAR_BMP                      25       /* BMP  */
+#define LIFEBAR_BRUNO_BMP                26       /* BMP  */
+#define LIFEBAR_MARTIN_BMP               27       /* BMP  */
+#define MARTIN_SPRITESHEET_BMP           28       /* BMP  */
+#define MENU2_BMP                        29       /* BMP  */
+#define MONEY_BMP                        30       /* BMP  */
+#define MSDOS_MID                        31       /* MIDI */
+#define MSDOSCLUB_BMP                    32       /* BMP  */
+#define PALETE_INTRO_BMP                 33       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            34       /* PAL  */
+#define PCONDENSER_BMP                   35       /* BMP  */
+#define PFLOW_BMP                        36       /* BMP  */
+#define PFUEL_BMP                        37       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            38       /* BMP  */
+#define PLATAFORMA_BMP                   39       /* BMP  */
+#define TILES_BMP                        40       /* BMP  */
 
