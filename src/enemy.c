@@ -241,7 +241,7 @@ void load_level_enemies_v2(int level_id) {
                     vx = 2;
                     vy = 1;
                 } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
-                    vx = 3;
+                    vx = 4;
                 } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG || enemy_type == ENEMY_BRUNO) {
                     y = y - enemy_data[enemy_type].height; // adjust for sprite height
                 }

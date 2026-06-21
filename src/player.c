@@ -32,6 +32,7 @@
 
 #define PLAYER_ACCEL 1
 #define PLATFORM_SUPPORT_SNAP_PIXELS 2
+#define JUMP_CUT_VY (-2)
 
 struct playerType player;
 
@@ -73,7 +74,7 @@ static animeItem martin_animations[22] = {
     { 1, { 0 }, 1, 60 },                                        // STOP
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_RIGHT
-    { 4, { 20 }, 1, 2 },                                         // BREAKING
+    { 4, { 20 }, 1, 2 },                                        // BREAKING
     { 4, { 13 }, 1, 1 },                                        // JUMP_UP
     { 12, { 13 }, 1, 1 },                                       // JUMP_DOWN
     { 16, { 13 }, 1, 1 },                                       // JUMP_HIT
@@ -253,6 +254,9 @@ void player_energy_up() {
 }
 
 void player_on_hit() {
+    if (megahit_mode == 1) {
+        return; // in megahit mode, player is invincible
+    }
     if (player.state == DEAD || player.state == FALL_END || player.state == DEAD_END) {
         return; // already in dying/dead state, ignore further hits
     }
@@ -888,6 +892,11 @@ static void player_action_crouch() {
 }
 
 static void player_action_jump_up() {
+    // variable jump height: release early to cut ascent
+    if (player.vy < JUMP_CUT_VY && !key[KEY_UP]) {
+        player.vy = JUMP_CUT_VY;
+    }
+
     if (player.vy < 0) {
         // collides on up
         // int ht = player.pushUpObj();
@@ -901,32 +910,36 @@ static void player_action_jump_up() {
             player.flip = TRUE;
         } else if (player.vx > 0) {
             player.flip = FALSE;
-        } 
+        }
         // allow move in air
         if (key[KEY_LEFT]) {
             player.flip = TRUE;
-            player.vx = -1;
+            if (player.vx < 0) {
+                player.vx -= PLAYER_ACCEL;
+                if (player.vx < -player.max_vx)
+                    player.vx = -player.max_vx;
+            }
+            else {player.vx = -1;}
         } else if (key[KEY_RIGHT]) {
             player.flip = FALSE;
-            player.vx = 1;
+            if (player.vx > 0) {
+                player.vx += PLAYER_ACCEL;
+                if (player.vx > player.max_vx)
+                    player.vx = player.max_vx;
+            }
+            else {player.vx = 1;}
         }
     }
-    if (player.vy > 0) {
+    // arc driven by gravity: transition when vy reaches 0 or positive
+    if (player.vy >= 0) {
         player_change_state(JUMP_DOWN);
         return;
-    }
-    if (player.vy == 0) {
-        player_change_state(JUMP_DOWN);
     }
 
     if (action_key_freed()) {
         player_do_throw();
     } else if (kick_key_freed()) {
         player_do_kick();
-    }
-
-    if (player_count_move(player.vx, 0) == FINISHED) {
-        player_change_state(JUMP_DOWN);
     }
 }
 
@@ -937,8 +950,13 @@ static void player_action_jump_down() {
         }
         return;
     } else {
-        // player.vx = 0; // ensure no slipping on landing
-        player_change_state(STOP);
+        if (player.vx > 0 && key[KEY_RIGHT]) {
+            player_change_state(MOVE_RIGHT);
+        } else if (player.vx < 0 && key[KEY_LEFT]) {
+            player_change_state(MOVE_LEFT);
+        } else {
+            player_do_stop();
+        }
     }
 }
 
@@ -961,9 +979,9 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
-        if (megahit_mode == 0) {          
-             player.lives--;
-        } 
+        if (megahit_mode == 0) {
+            player.lives--;
+        }
         player_change_state(DEAD_END);
         if (player.lives <= 0) {
             pending_flow_event.type = PLAYER_FLOW_GAME_OVER;
@@ -1068,7 +1086,7 @@ inline void player_draw(int scroll_x) {
 }
 
 // FSM LOOP for player, called on game loop when world_state is GAME_RUN
-void player_update() {
+void player_update(int current_level) {
     if (game_pause) {
         return;
     }
@@ -1077,8 +1095,11 @@ void player_update() {
         player.hurt_cooldown--;
     }
 
-    if (player.state != JUMP_UP && player.state != RUNNING_JUMP) {
-        player_affect_force(0, (player.anime_index & 1) == 0);
+    // gravity always applied for smooth arc
+    player_affect_force(0, (player.anime_index & 1) == 0);
+    // extra gravity on descent for snappier fall (Mario-style)
+    if ((current_level != 3) &&(player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
+        player_affect_force(0, 1);
     }
     player_update_position();
 

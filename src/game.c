@@ -248,7 +248,7 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - 130;
+    scroll_x = player.pos.x - 160;
     if (scroll_x < 0)
         scroll_x = 0;
 
@@ -258,7 +258,7 @@ void update_game_run() {
 
     switch (current_level) {
     case 1:
-        player_update();
+        player_update(current_level);
         FlowEventType flow_event = player_consume_flow_event();
         if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
@@ -290,7 +290,7 @@ void update_game_run() {
         break;
     default:
         platform_update(scroll_x);
-        player_update();
+        player_update(current_level);
 
         flow_event = player_consume_flow_event();
         if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
@@ -342,6 +342,15 @@ void repaint_dirty_tiles() {
         }
     }
 }*/
+void init_per_stages() {
+     if (current_level == 1) {
+        player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
+    } else if (current_level == 3) {
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -14);
+    } else {
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -8);
+    }
+}
 
 inline void draw_game() {
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
@@ -415,12 +424,10 @@ void start_stage() {
         level1_intro();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_new_game();
-        player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
         break;
     default:
         show_intro(current_level);
         GROUND_Y = LEVEL2_GROUND_Y;
-        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -4);
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
         load_level_platforms(current_level);
@@ -436,6 +443,7 @@ void start_stage() {
         load_level_doors(current_level);
         break;
     }
+    init_per_stages();
 }
 
 void palete_flash() {
@@ -466,7 +474,8 @@ inline int update_game() {
         world_state = GAME_RUN;
         break;
     case RESTART_STAGE:
-        player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
+        init_per_stages();
+
         // enemy_pool_init();
         enemy_spawn_init();
         enemy_pool_init();
