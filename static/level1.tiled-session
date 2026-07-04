@@ -21,7 +21,7 @@
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1383.75,
+                "x": 1376,
                 "y": 119.75
             }
         },
@@ -29,11 +29,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 6.556,
-            "selectedLayer": 1,
+            "scale": 1.6982,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1030.1250762660159,
-                "y": 120.42403904820011
+                "x": 2358.968319397009,
+                "y": 145.7425509362855
             }
         },
         "bg1_shop.tmx": {
@@ -48,11 +48,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3.3419,
-            "selectedLayer": 0,
+            "scale": 1.9577,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1263.5027978096293,
-                "y": 103.68353331936922
+                "x": 893.3953108239261,
+                "y": 130.510292690402
             }
         },
         "bg3.tmx": {
@@ -70,8 +70,8 @@
             "scale": 3,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1600,
-                "y": 100
+                "x": 1428.3333333333333,
+                "y": 121.5
             }
         },
         "level1.tmx": {

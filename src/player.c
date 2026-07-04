@@ -522,6 +522,7 @@ static void player_move_y_substeps() {
 
     int step_dir = (player.vy > 0) ? 1 : -1;
     int steps = (player.vy > 0) ? player.vy : -player.vy;
+    if (steps > 10) steps = 10; 
 
     for (int i = 0; i < steps; i++) {
         player.pos.y += step_dir;
@@ -578,6 +579,12 @@ static void player_update_position() {
     player_clamp_to_map_bounds();
 
     player_move_y_substeps();
+
+    if (player.pos.y > 130 && player.state != FALL_END && player.state != DEAD && player.state != DEAD_END) {
+        player_change_state(FALL_END);
+        player.vx = 0;
+        player.vy = 0;
+    }
 }
 
 /**
@@ -1103,17 +1110,19 @@ void player_update(int current_level) {
     }
     player_update_position();
 
-    if (player_is_over_almanac_tile()) {
-        if (almanac_tile_trigger_available == TRUE) {
-            almanac_tile_trigger_available = FALSE;
-            if (player.has_almanac) {
-                pending_flow_event.type = PLAYER_ADVANCE_STAGE;
-            } else {
-                player_show_almanac_dialog();
+    if (current_level == 2) {
+        if (player_is_over_almanac_tile()) {
+            if (almanac_tile_trigger_available == TRUE) {
+                almanac_tile_trigger_available = FALSE;
+                if (player.has_almanac) {
+                    pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+                } else {
+                    player_show_almanac_dialog();
+                }
             }
+        } else {
+            almanac_tile_trigger_available = TRUE;
         }
-    } else {
-        almanac_tile_trigger_available = TRUE;
     }
 
     if (player_is_over_advance_tile()) {
