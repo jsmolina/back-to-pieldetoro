@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Sat Jul  4 16:02:10 2026 */
+/* Date: Mon Jul  6 15:10:39 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -20,14 +20,14 @@
 #define FAROLA_BMP                       14       /* BMP  */
 #define FONT_FNT                         15       /* FONT */
 #define HEAD_BMP                         16       /* BMP  */
-#define INTRO2_FLI                       17       /* FLIC */
-#define INTRO_FLI                        18       /* FLIC */
-#define INTRO_MID                        19       /* MIDI */
-#define JERINGA_BMP                      20       /* BMP  */
-#define JORDI_LOGO_BMP                   21       /* BMP  */
-#define JOVEN_SPRITESHEET_BMP            22       /* BMP  */
-#define LEVEL2_INTRO_BMP                 23       /* BMP  */
-#define LEVEL3_INTRO3_BMP                24       /* BMP  */
+#define INTRO_MID                        17       /* MIDI */
+#define JERINGA_BMP                      18       /* BMP  */
+#define JORDI_LOGO_BMP                   19       /* BMP  */
+#define JOVEN_SPRITESHEET_BMP            20       /* BMP  */
+#define LEVEL2_INTRO_BMP                 21       /* BMP  */
+#define LEVEL3_INTRO3_BMP                22       /* BMP  */
+#define LEVEL4_CRASH_BMP                 23       /* BMP  */
+#define LEVEL4_INTRO_BMP                 24       /* BMP  */
 #define LIFEBAR_BMP                      25       /* BMP  */
 #define LIFEBAR_BRUNO_BMP                26       /* BMP  */
 #define LIFEBAR_MARTIN_BMP               27       /* BMP  */

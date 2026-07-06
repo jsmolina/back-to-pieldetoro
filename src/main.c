@@ -127,14 +127,19 @@ int main(int argc, char *argv[]) {
     play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    DATAFILE *video_data1 = obtain_videodata("INTRO2_FLI");
+    DATAFILE *video_data2 = obtain_videodata("INTRO_FLI");
     wait_a_bit(200);
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, skip_fli_on_space);
+    //DATAFILE *video_obj = load_datafile_object("intro.dat", "INTRO_VIDEO");
+    play_memory_fli(video_data1->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
-    play_memory_fli(dat_file[INTRO_FLI].dat, screen, 0, skip_fli_on_space);
+    play_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);    
     wait_for_space_release();
+    unload_datafile_object(video_data1);
+    unload_datafile_object(video_data2);
     wait_a_bit(200);
     set_palette(palette);
 

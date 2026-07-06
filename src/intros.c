@@ -1,10 +1,15 @@
 #include "dat_manager.h"
 #include "helpers.h"
 #include "statics.h"
+#include "tiles.h"
 #include <allegro.h>
 
 #define START_Y 165
 #define OFFSET 18
+
+int skip_intro_on_space(void) {
+    return key[KEY_SPACE] ? 1 : 0;
+}
 
 void level1_intro() {
     set_palette((RGB*)dat_file[PALETE_INTRO_BMP].dat);
@@ -46,8 +51,21 @@ void level3_intro() {
 }
 
 void level4_intro() {
-    //blit(dat_file[INTRO2_FLI].dat, screen, 0, 0, 0, 0, 320, 200);
-    print_at(10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
+    RGB black = { 16, 16, 16, 0 };
+    get_palette(palette);
+    set_color(0, &black);
+
+    DATAFILE *video_data = obtain_videodata("INTRO_LEVEL41_FLI");
+    blit(dat_file[LEVEL4_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE4_01), makecol(255, 255, 255), 16);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE4_02), makecol(255, 205, 205), 16);
+    wait_for_space();
+    play_memory_fli(video_data->dat, screen, 0, skip_intro_on_space);
+    set_palette(palette);
+    unload_datafile_object(video_data);
+    blit(dat_file[LEVEL4_CRASH_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE4_03), makecol(255, 255, 255), 16);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE4_04), makecol(255, 205, 205), 16);
     wait_for_space();
 }
 
