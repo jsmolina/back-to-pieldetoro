@@ -360,6 +360,9 @@ inline void draw_game() {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
+    } else if (key[KEY_D]) {
+        player.pos.x += 50;
+        player.pos.y = GROUND_Y- 50;
     }
     collisionType f2;
     int current_door_id;
