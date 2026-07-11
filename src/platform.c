@@ -24,6 +24,7 @@ typedef struct {
     // movement direction: +1 or -1
     int dir;
     int active;
+    int move_tick;
 } Platform;
 
 static Platform platforms[MAX_PLATFORMS];
@@ -112,21 +113,26 @@ void platform_update(int scroll_x) {
 
         platforms[i].prev_pos = platforms[i].pos;
 
-        if (platforms[i].type == 'L') {
-            // LR (horizontal) movement
-            platforms[i].pos.x += platforms[i].dir;
-            if (platforms[i].pos.x >= platforms[i].x + platforms[i].distance) {
-                platforms[i].dir = -1;
-            } else if (platforms[i].pos.x <= platforms[i].x) {
-                platforms[i].dir = 1;
-            }
-        } else if (platforms[i].type == 'D') {
-            // DT (vertical) movement
-            platforms[i].pos.y += platforms[i].dir;
-            if (platforms[i].pos.y <= platforms[i].y) {
-                platforms[i].dir = 1;
-            } else if (platforms[i].pos.y >= platforms[i].y + platforms[i].distance) {
-                platforms[i].dir = -1;
+        if (platforms[i].move_tick) {
+            platforms[i].move_tick = FALSE;
+        } else {
+            platforms[i].move_tick = TRUE;
+            if (platforms[i].type == 'L') {
+                // LR (horizontal) movement
+                platforms[i].pos.x += platforms[i].dir;
+                if (platforms[i].pos.x >= platforms[i].x + platforms[i].distance) {
+                    platforms[i].dir = -1;
+                } else if (platforms[i].pos.x <= platforms[i].x) {
+                    platforms[i].dir = 1;
+                }
+            } else if (platforms[i].type == 'D') {
+                // DT (vertical) movement
+                platforms[i].pos.y += platforms[i].dir;
+                if (platforms[i].pos.y <= platforms[i].y) {
+                    platforms[i].dir = 1;
+                } else if (platforms[i].pos.y >= platforms[i].y + platforms[i].distance) {
+                    platforms[i].dir = -1;
+                }
             }
         }
     }

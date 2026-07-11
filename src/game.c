@@ -24,6 +24,7 @@
 #define GAME_OVER 4
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
+#define CONTINUE 7
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 2
@@ -44,6 +45,7 @@ int megahit_mode = 0;
 int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
+BITMAP * continue_bg;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
@@ -214,7 +216,7 @@ void advance_stage() {
         current_background = load_background(dat_id);
         world_state = START_STAGE;
     } else {
-        world_state = GAME_OVER;
+        world_state = CONTINUE;
     }
 }
 
@@ -265,7 +267,7 @@ void update_game_run() {
             return;
         }
         if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
             return;
         }
         // this.attackEnemy(this.player);
@@ -297,7 +299,7 @@ void update_game_run() {
             world_state = RESTART_STAGE;
             return;
         } else if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
             return;
         } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
@@ -402,7 +404,7 @@ inline void draw_game() {
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
+        //textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
@@ -507,11 +509,26 @@ inline int update_game() {
         // player_update();
         //  check lives first: DEAD_END makes player_is_deading() return FALSE
         if (player.lives <= 0) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
         } else {
             world_state = RESTART_STAGE;
         }
         // draw_game();
+        break;
+    case CONTINUE:
+        continue_bg = load_shop_bg(CONTINUE_TMX);
+        blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        while(!key[KEY_Y] && !key[KEY_N]) {
+            vsync();
+        }
+        if (key[KEY_Y]) {
+            player_new_game();
+            world_state = RESTART_STAGE;
+        } else if (key[KEY_N]) {
+            world_state = GAME_OVER;
+        }
+        destroy_bitmap(continue_bg);
+        continue_bg = NULL;
         break;
     case GAME_OVER:
         return 1;

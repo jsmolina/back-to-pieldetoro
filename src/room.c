@@ -93,6 +93,8 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
         *owns_bitmap = TRUE;
     } else if (id == 2) {
         room_bg = dat_file[BG1_SHOP2_BMP].dat;
+    } else if (id == 3) {
+        room_bg = dat_file[BG2_SHOP_TMX].dat;
     } else {
         // default room background if room_id is not recognized
         room_bg = create_bitmap(SCREEN_W, SCREEN_H);

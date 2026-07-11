@@ -11,6 +11,7 @@ dat datos.dat -a ./dog_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./joven_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./bruno_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./bg*.tmx -h statics.h
+dat datos.dat -a ./continue.tmx -h statics.h
 dat datos.dat -a ./jordi_logo.bmp -h statics.h -t BMP
 dat datos.dat -a ./palete_jordi_logo.bmp -h statics.h -t PAL
 dat datos.dat -a ./msdosclub.bmp -h statics.h -t BMP
