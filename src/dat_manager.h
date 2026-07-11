@@ -12,10 +12,13 @@
  * - Cleanup functions should be implemented to release resources.
  */
 #include <allegro.h>
+#include "video_statics.h"
+
 
 extern DATAFILE *dat_file;
 // unpacks dat file
 DATAFILE * extract_data();
+DATAFILE * obtain_videodata(char * video_id);
 // cleanups data
 
 #endif

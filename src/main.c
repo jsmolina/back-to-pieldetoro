@@ -6,10 +6,11 @@
 #include "allegro/midi.h"
 #include "allegro/timer.h"
 #include "coin.h"
-#include "platform.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
+#include "piece.h"
+#include "platform.h"
 #include "player.h"
 #include "tiles.h"
 
@@ -79,7 +80,11 @@ inline void show_main_menu() {
     }
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+    if (argc > 1 && strcmp(argv[1], "megahit") == 0) {
+        megahit_mode = 1;
+    }
+
     RGB black = { 16, 16, 16, 0 };
 
     if (allegro_init() != 0)
@@ -122,14 +127,19 @@ int main(void) {
     play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    DATAFILE *video_data1 = obtain_videodata("INTRO2_FLI");
+    DATAFILE *video_data2 = obtain_videodata("INTRO_FLI");
     wait_a_bit(200);
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    play_memory_fli(dat_file[INTRO2_FLI].dat, screen, 0, skip_fli_on_space);
+    //DATAFILE *video_obj = load_datafile_object("intro.dat", "INTRO_VIDEO");
+    play_memory_fli(video_data1->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
-    play_memory_fli(dat_file[INTRO_FLI].dat, screen, 0, skip_fli_on_space);
+    play_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);    
     wait_for_space_release();
+    unload_datafile_object(video_data1);
+    unload_datafile_object(video_data2);
     wait_a_bit(200);
     set_palette(palette);
 
@@ -139,6 +149,7 @@ int main(void) {
     load_coche_spritesheet();
     load_martin_spritesheet();
     load_coin_spritesheet();
+    load_piece_spritesheet();
     load_platform_spritesheet();
 
     short exit_game = 0;
@@ -154,13 +165,14 @@ int main(void) {
             }
             break;
         case GAME:
-            if(update_game() == 1) {
-                game_state = GAME_OVER;                
+            if (update_game() == 1) {
+                game_state = GAME_OVER;
             }
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
             wait_for_space();
+            set_palette(palette);
             show_main_menu();
             game_state = TITLE;
             break;

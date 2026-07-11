@@ -21,46 +21,54 @@
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1376.125,
-                "y": 98.375
+                "x": 1376,
+                "y": 119.75
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.0015,
-            "selectedLayer": 1,
+            "scale": 1.6982,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1199.700449326011,
-                "y": 100.34947578632051
+                "x": 1200.094217406666,
+                "y": 100.40042397833001
             }
         },
         "bg1_shop.tmx": {
-            "scale": 4.59,
+            "scale": 2.4943,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 160.02178649237476,
-                "y": 100.10893246187364
+                "x": 171.99214208395142,
+                "y": 121.67742452792366
             }
         },
         "bg2.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 4.0852,
+            "scale": 3.3005,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1845.477957885169,
+                "y": 114.67959400090895
+            }
+        },
+        "bg2_shop.tmx": {
+            "scale": 1.9608,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 659.9432096347791,
-                "y": 80.04504063448545
+                "x": 150.4487964096287,
+                "y": 99.70420236638105
             }
         },
         "bg3.tmx": {
-            "scale": 3.7693,
+            "scale": 3.1204,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 312.1269201177937,
-                "y": 99.88592046268538
+                "x": 312.13946929880785,
+                "y": 99.98718113062426
             }
         },
         "bg4.tmx": {
@@ -68,10 +76,18 @@
                 2
             ],
             "scale": 3,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1600,
+                "y": 99.83333333333333
+            }
+        },
+        "continue.tmx": {
+            "scale": 1.8855,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1600.1666666666665,
-                "y": 99.83333333333334
+                "x": 161.7608061522143,
+                "y": 157.25271811190666
             }
         },
         "level1.tmx": {
@@ -86,13 +102,13 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 320.25,
-                "y": 99.75
+                "x": 320,
+                "y": 100
             }
         },
         "tiles.tsx": {
             "scaleInDock": 2.3637,
-            "scaleInEditor": 4.05
+            "scaleInEditor": 4.89
         }
     },
     "last.imagePath": "/Users/jordism/repos/back-to-pieldetoro",
@@ -107,9 +123,9 @@
         "tiles.tsx",
         "bg4.tmx",
         "bg1_shop.tmx",
-        "bg2.tmx",
         "test.tmx",
-        "bg3.tmx"
+        "bg3.tmx",
+        "bg2.tmx"
     ],
     "project": "level1.tiled-project",
     "property.type": "int",
@@ -119,8 +135,8 @@
         "tiles.tsx",
         "bg4.tmx",
         "bg1_shop.tmx",
-        "bg3.tmx",
         "test.tmx",
+        "bg3.tmx",
         "bg2.tmx",
         "level1.tmx",
         "bg0 copia.tmx"

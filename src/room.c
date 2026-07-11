@@ -8,7 +8,7 @@
 #include <allegro.h>
 #include <stdio.h>
 
-#define ROOM_COUNT 2
+#define ROOM_COUNT 3
 #define ROOM_FIRST_ID 1
 #define ROOM_OPTION_COUNT 3
 #define ROOM_ARROW_Y 104
@@ -31,10 +31,11 @@ typedef struct {
 
 static RoomOption room_options[ROOM_COUNT][ROOM_OPTION_COUNT] = {
     { { 110, 1000, FALSE }, { 160, 30, FALSE }, { 203, 1, TRUE } },
-    { { 104, 5, FALSE }, { 160, 70, FALSE }, { 210, 60, FALSE } }
+    { { 104, 5, FALSE }, { 160, 70, FALSE }, { 210, 60, FALSE } },
+    { { 110, 5, FALSE }, { 160, 30, FALSE }, { 203, 10, FALSE } },
 };
 
-int purchased_items[ROOM_COUNT][ROOM_OPTION_COUNT] = { { FALSE, FALSE, TRUE }, { FALSE, FALSE, FALSE } };
+int purchased_items[ROOM_COUNT][ROOM_OPTION_COUNT] = { { FALSE, FALSE, TRUE }, { FALSE, FALSE, FALSE }, { FALSE, FALSE, FALSE } };
 
 static int room_id_to_index(int room_id) {
     int room_index = room_id - ROOM_FIRST_ID;
@@ -54,7 +55,7 @@ void room_reset_purchased_items() {
 
 static void draw_room_static_text(int room_id, int txt_id) {
 
-    if (room_id == 1) {
+    if (room_id == 1 || room_id == 3) {
         rectfill(screen, 83, 130, 180, 140, 29);
         print_at_slow(85, 130, game_text(txt_id), makecol(16, 16, 16), 29);
     } else if (room_id == 2) {
@@ -70,8 +71,8 @@ static void draw_money_panel() {
     printf_at_simple(ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
 }
 
-static void draw_selector_at(const RoomOption* options, int index) {
-    if (purchased_items[room_id_to_index(options[index].x)][index] == TRUE) {
+static void draw_selector_at(const RoomOption* options, int index, int room_index) {
+    if (purchased_items[room_index][index] == TRUE) {
         textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 0, 0), -1, "X");
     } else {
         textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 255, 0), -1, "^");
@@ -93,6 +94,9 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
         *owns_bitmap = TRUE;
     } else if (id == 2) {
         room_bg = dat_file[BG1_SHOP2_BMP].dat;
+    } else if (id == 3) {
+        room_bg = load_shop_bg(BG2_SHOP_TMX);
+        *owns_bitmap = TRUE;
     } else {
         // default room background if room_id is not recognized
         room_bg = create_bitmap(SCREEN_W, SCREEN_H);
@@ -119,11 +123,11 @@ int enter_room(int room_id, int level) {
     draw_room_static_text(room_id, TXT_ROOM_01);
     if (room_id ==1) {
         printf_at_simple(55, 16, 15, 16, game_text(TXT_ROOM_05));
-    }
+    } 
     // Room has a reserved UI area with bricks for future HUD-like info:
     // X=[40..280], Y=[180..200].
     draw_money_panel();
-    draw_selector_at(options, selected);
+    draw_selector_at(options, selected, room_index);
 
     while (1) {
         int key_code = readkey() >> 8;
@@ -135,7 +139,7 @@ int enter_room(int room_id, int level) {
                 selected = ROOM_OPTION_COUNT - 1;
             }
             clear_arrow_at(bg, options, prev_selected);
-            draw_selector_at(options, selected);
+            draw_selector_at(options, selected, room_index);
         } else if (key_code == KEY_RIGHT) {
             int prev_selected = selected;
             selected++;
@@ -143,14 +147,14 @@ int enter_room(int room_id, int level) {
                 selected = 0;
             }
             clear_arrow_at(bg, options, prev_selected);
-            draw_selector_at(options, selected);
+            draw_selector_at(options, selected, room_index);
         } else if (key_code == KEY_SPACE || key_code == KEY_ENTER) {
-            if (purchased_items[room_id_to_index(options[selected].x)][selected] == TRUE) {
+            if (purchased_items[room_index][selected] == TRUE) {
                 draw_room_static_text(room_id, TXT_ROOM_04);
             } else if (game_try_spend_money(options[selected].cost)) {
-                purchased_items[room_id_to_index(options[selected].x)][selected] = TRUE;
+                purchased_items[room_index][selected] = TRUE;
                 clear_arrow_at(bg, options, selected);
-                draw_selector_at(options, selected);
+                draw_selector_at(options, selected, room_index);
                 draw_room_static_text(room_id, TXT_ROOM_03);
                 draw_money_panel();
                 if (room_id == 2 && selected == 0) {

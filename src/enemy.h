@@ -5,15 +5,17 @@
 #include <allegro.h>
 
 #define MAX_SPAWNABLE_ENEMIES 20
-#define MAX_ACTIVE_ENEMIES 4
+#define MAX_ACTIVE_ENEMIES 10
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
+#define BRUNO_FRAMES 16
 #define BIRD_FRAMES 2
 #define DOG_FRAMES 7
 #define BOMB_FRAMES 2
 #define LAMP_FRAMES 1
 #define SYRINGE_FRAMES 1
 
+#define ENEMY_HITS_TO_KILL 2
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
 inicial y el tipo de todos los enemigos del nivel. Esto ocupa muy poca memoria.
@@ -64,6 +66,8 @@ enum EnemyType {
     ENEMY_JOVEN,
     ENEMY_BIRD,
     ENEMY_DOG,
+    ENEMY_BRUNO,
+    // NON-ANIMATED ENEMIES
     ENEMY_LAMP,
     ENEMY_SYRINGE,
     ENEMY_BOMB,
@@ -84,6 +88,7 @@ typedef struct {
     int sprite_index;
     unsigned int state;
     unsigned int prev_state;
+    int hits; // number of hits taken, used for enemies that require multiple hits to die
     int active;
     int killed; // to mark if the enemy has been killed for static data
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none

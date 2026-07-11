@@ -94,7 +94,7 @@ void player_new_game();
  * @brief Updates player from main loop
  *
  */
-void player_update();
+void player_update(int current_level);
 
 /** @brief Draws the player on the screen
  *

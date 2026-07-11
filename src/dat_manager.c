@@ -42,3 +42,12 @@ DATAFILE * extract_data() {
     return dat_file;
     //fclose(input);
 }
+
+DATAFILE * obtain_videodata(char * video_id) {
+    DATAFILE *video_obj = load_datafile_object("video.dat", video_id);
+    if (!video_obj) {
+        allegro_message("Error: cannot load video data for %s\n", video_id);
+        exit(1);
+    }
+    return video_obj;
+}

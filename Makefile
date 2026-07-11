@@ -48,6 +48,7 @@ ${STATICDEST}:
 	cp static/cwsdpmi.exe ${DISTDIR}
 	cp static/setup.* ${DISTDIR}
 	cp static/intro.dat ${DISTDIR}
+	cp static/video.dat ${DISTDIR}
 
 all: ${DISTDIR} ${DISTDIR}/${BIN} ${STATICDEST}
 

@@ -8,6 +8,7 @@
 #include "intros.h"
 #include "object.h"
 #include "pause.h"
+#include "piece.h"
 #include "platform.h"
 #include "player.h"
 #include "room.h"
@@ -23,6 +24,7 @@
 #define GAME_OVER 4
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
+#define CONTINUE 7
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 2
@@ -39,9 +41,11 @@ int scroll_x;
 
 int current_level = 0;
 short world_state = 0;
+int megahit_mode = 0;
 int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
+BITMAP * continue_bg;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
@@ -49,6 +53,8 @@ static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
 static int hud_last_coins = -1;
+static int hud_last_pieces_collected = -1;
+static int hud_last_pieces_total = -1;
 static int coins_collected = 0;
 static int game_money = 0;
 static volatile int stage_tick_count = 0;
@@ -210,7 +216,7 @@ void advance_stage() {
         current_background = load_background(dat_id);
         world_state = START_STAGE;
     } else {
-        world_state = GAME_OVER;
+        world_state = CONTINUE;
     }
 }
 
@@ -244,7 +250,7 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - 130;
+    scroll_x = player.pos.x - 160;
     if (scroll_x < 0)
         scroll_x = 0;
 
@@ -254,14 +260,14 @@ void update_game_run() {
 
     switch (current_level) {
     case 1:
-        player_update();
+        player_update(current_level);
         FlowEventType flow_event = player_consume_flow_event();
         if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
         }
         if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
             return;
         }
         // this.attackEnemy(this.player);
@@ -286,14 +292,14 @@ void update_game_run() {
         break;
     default:
         platform_update(scroll_x);
-        player_update();
+        player_update(current_level);
 
         flow_event = player_consume_flow_event();
         if (flow_event.type == PLAYER_FLOW_RESTART_STAGE) {
             world_state = RESTART_STAGE;
             return;
         } else if (flow_event.type == PLAYER_FLOW_GAME_OVER) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
             return;
         } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
@@ -338,6 +344,15 @@ void repaint_dirty_tiles() {
         }
     }
 }*/
+void init_per_stages() {
+     if (current_level == 1) {
+        player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
+    } else if (current_level == 3) {
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -14);
+    } else {
+        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -8);
+    }
+}
 
 inline void draw_game() {
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
@@ -345,6 +360,9 @@ inline void draw_game() {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
+    } else if (key[KEY_D]) {
+        player.pos.x += 50;
+        player.pos.y = GROUND_Y- 50;
     }
     collisionType f2;
     int current_door_id;
@@ -375,15 +393,21 @@ inline void draw_game() {
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         draw_coins(scroll_x);
+        if (current_level == 4) {
+            draw_pieces(scroll_x);
+        }
         draw_platforms(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
+        if (current_level == 4) {
+            collision_check_player_vs_pieces();
+        }
         lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "x:%d, y:%d, vy:%d, s:%d", player.pos.x, player.pos.y, player.vy, player.state);
+        //textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
@@ -405,21 +429,26 @@ void start_stage() {
         level1_intro();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_new_game();
-        player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
         break;
     default:
         show_intro(current_level);
         GROUND_Y = LEVEL2_GROUND_Y;
-        player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -4);
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
         load_level_platforms(current_level);
         reset_coins();
         load_level_coins(current_level);
+        if (current_level == 4) {
+            reset_pieces();
+            load_level_pieces(current_level);
+        } else {
+            reset_pieces();
+        }
         reset_doors();
         load_level_doors(current_level);
         break;
     }
+    init_per_stages();
 }
 
 void palete_flash() {
@@ -450,10 +479,19 @@ inline int update_game() {
         world_state = GAME_RUN;
         break;
     case RESTART_STAGE:
-        player_init(10, GROUND_Y, current_level, player.max_vx, player.jump_vy);
+        init_per_stages();
+
         // enemy_pool_init();
         enemy_spawn_init();
         enemy_pool_init();
+        if (current_level != 1) {
+            reset_coins();
+            load_level_coins(current_level);
+        }
+        if (current_level == 4) {
+            reset_pieces();
+            load_level_pieces(current_level);
+        }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart
         world_state = GAME_RUN;
@@ -474,11 +512,26 @@ inline int update_game() {
         // player_update();
         //  check lives first: DEAD_END makes player_is_deading() return FALSE
         if (player.lives <= 0) {
-            world_state = GAME_OVER;
+            world_state = CONTINUE;
         } else {
             world_state = RESTART_STAGE;
         }
         // draw_game();
+        break;
+    case CONTINUE:
+        continue_bg = load_shop_bg(CONTINUE_TMX);
+        blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        while(!key[KEY_Y] && !key[KEY_N]) {
+            vsync();
+        }
+        if (key[KEY_Y]) {
+            player_new_game();
+            world_state = RESTART_STAGE;
+        } else if (key[KEY_N]) {
+            world_state = GAME_OVER;
+        }
+        destroy_bitmap(continue_bg);
+        continue_bg = NULL;
         break;
     case GAME_OVER:
         return 1;
