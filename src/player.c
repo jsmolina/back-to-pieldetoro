@@ -6,6 +6,7 @@
 #include "game.h"
 #include "helpers.h"
 #include "object.h"
+#include "piece.h"
 #include "platform.h"
 #include "player.h"
 
@@ -13,6 +14,7 @@
 #include "tiles.h"
 #include <allegro.h>
 #include <math.h>
+#include <stdio.h>
 
 #define CAR_WIDTH 105
 #define MARTIN_WIDTH 24
@@ -138,7 +140,7 @@ static int kick_key_freed() {
     return FALSE;
 }
 
-static void player_clamp_to_map_bounds();
+static void player_clamp_to_map_bounds(int current_level);
 
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
@@ -251,6 +253,14 @@ static void player_change_state(unsigned int state) {
 }
 void player_energy_up() {
     player.energy = PLAYER_DEFAULT_ENERGY;
+}
+
+void player_life_up() {
+    player.lives++;
+}
+
+void player_throwable_up() {
+    player.throwable_count++;
 }
 
 void player_on_hit() {
@@ -408,11 +418,20 @@ inline collisionType player_aabb() {
     }
 }
 
-static void player_clamp_to_map_bounds() {
+static void player_clamp_to_map_bounds(int current_level) {
     if (player.pos.x < 2) {
         player.pos.x = 2;
         if (player.vx < 0) {
             player.vx = 0;
+        }
+    }
+
+    if (current_level == 4 && almanac_tile_x >= 0 && piece_get_remaining() > 0) {
+        if (player.pos.x >= almanac_tile_x) {
+            player.pos.x = almanac_tile_x - 1;
+            if (player.vx > 0) {
+                player.vx = 0;
+            }
         }
     }
 
@@ -455,7 +474,7 @@ static int player_update_platform_support() {
     return FALSE;
 }
 
-static void player_apply_platform_carry() {
+static void player_apply_platform_carry(int current_level) {
     int dx = 0;
     int dy = 0;
 
@@ -470,7 +489,7 @@ static void player_apply_platform_carry() {
 
     player.pos.x += dx;
     player.pos.y += dy;
-    player_clamp_to_map_bounds();
+    // a bit overkill to check this player_clamp_to_map_bounds(current_level);
 }
 
 /**
@@ -501,8 +520,8 @@ static void player_check_vy() {
 /**
  * @brief Checks vx for hits
  */
-static void player_check_vx() {
-    player_clamp_to_map_bounds();
+static void player_check_vx(int current_level) {
+    player_clamp_to_map_bounds(current_level);
 
     if (player.vx != 0) {
         if (checkHitObj()) {
@@ -569,14 +588,14 @@ static void player_move_y_substeps() {
     }
 }
 
-static void player_update_position() {
-    player_apply_platform_carry();
+static void player_update_position(int current_level) {
+    player_apply_platform_carry(current_level);
 
-    player_check_vx();
+    player_check_vx(current_level);
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
 
-    player_clamp_to_map_bounds();
+    player_clamp_to_map_bounds(current_level);
 
     player_move_y_substeps();
 
@@ -1108,7 +1127,7 @@ void player_update(int current_level) {
     if ((current_level != 3) &&(player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
         player_affect_force(0, 1);
     }
-    player_update_position();
+    player_update_position(current_level);
 
     if (current_level == 2) {
         if (player_is_over_almanac_tile()) {

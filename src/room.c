@@ -162,6 +162,14 @@ int enter_room(int room_id, int level) {
                    player_energy_up();
                 } else if (room_id == 1 && selected == 1) {
                     player_took_almanac();
+                } else if (room_id == 3) {
+                    if (selected == 0) {
+                        player_energy_up();
+                    } else if (selected == 1) {
+                        player_life_up();
+                    } else if(selected == 2) {
+                        player_throwable_up();
+                    }
                 }
             } else {
                 draw_room_static_text(room_id, TXT_ROOM_02);

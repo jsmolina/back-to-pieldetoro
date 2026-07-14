@@ -63,6 +63,7 @@ struct playerType {
     int max_vx;
     int flip;
     int lives;
+    int throwable_count;
     int energy;
     int hurt_cooldown;
     int move_count;
@@ -179,6 +180,8 @@ FlowEventType player_consume_flow_event();
  *
  */
 void player_energy_up();
+void player_throwable_up();
+void player_life_up();
 
 extern struct playerType player;
 

@@ -392,11 +392,11 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
-        draw_coins(scroll_x);
+        draw_coins(scroll_x);     
+        draw_platforms(scroll_x);
         if (current_level == 4) {
             draw_pieces(scroll_x);
         }
-        draw_platforms(scroll_x);
         collision_check_throwable_vs_enemy();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();

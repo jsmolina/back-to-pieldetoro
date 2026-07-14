@@ -152,6 +152,23 @@ void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
     textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
 }
 
+void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
+    FONT* myfont = dat_file[FONT_FNT].dat;
+    char buffer[256];
+
+    if (!format || !myfont) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    buffer[sizeof(buffer) - 1] = '\0';
+    textprintf_ex(current_screen, myfont, x, y, col, bg, "%s", buffer);
+}
+
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int cursor_x = x;
