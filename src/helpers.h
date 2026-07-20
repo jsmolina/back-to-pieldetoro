@@ -9,7 +9,7 @@
 #include <allegro.h>
 
 // this is the maximum number of frames an animation can have, not the total number of frames across all animations
-#define MAX_FRAMES 13
+#define MAX_FRAMES 20
 
 /** @struct animeItem
  * @brief Represents an animation item with frame information
@@ -78,6 +78,8 @@ typedef struct {
  * @param duration The duration of the beep in milliseconds (ms).
  */
 void beep(int frequency, int duration);
+
+void screen_shake();
 
 /** @brief Waits for the spacebar key to be pressed and released. */
 void wait_for_space();

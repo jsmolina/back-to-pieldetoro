@@ -15,7 +15,7 @@
 #define LAMP_FRAMES 1
 #define SYRINGE_FRAMES 1
 
-#define ENEMY_HITS_TO_KILL 2
+#define BOSS_HITS_TO_KILL 10
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
 inicial y el tipo de todos los enemigos del nivel. Esto ocupa muy poca memoria.

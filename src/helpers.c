@@ -188,6 +188,21 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
     }
 }
 
+void screen_shake() {
+    int offsets[] = { 3, -3, 2, -2, 1, 0 };  // logical, map to pel values
+    int i;
+    for (i = 0; i < 6; i++) {
+        // pel panning: 0x3C0 index 0x13, value 0-7
+        int pel = offsets[i] < 0 ? 0 : offsets[i];
+        outportb(0x3C0, 0x13);
+        outportb(0x3C0, pel & 0x07);
+        rest(16); // ~1 frame at 60fps
+    }
+    // reset
+    outportb(0x3C0, 0x13);
+    outportb(0x3C0, 0);
+}
+
 void beep(int frequency, int duration) {
     int div = 1193180 / frequency;
 

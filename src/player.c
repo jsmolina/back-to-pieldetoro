@@ -159,6 +159,8 @@ void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.anime_count = 0;
     player.anime_index = 0;
     player.flip = FALSE;
+    player.boss_mode = FALSE;
+    player.hurt_cooldown = 0;
     player.max_vx = max_vx;
     player.sprite_index = 0;
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
@@ -418,6 +420,35 @@ inline collisionType player_aabb() {
     }
 }
 
+/**
+ * @brief handles special player behavior in level 4
+ *     special treatment for level 4, where boss appears when all pieces taken
+ *     once taken, player can go beyond the right edge of the map to reach the boss
+ *     and cannot return left to the normal map to fight the boss
+ */
+static inline void player_in_level4() {
+    if (player.boss_mode == TRUE) {
+        // do not move left beyond the almanac tile, if it exists, to avoid returning to the normal map
+        if (player.pos.x < almanac_tile_x) {
+            player.pos.x = almanac_tile_x;
+            if (player.vx < 0) {
+                player.vx = 0;
+            }
+        }
+    } else {
+        if (almanac_tile_x >= 0 && piece_get_remaining() > 0) {
+            if (player.pos.x >= almanac_tile_x) {
+                player.pos.x = almanac_tile_x - 1;
+                if (player.vx > 0) {
+                    player.vx = 0;
+                }
+            }
+        } else {
+            player.boss_mode = TRUE;
+        }
+    }
+}
+
 static void player_clamp_to_map_bounds(int current_level) {
     if (player.pos.x < 2) {
         player.pos.x = 2;
@@ -426,13 +457,8 @@ static void player_clamp_to_map_bounds(int current_level) {
         }
     }
 
-    if (current_level == 4 && almanac_tile_x >= 0 && piece_get_remaining() > 0) {
-        if (player.pos.x >= almanac_tile_x) {
-            player.pos.x = almanac_tile_x - 1;
-            if (player.vx > 0) {
-                player.vx = 0;
-            }
-        }
+    if (current_level == 4) {
+        player_in_level4();
     }
 
     if (player.data != NULL && map_pixel_width > 0) {
@@ -541,7 +567,8 @@ static void player_move_y_substeps() {
 
     int step_dir = (player.vy > 0) ? 1 : -1;
     int steps = (player.vy > 0) ? player.vy : -player.vy;
-    if (steps > 10) steps = 10; 
+    if (steps > 10)
+        steps = 10;
 
     for (int i = 0; i < steps; i++) {
         player.pos.y += step_dir;
@@ -944,16 +971,18 @@ static void player_action_jump_up() {
                 player.vx -= PLAYER_ACCEL;
                 if (player.vx < -player.max_vx)
                     player.vx = -player.max_vx;
+            } else {
+                player.vx = -1;
             }
-            else {player.vx = -1;}
         } else if (key[KEY_RIGHT]) {
             player.flip = FALSE;
             if (player.vx > 0) {
                 player.vx += PLAYER_ACCEL;
                 if (player.vx > player.max_vx)
                     player.vx = player.max_vx;
+            } else {
+                player.vx = 1;
             }
-            else {player.vx = 1;}
         }
     }
     // arc driven by gravity: transition when vy reaches 0 or positive
@@ -1124,7 +1153,7 @@ void player_update(int current_level) {
     // gravity always applied for smooth arc
     player_affect_force(0, (player.anime_index & 1) == 0);
     // extra gravity on descent for snappier fall (Mario-style)
-    if ((current_level != 3) &&(player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
+    if ((current_level != 3) && (player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
         player_affect_force(0, 1);
     }
     player_update_position(current_level);

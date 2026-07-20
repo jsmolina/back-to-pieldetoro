@@ -14,6 +14,7 @@
 #include "room.h"
 #include "statics.h"
 #include "tiles.h"
+#include "passcode.h"
 #include <allegro.h>
 #include <stdio.h>
 
@@ -360,6 +361,8 @@ inline void draw_game() {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
+    } else if (key[KEY_F2]) {
+        all_collected();
     } else if (key[KEY_D]) {
         player.pos.x += 50;
         player.pos.y = GROUND_Y- 50;
@@ -542,7 +545,9 @@ inline int update_game() {
 
 enum PauseMenuResult game_handle_pause(void) {
     game_pause = TRUE;
-    enum PauseMenuOption pause_choice = show_pause_menu();
+    char passcode[12];
+    generate_pass(current_level, player.lives, game_money, coins_collected, passcode);
+    enum PauseMenuOption pause_choice = show_pause_menu(passcode);
     game_pause = FALSE;
 
     switch (pause_choice) {

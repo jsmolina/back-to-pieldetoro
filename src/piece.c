@@ -20,6 +20,14 @@ static BITMAP* piece_sprites[PIECE_TYPE_COUNT];
 static int piece_count = 0;
 static int remaining_pieces = 0;
 
+// forces all collected for debugging purposes
+void all_collected() {
+    for (int i = 0; i < piece_count; i++) {
+        pieces[i].collected = TRUE;
+    }
+    remaining_pieces = 0;
+}
+
 static inline BITMAP* _get_piece_sprite(PieceType type) {
     if (type < 0 || type >= PIECE_TYPE_COUNT) {
         return NULL;

@@ -72,6 +72,7 @@ struct playerType {
     int sprite_index;
     int type;
     int has_almanac;
+    int boss_mode; // TRUE if player is in boss mode, FALSE otherwise
     unsigned int state;
     unsigned int prev_state;
     int jump_vy;

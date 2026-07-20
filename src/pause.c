@@ -9,7 +9,7 @@
 #define PAUSE_MENU_OPTION_COUNT 3
 #define PAUSE_OPTION_HEIGHT 30
 #define PAUSE_BG_COLOR 17       /* dark blue */
-#define PAUSE_TEXT_COLOR 255    /* white */
+#define PAUSE_TEXT_COLOR 67    /* yellow */
 #define PAUSE_TEXT_SELECTED_COLOR 16    /* white */
 #define PAUSE_SELECTED_COLOR 30 /* lighter blue */
 #define PAUSE_BORDER_COLOR 63   /* bright white */
@@ -20,7 +20,7 @@ static const char* pause_menu_options[PAUSE_MENU_OPTION_COUNT] = {
     "EXIT TO DOS"
 };
 
-static void draw_pause_menu(int selected) {
+static void draw_pause_menu(int selected, const char* passcode) {
     /* Draw dark blue background with border */
     rectfill(screen, PAUSE_MENU_X, PAUSE_MENU_Y, PAUSE_MENU_X + PAUSE_MENU_W, PAUSE_MENU_Y + PAUSE_MENU_H, PAUSE_BG_COLOR);
     rect(screen, PAUSE_MENU_X - 1, PAUSE_MENU_Y - 1, PAUSE_MENU_X + PAUSE_MENU_W + 1, PAUSE_MENU_Y + PAUSE_MENU_H + 1, PAUSE_BORDER_COLOR);
@@ -39,9 +39,13 @@ static void draw_pause_menu(int selected) {
         printf_at_simple(PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
         offset_y+= PAUSE_OPTION_HEIGHT;
     }
+    /* Draw passcode at the top of the menu */
+    int passcode_y = 32;
+    rectfill(screen, PAUSE_MENU_X, passcode_y - 8, PAUSE_MENU_X + PAUSE_MENU_W, passcode_y + 16, PAUSE_BG_COLOR);
+    printf_at_simple(PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
 }
 
-enum PauseMenuOption show_pause_menu(void) {
+enum PauseMenuOption show_pause_menu(const char* passcode) {
     int selected = PAUSE_CONTINUE;
 
     while (key[KEY_ESC]) {
@@ -50,7 +54,7 @@ enum PauseMenuOption show_pause_menu(void) {
     clear_keybuf();
 
     while (1) {
-        draw_pause_menu(selected);
+        draw_pause_menu(selected, passcode);
         int key_code = readkey() >> 8;
 
         if (key_code == KEY_UP) {
