@@ -255,7 +255,7 @@ void update_game_run() {
     if (scroll_x < 0)
         scroll_x = 0;
 
-    if (scroll_x > map_pixel_width - SCREEN_W) {
+    if (player.boss_mode == TRUE || scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
 

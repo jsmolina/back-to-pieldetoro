@@ -75,7 +75,7 @@
   </object>
   <object id="21" name="PLATFORM" type="DT" x="1843" y="89" width="24" height="67"/>
   <object id="22" name="PLATFORM" type="LR" x="1486" y="56" width="59" height="5"/>
-  <object id="23" name="ENEMY_BRUNO" type="ER" x="2663" y="157">
+  <object id="23" name="ENEMY_BRUNO" type="ER" x="2570" y="158">
    <point/>
   </object>
   <object id="24" name="PLATFORM" type="LR" x="1207" y="150" width="293" height="5"/>

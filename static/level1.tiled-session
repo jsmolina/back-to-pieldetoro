@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg1.tmx",
+    "activeFile": "bg2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -32,8 +32,8 @@
             "scale": 3.3427,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2337.4816764890656,
-                "y": 68.3579142609268
+                "x": 2335.088401591528,
+                "y": 66.26379872558111
             }
         },
         "bg1_shop.tmx": {
@@ -49,18 +49,18 @@
                 2
             ],
             "scale": 2.7324,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 2627.5435514565947,
-                "y": 92.7755819060167
+                "x": 2526.1674718196455,
+                "y": 92.77558190601668
             }
         },
         "bg2_shop.tmx": {
             "scale": 1.9608,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 146.11383108935127,
-                "y": 95.62423500611995
+                "x": 160.13871889024887,
+                "y": 99.9592003263974
             }
         },
         "bg3.tmx": {
@@ -68,7 +68,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 312.1394692988078,
-                "y": 99.98718113062428
+                "y": 99.98718113062426
             }
         },
         "bg4.tmx": {
@@ -79,7 +79,7 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 1600,
-                "y": 99.99999999999999
+                "y": 100
             }
         },
         "continue.tmx": {
@@ -87,7 +87,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 160.1697162556351,
-                "y": 100.23866348448688
+                "y": 100.23866348448686
             }
         },
         "level1.tmx": {
@@ -133,15 +133,15 @@
     "property.type": "int",
     "recentFiles": [
         "bg0.tmx",
+        "bg1.tmx",
+        "tiles.tsx",
+        "bg4.tmx",
+        "continue.tmx",
+        "test.tmx",
+        "bg3.tmx",
         "bg2_shop.tmx",
         "bg1_shop.tmx",
         "bg2.tmx",
-        "bg3.tmx",
-        "test.tmx",
-        "continue.tmx",
-        "bg4.tmx",
-        "tiles.tsx",
-        "bg1.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],

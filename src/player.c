@@ -428,9 +428,9 @@ inline collisionType player_aabb() {
  */
 static inline void player_in_level4() {
     if (player.boss_mode == TRUE) {
-        // do not move left beyond the almanac tile, if it exists, to avoid returning to the normal map
-        if (player.pos.x < almanac_tile_x) {
-            player.pos.x = almanac_tile_x;
+        int leftside = map_pixel_width - SCREEN_W;
+        if (player.pos.x < leftside) {
+            player.pos.x = leftside;
             if (player.vx < 0) {
                 player.vx = 0;
             }

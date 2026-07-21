@@ -874,13 +874,13 @@ void enemy_on_hit(int enemy_id) {
     if (enemy_id < 0 || enemy_id >= MAX_ACTIVE_ENEMIES) {
         return;
     }
-    _enemy_apply_death_impulse(enemy_id);
     if (active_enemies[enemy_id].type == ENEMY_BRUNO) {
         active_enemies[enemy_id].hits++;
         if (active_enemies[enemy_id].hits < BOSS_HITS_TO_KILL) {
             return; // first hit: knockback only
         }
     }
+    _enemy_apply_death_impulse(enemy_id);
     enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
 }
 
@@ -898,7 +898,7 @@ void enemy_pool_update(int camera_x) {
             continue;
         }
 
-        if (spawnable_enemies[i].screen_spawn_x >= camera_x && spawnable_enemies[i].screen_spawn_x <= camera_x + 31) {
+        if (camera_x >= spawnable_enemies[i].screen_spawn_x) {
             /*if (enemy_log_file) {
                 fprintf(enemy_log_file, "* Spawn enemy index %d of type %d\n", i, spawnable_enemies[i].type);
             }*/
