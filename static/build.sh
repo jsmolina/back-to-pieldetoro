@@ -37,6 +37,8 @@ dat datos.dat -a ./plataforma.bmp -h statics.h -t BMP
 dat datos.dat -a ./pfuel.bmp -h statics.h -t BMP
 dat datos.dat -a ./pcondenser.bmp -h statics.h -t BMP
 dat datos.dat -a ./pflow.bmp -h statics.h -t BMP
+dat datos.dat -a ./microphone.bmp -h statics.h -t BMP
+dat datos.dat -a ./ushanka.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

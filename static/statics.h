@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Tue Jul 21 07:21:30 2026 */
+/* Date: Wed Jul 22 15:30:52 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -35,15 +35,17 @@
 #define LIFEBAR_MARTIN_BMP               29       /* BMP  */
 #define MARTIN_SPRITESHEET_BMP           30       /* BMP  */
 #define MENU2_BMP                        31       /* BMP  */
-#define MONEY_BMP                        32       /* BMP  */
-#define MSDOS_MID                        33       /* MIDI */
-#define MSDOSCLUB_BMP                    34       /* BMP  */
-#define PALETE_INTRO_BMP                 35       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            36       /* PAL  */
-#define PCONDENSER_BMP                   37       /* BMP  */
-#define PFLOW_BMP                        38       /* BMP  */
-#define PFUEL_BMP                        39       /* BMP  */
-#define PIELDETORO_INTRO3_BMP            40       /* BMP  */
-#define PLATAFORMA_BMP                   41       /* BMP  */
-#define TILES_BMP                        42       /* BMP  */
+#define MICROPHONE_BMP                   32       /* BMP  */
+#define MONEY_BMP                        33       /* BMP  */
+#define MSDOS_MID                        34       /* MIDI */
+#define MSDOSCLUB_BMP                    35       /* BMP  */
+#define PALETE_INTRO_BMP                 36       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            37       /* PAL  */
+#define PCONDENSER_BMP                   38       /* BMP  */
+#define PFLOW_BMP                        39       /* BMP  */
+#define PFUEL_BMP                        40       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            41       /* BMP  */
+#define PLATAFORMA_BMP                   42       /* BMP  */
+#define TILES_BMP                        43       /* BMP  */
+#define USHANKA_BMP                      44       /* BMP  */
 

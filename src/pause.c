@@ -11,7 +11,7 @@
 #define PAUSE_BG_COLOR 17       /* dark blue */
 #define PAUSE_TEXT_COLOR 67    /* yellow */
 #define PAUSE_TEXT_SELECTED_COLOR 16    /* white */
-#define PAUSE_SELECTED_COLOR 30 /* lighter blue */
+#define PAUSE_SELECTED_COLOR 67 /* yellow */
 #define PAUSE_BORDER_COLOR 63   /* bright white */
 
 static const char* pause_menu_options[PAUSE_MENU_OPTION_COUNT] = {

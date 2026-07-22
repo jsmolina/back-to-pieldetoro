@@ -24,9 +24,10 @@
 #define ETHROWING 10
 
 #define BOMB_GROUND 155
-#define BRUNO_TREE_MARGIN 8
+#define BRUNO_TREE_MARGIN 32
 #define BRUNO_MOVE_SPEED 2
 #define BRUNO_VULNERABLE_FRAMES 90
+#define BRUNO_HURT_COOLDOWN_FRAMES 60
 #define BOMB_HURTBOX_TOP_CUT 6
 #define BOMB_HURTBOX_SIDE_CUT 1
 
@@ -68,10 +69,10 @@ static animeItem bruno_animations[11] = {
     { 30, { 0 }, 1, 30 },                                        // EDEAD
     { 60, { 14 }, 1, 60 },                                       // EFALL_END
     { 70, { 0 }, 1, 70 },                                        // EDEAD_END
-    { 90, { 13,13,13, 14,14,14,14,14,14,14, 7, 8, 7,8,7,8,7,8,8,7 }, 13, 30 },   // ECROUCHING, used for impact to tree (90 = BRUNO_VULNERABLE_FRAMES)
+    { 90, { 13,13,13, 13,13,13,14,14,14,14, 7, 8, 7,8,7,8,7,8,8,7 }, 13, 30 },   // ECROUCHING, used for impact to tree (90 = BRUNO_VULNERABLE_FRAMES)
     { 5, { 15,0 }, 1, 0 },                                         // ETHROWING OBJECT
 };
-
+// NOTE: if aseprite frame is N, here is N-1, so 14 becomes 13
 static animeItem bird_animations[11] = {
     { 0, { 0 }, 0, -1 },   // NONE
     { 1, { 0 }, 1, 60 },   // BSTOP
@@ -171,6 +172,7 @@ void enemy_pool_init() {
         active_enemies[i].state = 0;
         active_enemies[i].prev_state = 0;
         active_enemies[i].hits = 0;
+        active_enemies[i].hurt_cooldown = 0;
         active_enemies[i].data = &enemy_data[ENEMY_BIRD];
     }
 }
@@ -651,32 +653,37 @@ void joven_action_ai(int index) {
     // Otherwise maintain current position (player directly above/below)
 }
 
-void bruno_action_ai(int index) {
+void bruno_action_stop(int index) {
     if (index < 0 || index >= MAX_ACTIVE_ENEMIES)
         return;
 
-    static int heading_to_tree = TRUE; // TRUE = moving left toward tree, FALSE = moving right toward wall
-    int enemy_x = active_enemies[index].pos.x;
-    int tree_x = almanac_tile_x - BRUNO_TREE_MARGIN;
-    int wall_x = map_pixel_width - BRUNO_TREE_MARGIN;
-
-    if (heading_to_tree == TRUE) {
-        if (enemy_x <= tree_x) {
-            active_enemies[index].vx = 0;
-            heading_to_tree = FALSE;
-            enemy_change_state(index, ECROUCHING);
-        } else {
-            active_enemies[index].vx = -BRUNO_MOVE_SPEED;
-            active_enemies[index].flip = TRUE;
-            enemy_change_state(index, EMOVE_LEFT);
-        }
-    } else {
-        if (enemy_x >= wall_x) {
-            heading_to_tree = TRUE;
-        }
+    int midpoint = map_pixel_width - 160;
+    if (active_enemies[index].pos.x < midpoint) {
+        enemy_change_state(index, EMOVE_RIGHT);
         active_enemies[index].vx = BRUNO_MOVE_SPEED;
         active_enemies[index].flip = FALSE;
-        enemy_change_state(index, EMOVE_RIGHT);
+    } else {
+        enemy_change_state(index, EMOVE_LEFT);
+        active_enemies[index].vx = -BRUNO_MOVE_SPEED;
+        active_enemies[index].flip = TRUE;
+    }
+}
+
+void bruno_action_move_left(int index) {
+    int leftside = map_pixel_width - SCREEN_W;
+    int left_tree_x = leftside + BRUNO_TREE_MARGIN;
+
+    if (active_enemies[index].pos.x <= left_tree_x) {
+        // reaches left tree, stop and crouch to hit tree
+        enemy_change_state(index, ECROUCHING);
+    }
+}
+
+void bruno_action_move_right(int index) {
+    int right_tree_x = map_pixel_width - BRUNO_TREE_MARGIN;
+
+    if (active_enemies[index].pos.x >= right_tree_x) {
+        enemy_change_state(index, ECROUCHING);
     }
 }
 
@@ -688,8 +695,8 @@ void bruno_action_ai(int index) {
 void bruno_action_hit_tree(int index) {
     if (index < 0 || index >= MAX_ACTIVE_ENEMIES || active_enemies[index].type != ENEMY_BRUNO)
         return;
-
-    // now execute the animation while enemy_count_move is not finished
+    active_enemies[index].vx = 0;
+    // TODO: now execute the animation while enemy_count_move is not finished
     if (enemy_count_move(index, 0, 0) == FINISHED) {
         // after animation is finished, set to ETHROWING state
         enemy_change_state(index, ETHROWING);
@@ -752,12 +759,22 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
     _enemy_affect_force(index, 0, (active_enemies[index].anime_index & 1) == 0);
     _enemy_update_position(index, scroll_x);
 
+    if (active_enemies[index].hurt_cooldown > 0) {
+        active_enemies[index].hurt_cooldown--;
+    }
+
     switch (active_enemies[index].state) {
     case EMOVE_LEFT:
         // joven_action_move_left();
+        if (active_enemies[index].type == ENEMY_BRUNO) {
+            bruno_action_move_left(index);
+        }
         break;
     case EMOVE_RIGHT:
         // joven_action_move_right();
+        if (active_enemies[index].type == ENEMY_BRUNO) {
+            bruno_action_move_right(index);
+        }
         break;
     case EFALL:
     case EFALL2:
@@ -768,7 +785,7 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
             if (active_enemies[index].type != ENEMY_BRUNO) {
                 joven_action_ai(index);
             } else {
-                bruno_action_ai(index);
+                bruno_action_stop(index);
             }
         }
         break;
@@ -781,6 +798,7 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         // joven_action_fall_end();
         break;
     case ECROUCHING:
+        
         bruno_action_hit_tree(index);
         break;
     case ETHROWING:
@@ -875,9 +893,13 @@ void enemy_on_hit(int enemy_id) {
         return;
     }
     if (active_enemies[enemy_id].type == ENEMY_BRUNO) {
+        if (active_enemies[enemy_id].hurt_cooldown > 0) {
+            return;
+        }
+        active_enemies[enemy_id].hurt_cooldown = BRUNO_HURT_COOLDOWN_FRAMES;
         active_enemies[enemy_id].hits++;
         if (active_enemies[enemy_id].hits < BOSS_HITS_TO_KILL) {
-            return; // first hit: knockback only
+            return;
         }
     }
     _enemy_apply_death_impulse(enemy_id);
@@ -946,6 +968,10 @@ void draw_enemies(int scroll_x) {
         Enemy* e = &active_enemies[i];
         // data is static for the enemy type, so we can get dimensions and sprites from it
         EnemyData* data = e->data;
+
+        if (e->hurt_cooldown > 0 && ((e->hurt_cooldown >> 1) & 1) == 0) {
+            return;
+        }
 
         // Bounds check: ensure sprite_index is valid
         if (e->sprite_index >= 0 && e->sprite_index < data->total_frames && data->sprites[e->sprite_index] != NULL) {

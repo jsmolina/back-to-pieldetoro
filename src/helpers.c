@@ -14,7 +14,7 @@
 #define LANG_ES 1
 #endif
 
-#define PRINT_SLOW_DELAY_MS 100
+#define PRINT_SLOW_DELAY_MS 10
 
 #if defined(LANG_EN)
 static const char* const game_texts[TXT_COUNT] = {

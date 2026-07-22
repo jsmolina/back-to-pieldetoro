@@ -1125,7 +1125,7 @@ void player_anime_update() {
     player.anime_count++;
 }
 inline void player_draw(int scroll_x) {
-    if (player.hurt_cooldown > 0 && ((player.hurt_cooldown / PLAYER_BLINK_INTERVAL) & 1) == 0) {
+    if (player.hurt_cooldown > 0 && ((player.hurt_cooldown >> 1) & 1) == 0) {
         return;
     }
 

@@ -89,6 +89,7 @@ typedef struct {
     unsigned int state;
     unsigned int prev_state;
     int hits; // number of hits taken, used for enemies that require multiple hits to die
+    int hurt_cooldown;
     int active;
     int killed; // to mark if the enemy has been killed for static data
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
