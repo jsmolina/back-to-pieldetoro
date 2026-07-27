@@ -14,13 +14,15 @@ int init_enemy_throwable(int x, int y, int flip) {
         throw_cooldown--;
         return FALSE;
     }
+    // limited to two types (0 or 1)
+    int throw_type = rand() & 1;
     for (int i = 0; i < MAX_ENEMY_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == FALSE) {
             throwable_objects[i].x = x;
             throwable_objects[i].y = y;
             throwable_objects[i].flip = flip;
             throwable_objects[i].active = TRUE;
-            throwable_objects[i].type = MIC_TYPE;
+            throwable_objects[i].type = throw_type;
             throw_cooldown = THROW_COOLDOWN_FRAMES;
             return TRUE;
         }
@@ -29,14 +31,21 @@ int init_enemy_throwable(int x, int y, int flip) {
 }
 
 inline void draw_enemy_throwable(int scroll_x) {
-    BITMAP* book_bmp = dat_file[BOOK_BMP].dat;
-    if (!book_bmp) {
+    
+    BITMAP* mic_bmp = dat_file[MICROPHONE_BMP].dat;
+    BITMAP* ushanka_bmp = dat_file[USHANKA_BMP].dat;
+    if (!mic_bmp || !ushanka_bmp) {
         return; // bitmap not loaded
     }
 
     for (int i = 0; i < MAX_ENEMY_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
-            draw_sprite(current_screen, book_bmp, throwable_objects[i].x - scroll_x, throwable_objects[i].y);
+            draw_sprite(
+                current_screen, 
+                throwable_objects[i].type == MIC_TYPE ? mic_bmp : ushanka_bmp, 
+                throwable_objects[i].x - scroll_x, 
+                throwable_objects[i].y
+            );
         }
     }
 }

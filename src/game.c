@@ -1,5 +1,6 @@
 #include "game.h"
 #include "book.h"
+#include "enemy_throw.h"
 #include "coin.h"
 #include "dat_manager.h"
 #include "door.h"
@@ -320,6 +321,7 @@ void update_game_run() {
         enemy_pool_update(scroll_x);
         enemy_update(scroll_x);
         throwable_update(scroll_x);
+        enemy_throwable_update(scroll_x);
 
         break;
     }
@@ -395,12 +397,14 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
+        draw_enemy_throwable(scroll_x);
         draw_coins(scroll_x);     
         draw_platforms(scroll_x);
         if (current_level == 4) {
             draw_pieces(scroll_x);
         }
         collision_check_throwable_vs_enemy();
+        collision_check_enemy_throwable_vs_player();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
         if (current_level == 4) {

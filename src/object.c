@@ -3,6 +3,7 @@
 #include "coin.h"
 #include "door.h"
 #include "enemy.h"
+#include "enemy_throw.h"
 #include "helpers.h"
 #include "piece.h"
 #include "player.h"
@@ -179,6 +180,21 @@ void collision_check_throwable_vs_enemy() {
                 enemy_on_hit(enemy_id);
             }
         }
+    }
+}
+
+void collision_check_enemy_throwable_vs_player() {
+    collisionType boxes[MAX_ENEMY_THROWABLE_OBJECTS];
+    collisionType player_area = player_aabb();
+    enemy_throwable_get_all_aabb(boxes);
+    for (int throw_id = 0; throw_id < MAX_ENEMY_THROWABLE_OBJECTS; throw_id++) {
+        if (boxes[throw_id].w == 0)
+            continue;
+
+        // Check for collision
+        if (collision(player_area, boxes[throw_id])) {            
+            player_on_hit();            
+        }        
     }
 }
 

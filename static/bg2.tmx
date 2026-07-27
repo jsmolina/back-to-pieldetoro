@@ -92,7 +92,7 @@
    <point/>
   </object>
   <object id="29" name="PLATFORM" type="DT" x="2266" y="90" width="24" height="67"/>
-  <object id="30" name="ENEMY_BIRD" type="EL" x="2689" y="96">
+  <object id="30" name="ENEMY_BIRD" type="EL" x="2388" y="101">
    <point/>
   </object>
  </objectgroup>

@@ -70,7 +70,7 @@ static animeItem bruno_animations[11] = {
     { 60, { 14 }, 1, 60 },                                       // EFALL_END
     { 70, { 0 }, 1, 70 },                                        // EDEAD_END
     { 90, { 13,13,13, 13,13,13,14,14,14,14, 7, 8, 7,8,7,8,7,8,8,7 }, 13, 30 },   // ECROUCHING, used for impact to tree (90 = BRUNO_VULNERABLE_FRAMES)
-    { 5, { 15,0 }, 1, 0 },                                         // ETHROWING OBJECT
+    { 100, { 15,0 }, 1, 15 },                                        // ETHROWING OBJECT
 };
 // NOTE: if aseprite frame is N, here is N-1, so 14 becomes 13
 static animeItem bird_animations[11] = {
@@ -695,7 +695,10 @@ void bruno_action_move_right(int index) {
 void bruno_action_hit_tree(int index) {
     if (index < 0 || index >= MAX_ACTIVE_ENEMIES || active_enemies[index].type != ENEMY_BRUNO)
         return;
-    active_enemies[index].vx = 0;
+    if (active_enemies[index].vx != 0) {
+        active_enemies[index].vx = 0;
+        screen_shake();
+    }
     // TODO: now execute the animation while enemy_count_move is not finished
     if (enemy_count_move(index, 0, 0) == FINISHED) {
         // after animation is finished, set to ETHROWING state
@@ -720,7 +723,7 @@ void bruno_action_throw(int index) {
     // throw the object from Bruno's position, slightly above his feet
     init_enemy_throwable(
         active_enemies[index].pos.x, 
-        active_enemies[index].pos.y + active_enemies[index].data->height - 18, 
+        active_enemies[index].pos.y + 18, 
         active_enemies[index].flip
     );
     // should only be called when bruno is in ETHROWING state

@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Wed Jul 22 15:30:52 2026 */
+/* Date: Mon Jul 27 15:00:23 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
