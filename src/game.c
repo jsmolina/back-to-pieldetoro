@@ -1,13 +1,14 @@
 #include "game.h"
 #include "book.h"
-#include "enemy_throw.h"
 #include "coin.h"
 #include "dat_manager.h"
 #include "door.h"
 #include "enemy.h"
+#include "enemy_throw.h"
 #include "helpers.h"
 #include "intros.h"
 #include "object.h"
+#include "passcode.h"
 #include "pause.h"
 #include "piece.h"
 #include "platform.h"
@@ -15,7 +16,6 @@
 #include "room.h"
 #include "statics.h"
 #include "tiles.h"
-#include "passcode.h"
 #include <allegro.h>
 #include <stdio.h>
 
@@ -47,7 +47,7 @@ int megahit_mode = 0;
 int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
-BITMAP * continue_bg;
+BITMAP* continue_bg;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
@@ -199,7 +199,8 @@ void lifebar() {
         blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, 65, 5);
         */
         int width = 65;
-        for (int i = books; i < DEFAULT_STOCK; i++) width -= 5;
+        for (int i = books; i < DEFAULT_STOCK; i++)
+            width -= 5;
         if (width >= 0) {
             rectfill(screen, 83, 185, 132, 190, 19);
             blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, width, 5);
@@ -363,7 +364,7 @@ void repaint_dirty_tiles() {
     }
 }*/
 void init_per_stages() {
-     if (current_level == 1) {
+    if (current_level == 1) {
         player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
     } else if (current_level == 3) {
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -14);
@@ -382,7 +383,7 @@ inline void draw_game() {
         all_collected();
     } else if (key[KEY_D]) {
         player.pos.x += 50;
-        player.pos.y = GROUND_Y- 50;
+        player.pos.y = GROUND_Y - 50;
     }
     collisionType f2;
     int current_door_id;
@@ -413,7 +414,7 @@ inline void draw_game() {
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         draw_enemy_throwable(scroll_x);
-        draw_coins(scroll_x);     
+        draw_coins(scroll_x);
         draw_platforms(scroll_x);
         if (current_level == 4) {
             draw_pieces(scroll_x);
@@ -429,7 +430,7 @@ inline void draw_game() {
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        //textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
+        // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
@@ -543,7 +544,7 @@ inline int update_game() {
     case CONTINUE:
         continue_bg = load_shop_bg(CONTINUE_TMX);
         blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-        while(!key[KEY_Y] && !key[KEY_N]) {
+        while (!key[KEY_Y] && !key[KEY_N]) {
             vsync();
         }
         if (key[KEY_Y]) {
@@ -566,15 +567,15 @@ enum PauseMenuResult game_handle_pause(void) {
     game_pause = TRUE;
     char passcode[12];
     generate_pass(current_level, player.lives, game_money, coins_collected, passcode);
-    enum PauseMenuOption pause_choice = show_pause_menu(passcode);
+    enum MainMenuOption pause_choice = show_pause_menu(passcode);
     game_pause = FALSE;
 
     switch (pause_choice) {
-    case PAUSE_CONTINUE:
+    case NEW_GAME:
         return PAUSE_RESULT_CONTINUE;
-    case PAUSE_MENU:
+    case PASSWORD:
         return PAUSE_RESULT_RESTART;
-    case PAUSE_EXIT_TO_DOS:
+    case EXIT_TO_DOS:
         return PAUSE_RESULT_EXIT;
     default:
         return PAUSE_RESULT_CONTINUE;

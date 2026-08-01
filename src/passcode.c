@@ -1,6 +1,7 @@
+#include "passcode.h"
 #include <stdint.h>
 #include <string.h>
-#include "allegro/base.h"
+#include <allegro.h>
 
 #define XOR_SALT 0x5A3C9E7B1F4D2A8BULL
 

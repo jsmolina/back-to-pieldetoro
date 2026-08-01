@@ -13,6 +13,7 @@
 #include "platform.h"
 #include "player.h"
 #include "tiles.h"
+#include "main_menu.h"
 
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -71,7 +72,7 @@ static void wait_a_bit(int amount) {
     }
 }
 
-inline void show_main_menu() {
+inline void show_intro_menu() {
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     for (int i = 0; i < 40; i++) {
@@ -143,7 +144,7 @@ int main(int argc, char *argv[]) {
     wait_a_bit(200);
     set_palette(palette);
 
-    show_main_menu();
+    show_intro_menu();
 
     load_enemy_spritesheets();
     load_coche_spritesheet();
@@ -157,11 +158,16 @@ int main(int argc, char *argv[]) {
         switch (game_state) {
         case TITLE:
             if (key[KEY_SPACE]) {
-                game_state = GAME;
-                do {
-                } while (key[KEY_SPACE]);
-                stop_midi();
-                start_new_game();
+                while (key[KEY_SPACE]) {
+
+                }
+                if (show_main_menu() == 1) {
+                    exit_game = 1;
+                } else {
+                    game_state = GAME;
+                    stop_midi();
+                    start_new_game();
+                }
             }
             break;
         case GAME:
@@ -173,7 +179,7 @@ int main(int argc, char *argv[]) {
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
             wait_for_space();
             set_palette(palette);
-            show_main_menu();
+            show_intro_menu();
             game_state = TITLE;
             break;
         }

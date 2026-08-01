@@ -8,11 +8,11 @@
 #define PAUSE_MENU_H 87
 #define PAUSE_MENU_OPTION_COUNT 3
 #define PAUSE_OPTION_HEIGHT 30
-#define PAUSE_BG_COLOR 17       /* dark blue */
-#define PAUSE_TEXT_COLOR 67    /* yellow */
-#define PAUSE_TEXT_SELECTED_COLOR 16    /* white */
-#define PAUSE_SELECTED_COLOR 67 /* yellow */
-#define PAUSE_BORDER_COLOR 63   /* bright white */
+#define PAUSE_BG_COLOR 17            /* dark blue */
+#define PAUSE_TEXT_COLOR 67          /* yellow */
+#define PAUSE_TEXT_SELECTED_COLOR 16 /* black */
+#define PAUSE_SELECTED_COLOR 67      /* yellow */
+#define PAUSE_BORDER_COLOR 63        /* bright white */
 
 static const char* pause_menu_options[PAUSE_MENU_OPTION_COUNT] = {
     "CONTINUE",
@@ -35,9 +35,9 @@ static void draw_pause_menu(int selected, const char* passcode) {
             rectfill(screen, PAUSE_MENU_X, y - 8, PAUSE_MENU_X + PAUSE_MENU_W, y + 16, bg_color);
         }
 
-        //textprintf_ex(screen, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
+        // textprintf_ex(screen, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
         printf_at_simple(PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
-        offset_y+= PAUSE_OPTION_HEIGHT;
+        offset_y += PAUSE_OPTION_HEIGHT;
     }
     /* Draw passcode at the top of the menu */
     int passcode_y = 32;
@@ -45,8 +45,8 @@ static void draw_pause_menu(int selected, const char* passcode) {
     printf_at_simple(PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
 }
 
-enum PauseMenuOption show_pause_menu(const char* passcode) {
-    int selected = PAUSE_CONTINUE;
+enum MainMenuOption show_pause_menu(const char* passcode) {
+    int selected = NEW_GAME;
 
     while (key[KEY_ESC]) {
         vsync();
@@ -69,10 +69,10 @@ enum PauseMenuOption show_pause_menu(const char* passcode) {
             }
         } else if (key_code == KEY_ENTER || key_code == KEY_SPACE) {
             clear_keybuf();
-            return (enum PauseMenuOption)selected;
+            return (enum MainMenuOption)selected;
         } else if (key_code == KEY_ESC) {
             clear_keybuf();
-            return PAUSE_CONTINUE;
+            return NEW_GAME;
         }
     }
 }

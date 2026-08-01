@@ -28,4 +28,6 @@ void generate_pass(int level, int lifes, int money, int score, char* out_pass);
  */
 int load_pass(const char* pass, int *level, int *lifes, int *money, int *score);
 
+#define PASSCODE_LENGTH 10
+
 #endif
