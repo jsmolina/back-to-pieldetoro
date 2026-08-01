@@ -167,6 +167,8 @@ collisionType player_foot_area();
  * @return collisionType struct representing the AABB
  */
 collisionType player_aabb();
+collisionType player_leg_aabb();
+collisionType player_fist_aabb();
 void player_on_hit();
 void player_energy_up();
 

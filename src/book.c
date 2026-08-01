@@ -3,6 +3,8 @@
 #include "dat_manager.h"
 #include "statics.h"
 
+int stock = DEFAULT_STOCK;
+
 typedef struct {
     int x;
     int y;
@@ -10,15 +12,28 @@ typedef struct {
     int flip;
 } ThrowableObject;
 
-static ThrowableObject throwable_objects[MAX_THROWABLE_OBJECTS];
+void reinit_book_stock() {
+    stock = DEFAULT_STOCK;
+}
 
+int get_book_count() {
+    return stock;
+}
+
+static ThrowableObject throwable_objects[MAX_THROWABLE_OBJECTS];
+// limit the amount of throwables to make it more difficult
 int init_book(int x, int y, int flip) {
+    if (stock == 0) {
+        // no stock
+        return FALSE;
+    }
     for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == FALSE) {
             throwable_objects[i].x = x;
             throwable_objects[i].y = y;
             throwable_objects[i].flip = flip;
             throwable_objects[i].active = TRUE;
+            stock--;
             return TRUE;
         }
     }

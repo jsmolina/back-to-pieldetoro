@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Mon Jul 27 15:00:23 2026 */
+/* Date: Sat Aug  1 11:14:06 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -33,19 +33,20 @@
 #define LIFEBAR_BMP                      27       /* BMP  */
 #define LIFEBAR_BRUNO_BMP                28       /* BMP  */
 #define LIFEBAR_MARTIN_BMP               29       /* BMP  */
-#define MARTIN_SPRITESHEET_BMP           30       /* BMP  */
-#define MENU2_BMP                        31       /* BMP  */
-#define MICROPHONE_BMP                   32       /* BMP  */
-#define MONEY_BMP                        33       /* BMP  */
-#define MSDOS_MID                        34       /* MIDI */
-#define MSDOSCLUB_BMP                    35       /* BMP  */
-#define PALETE_INTRO_BMP                 36       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            37       /* PAL  */
-#define PCONDENSER_BMP                   38       /* BMP  */
-#define PFLOW_BMP                        39       /* BMP  */
-#define PFUEL_BMP                        40       /* BMP  */
-#define PIELDETORO_INTRO3_BMP            41       /* BMP  */
-#define PLATAFORMA_BMP                   42       /* BMP  */
-#define TILES_BMP                        43       /* BMP  */
-#define USHANKA_BMP                      44       /* BMP  */
+#define LIFEBAR_THROWABLE_BMP            30       /* BMP  */
+#define MARTIN_SPRITESHEET_BMP           31       /* BMP  */
+#define MENU2_BMP                        32       /* BMP  */
+#define MICROPHONE_BMP                   33       /* BMP  */
+#define MONEY_BMP                        34       /* BMP  */
+#define MSDOS_MID                        35       /* MIDI */
+#define MSDOSCLUB_BMP                    36       /* BMP  */
+#define PALETE_INTRO_BMP                 37       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            38       /* PAL  */
+#define PCONDENSER_BMP                   39       /* BMP  */
+#define PFLOW_BMP                        40       /* BMP  */
+#define PFUEL_BMP                        41       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            42       /* BMP  */
+#define PLATAFORMA_BMP                   43       /* BMP  */
+#define TILES_BMP                        44       /* BMP  */
+#define USHANKA_BMP                      45       /* BMP  */
 

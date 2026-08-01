@@ -203,6 +203,20 @@ void collision_check_enemy_throwable_vs_player() {
  *
  * TODO: Add damage cooldown to prevent multiple hits in successive frames.
  */
+static int _kick_connects(collisionType enemy) {
+    collisionType leg = player_leg_aabb();
+    if (!collision(leg, enemy))
+        return FALSE;
+    return player.flip ? enemy.x < player.pos.x : enemy.x > player.pos.x;
+}
+
+static int _punch_connects(collisionType enemy) {
+    collisionType leg = player_leg_aabb();
+    if (!collision(leg, enemy))
+        return FALSE;
+    return player.flip ? enemy.x < player.pos.x : enemy.x > player.pos.x;
+}
+
 void collision_check_enemy_vs_player(int scroll_x) {
     // Get player collision area (using foot area for main body collision)
     collisionType player_area = player_aabb();
@@ -227,11 +241,13 @@ void collision_check_enemy_vs_player(int scroll_x) {
                     continue;
                 }
             }
-
-            if (player.state == KICKING) {
+            if (player.state == THROWING && _punch_connects(enemies[enemy_id])) {
+                enemy_on_hit(enemy_id);
+            } else if (player.state == KICKING && _kick_connects(enemies[enemy_id])) {
                 enemy_on_hit(enemy_id);
             } else {
                 player_on_hit();
+                continue;
             }
         }
     }

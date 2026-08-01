@@ -382,6 +382,24 @@ inline collisionType player_foot_area() {
     return ret;
 }
 
+collisionType player_leg_aabb() {
+    return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y + 20,
+            .w = 24,
+            .h = 15
+        };
+}
+
+collisionType player_fist_aabb() {
+    return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y + 10,
+            .w = 24,
+            .h = 10
+        };
+}
+//84x16
 inline collisionType player_aabb() {
     if (player.data == NULL || player.data->height == 0 || player.data->width == 0) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -1034,6 +1052,7 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
+        reinit_book_stock();
         if (megahit_mode == 0) {
             player.lives--;
         }

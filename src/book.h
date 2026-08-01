@@ -3,6 +3,7 @@
 
 #include "helpers.h"
 #define MAX_THROWABLE_OBJECTS 2
+#define DEFAULT_STOCK 13
 /**
  * @file book.h
  * @brief Header file for managing throwable objects (books) in the game
@@ -43,6 +44,9 @@ void book_get_all_aabb(collisionType* boxes);
  * @param index the index of the throwable object to be marked as hit. Must be between 0 and MAX_THROWABLE_OBJECTS - 1.
  */
 void book_on_hit(int index);
+
+void reinit_book_stock();
+int get_book_count();
 
 //collisionType throwable_get_aabb(int index);
 // TODO: implement throwable on hit

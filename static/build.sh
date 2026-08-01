@@ -40,6 +40,7 @@ dat datos.dat -a ./pflow.bmp -h statics.h -t BMP
 dat datos.dat -a ./microphone.bmp -h statics.h -t BMP
 dat datos.dat -a ./ushanka.bmp -h statics.h -t BMP
 dat datos.dat -a ./rama.bmp -h statics.h -t BMP
+dat datos.dat -a ./lifebar_throwable.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

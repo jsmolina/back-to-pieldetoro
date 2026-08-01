@@ -55,6 +55,7 @@ static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
 static int hud_last_coins = -1;
+static int hud_last_books = -1;
 static int hud_last_pieces_collected = -1;
 static int hud_last_pieces_total = -1;
 static int coins_collected = 0;
@@ -190,6 +191,20 @@ void lifebar() {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
         printf_at_simple(255, 185, 41, -1, "%6d", money);
         hud_last_coins = money;
+    }
+
+    int books = get_book_count();
+    if (force_full_redraw || hud_last_books != books) {
+        /*rect(screen, 83, 185, 132, 190, 19);
+        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, 65, 5);
+        */
+        int width = 65;
+        for (int i = books; i < DEFAULT_STOCK; i++) width -= 5;
+        if (width >= 0) {
+            rectfill(screen, 83, 185, 132, 190, 19);
+            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, width, 5);
+        }
+        hud_last_books = books;
     }
 
     hud_last_level = current_level;
