@@ -12,10 +12,19 @@ typedef enum  {
     EXIT_TO_DOS = 2,
 } MainMenuOption;
 
+typedef struct {
+    MainMenuOption selected;
+    int lives;
+    int current_level;
+    int money; 
+    int score;
+    int books;
+} MainMenuResult;
+
 /**
  * @brief Shows the menu and handles input.
- * @return Selected menu option 
+ * @return MainMenuResult with menu option 
  */
-MainMenuOption show_main_menu();
+MainMenuResult show_main_menu();
 
 #endif

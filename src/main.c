@@ -161,8 +161,20 @@ int main(int argc, char *argv[]) {
                 while (key[KEY_SPACE]) {
 
                 }
-                if (show_main_menu() == 1) {
+                MainMenuResult res = show_main_menu();
+                if (res.selected == EXIT_TO_DOS) {
                     exit_game = 1;
+                } else if(res.selected == PASSWORD) {
+                    game_state = GAME;
+                    stop_midi();
+                    start_new_game();
+                    // now continue
+                    continue_game(
+                        res.current_level, 
+                        res.lives, 
+                        res.lives, 
+                        res.score
+                    );
                 } else {
                     game_state = GAME;
                     stop_midi();

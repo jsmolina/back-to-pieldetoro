@@ -211,6 +211,19 @@ void lifebar() {
     hud_last_level = current_level;
 }
 
+/**
+* Loads current background
+*/
+static void load_by_stage() {
+    int dat_id = level_to_dat_id(current_level);
+    if (current_level > 0) {
+        current_background = load_background(dat_id);
+        world_state = START_STAGE;
+    } else {
+        world_state = CONTINUE;
+    }
+}
+
 void advance_stage() {
     remove_int(_stage_tick);
     int secs = stage_tick_count;
@@ -229,13 +242,17 @@ void advance_stage() {
     }
 
     current_level++;
-    int dat_id = level_to_dat_id(current_level);
-    if (current_level > 0) {
-        current_background = load_background(dat_id);
-        world_state = START_STAGE;
-    } else {
-        world_state = CONTINUE;
-    }
+    load_by_stage();
+}
+
+
+
+void continue_game(int cl, int l, int m, int s) {
+    current_level = cl;
+    player.lives = l;
+    m = m;
+    reinit_book_stock();
+    load_by_stage();
 }
 
 // loads first level and passes it to scroller bitmap
@@ -565,8 +582,13 @@ inline int update_game() {
 
 enum PauseMenuResult game_handle_pause(void) {
     game_pause = TRUE;
-    char passcode[12];
-    generate_pass(current_level, player.lives, game_money, coins_collected, passcode);
+    char passcode[15];
+    generate_pass(
+        current_level,
+        player.lives,
+        game_money,
+        0,
+        passcode);
     enum MainMenuOption pause_choice = show_pause_menu(passcode);
     game_pause = FALSE;
 

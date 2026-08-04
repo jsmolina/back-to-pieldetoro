@@ -47,6 +47,7 @@ void book_on_hit(int index);
 
 void reinit_book_stock();
 int get_book_count();
+void set_book_count(int b);
 
 //collisionType throwable_get_aabb(int index);
 // TODO: implement throwable on hit

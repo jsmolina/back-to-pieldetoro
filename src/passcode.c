@@ -5,7 +5,7 @@
 
 #define XOR_SALT 0x5A3C9E7B1F4D2A8BULL
 
-const char BASE32_ALPHABET[] = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const char BASE32_ALPHABET[] = "ABCDEFGHJKMNPQRSTUVWXYZ012346789";
 
 typedef struct {
     uint8_t level;   // 6 bits (0-63)

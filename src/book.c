@@ -16,6 +16,10 @@ void reinit_book_stock() {
     stock = DEFAULT_STOCK;
 }
 
+void set_book_count(int b) {
+    stock = b;
+}
+
 int get_book_count() {
     return stock;
 }

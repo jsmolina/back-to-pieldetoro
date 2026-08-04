@@ -1,4 +1,6 @@
 #include "pause.h"
+#include "allegro/gfx.h"
+#include "allegro/text.h"
 #include "helpers.h"
 #include <allegro.h>
 
@@ -42,7 +44,9 @@ static void draw_pause_menu(int selected, const char* passcode) {
     /* Draw passcode at the top of the menu */
     int passcode_y = 32;
     rectfill(screen, PAUSE_MENU_X, passcode_y - 8, PAUSE_MENU_X + PAUSE_MENU_W, passcode_y + 16, PAUSE_BG_COLOR);
-    printf_at_simple(PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
+    //printf_at_simple(PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
+    textprintf_ex(
+        screen, font, PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
 }
 
 enum MainMenuOption show_pause_menu(const char* passcode) {
