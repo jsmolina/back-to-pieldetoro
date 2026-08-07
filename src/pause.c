@@ -49,8 +49,8 @@ static void draw_pause_menu(int selected, const char* passcode) {
         screen, font, PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
 }
 
-enum MainMenuOption show_pause_menu(const char* passcode) {
-    int selected = NEW_GAME;
+enum PauseMenuOption show_pause_menu(const char* passcode) {
+    int selected = PCONTINUE;
 
     while (key[KEY_ESC]) {
         vsync();
@@ -73,10 +73,10 @@ enum MainMenuOption show_pause_menu(const char* passcode) {
             }
         } else if (key_code == KEY_ENTER || key_code == KEY_SPACE) {
             clear_keybuf();
-            return (enum MainMenuOption)selected;
+            return (enum PauseMenuOption)selected;
         } else if (key_code == KEY_ESC) {
             clear_keybuf();
-            return NEW_GAME;
+            return PCONTINUE;
         }
     }
 }

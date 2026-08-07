@@ -85,6 +85,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && strcmp(argv[1], "megahit") == 0) {
         megahit_mode = 1;
     }
+    MainMenuResult res;
 
     RGB black = { 16, 16, 16, 0 };
 
@@ -156,30 +157,26 @@ int main(int argc, char *argv[]) {
     short exit_game = 0;
     do {
         switch (game_state) {
-        case TITLE:
-            if (key[KEY_SPACE]) {
-                while (key[KEY_SPACE]) {
-
-                }
-                MainMenuResult res = show_main_menu();
-                if (res.selected == EXIT_TO_DOS) {
-                    exit_game = 1;
-                } else if(res.selected == PASSWORD) {
-                    game_state = GAME;
-                    stop_midi();
-                    start_new_game();
-                    // now continue
-                    continue_game(
-                        res.current_level, 
-                        res.lives, 
-                        res.lives, 
-                        res.score
-                    );
-                } else {
-                    game_state = GAME;
-                    stop_midi();
-                    start_new_game();
-                }
+        case TITLE:            
+            res = show_main_menu();
+            if (res.selected == EXIT_TO_DOS) {
+                exit_game = 1;
+            } else if(res.selected == PASSWORD) {
+                game_state = GAME;
+                stop_midi();
+                start_new_game();
+                // now continue
+                continue_game(
+                    res.current_level,
+                    res.lives,
+                    res.money,
+                    res.score,
+                    res.books
+                );
+            } else {
+                game_state = GAME;
+                stop_midi();
+                start_new_game();
             }
             break;
         case GAME:
@@ -208,7 +205,6 @@ int main(int argc, char *argv[]) {
                 case PAUSE_RESULT_RESTART:
                     stop_midi();
                     game_state = TITLE; // go back to title/menu
-                    show_main_menu();
                     break;
                 case PAUSE_RESULT_EXIT:
                     stop_midi();
@@ -229,7 +225,7 @@ int main(int argc, char *argv[]) {
     // destroy_bitmap(scroller);
     unload_game_memory();
     // unload_datafile(dat_file);
-    printf("Enjoyed playing? See you soon!\n");
+    allegro_message("Enjoyed playing? See you soon!\n");
     clear_keybuf();
     return 0;
 }

@@ -1,4 +1,5 @@
 #include "main_menu.h"
+#include "allegro/gfx.h"
 #include "allegro/keyboard.h"
 #include "allegro/text.h"
 #include "dat_manager.h"
@@ -18,7 +19,7 @@
 #define MENU_MENU_TEXT_SELECTED_COLOR 31 /* white */
 #define MENU_MENU_SELECTED_COLOR 67      /* yellow */
 #define MENU_MENU_BORDER_COLOR 63        /* bright white */
-#define PASSCODE_Y 80
+#define PASSCODE_Y 40
 
 static const char* main_menu_options[MAIN_MENU_OPTION_COUNT] = {
     "START",
@@ -30,7 +31,7 @@ static int show_menu = 1;
 static int read_passcode(char* buf) {
     int len = 0;
     buf[0] = '\0';
-    rectfill(screen, MAIN_MENU_X, PASSCODE_Y - 8, MAIN_MENU_X + MAIN_MENU_W, PASSCODE_Y + 16, 21);
+    rectfill(screen, MAIN_MENU_X, PASSCODE_Y - 8, MAIN_MENU_X + 155, PASSCODE_Y + 16, 21);
     textprintf_ex(screen, font, 
         MAIN_MENU_X + 20, 
         PASSCODE_Y, 
@@ -63,21 +64,22 @@ static int read_passcode(char* buf) {
 static void draw_main_menu(int selected) {
     BITMAP* minicar = dat_file[MINICAR_BMP].dat;
     BITMAP* bg = dat_file[MENU2_BMP].dat;
-    int total_h = MAIN_MENU_OPTION_COUNT * MENU_MENU_OPTION_HEIGHT + 6;
+    BITMAP* menu_sprite = dat_file[TEXT_MENU_BMP].dat;
     int car_x = MAIN_MENU_X - minicar->w - 2;
     /* restore background over the whole menu strip so the car cursor does not ghost */
-    blit(bg, screen, car_x, MAIN_MENU_Y + 40, car_x, MAIN_MENU_Y,
-         MAIN_MENU_X + MAIN_MENU_W - car_x, total_h + 1);
+    
+    blit(bg, screen, 0, 40, 0, 0,
+         SCREEN_W, SCREEN_H);
     if (show_menu == 1) {
-        rectfill(screen, MAIN_MENU_X, MAIN_MENU_Y, MAIN_MENU_X + MAIN_MENU_W, MAIN_MENU_Y + total_h, MENU_MENU_BG_COLOR);
+        // maybe 70
+        draw_sprite(screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
         int offset_y = MAIN_MENU_Y + 4;
-        for (int i = 0; i < MAIN_MENU_OPTION_COUNT; i++) {
-            int fg = (i == selected) ? MENU_MENU_TEXT_SELECTED_COLOR : MENU_MENU_TEXT_COLOR;
-            if (i == selected && minicar)
-                draw_sprite(screen, minicar, car_x, offset_y - 4);
-            printf_at_simple(MAIN_MENU_X + 4, offset_y, fg, -1, "%s", main_menu_options[i]);
-            offset_y += MENU_MENU_OPTION_HEIGHT;
+        // TODO offset_y should increase +19 based on selected item        
+        for (int i = 0; i < selected; i++) {
+            offset_y += 19;
         }
+        draw_sprite(screen, minicar, car_x, offset_y - 4);
+       
     }
 }
 
@@ -108,20 +110,21 @@ MainMenuResult show_main_menu() {
             }
         } else if (show_menu == 1 && key_code == KEY_ENTER ) {
             clear_keybuf();
-            if (res.selected == 1) {
+            if (res.selected == PASSWORD) {
                 /* Draw passcode write */
                 clear_keybuf();
                 while(key[KEY_ENTER]) {
                     
                 };
-                char buf[PASSCODE_LENGTH];
+                char buf[PASSCODE_LENGTH + 1];
                 read_passcode( buf);
                 if (strlen(buf) && 
-                    load_pass(buf, 
-                        &res.current_level, 
-                        &res.lives, 
-                        &res.money, 
-                        &res.score) == TRUE) {
+                    load_pass(buf,
+                        &res.current_level,
+                        &res.lives,
+                        &res.money,
+                        &res.score,
+                        &res.books) == TRUE) {
                       return res;
                 }                
             }
@@ -132,5 +135,6 @@ MainMenuResult show_main_menu() {
         }  else if (key_code == KEY_ESC || key_code == KEY_SPACE) {
             show_menu = !show_menu;
         }
+        vsync();
     }
 }

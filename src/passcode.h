@@ -12,9 +12,10 @@
  * @param lifes The number of lifes.
  * @param money The amount of money.
  * @param score The current score.
+ * @param books The number of books in stock (0-15).
  * @param out_pass Buffer to store the generated passcode (must be at least 11 characters).
  */
-void generate_pass(int level, int lifes, int money, int score, char* out_pass);
+void generate_pass(int level, int lifes, int money, int score, int books, char* out_pass);
 
 /**
  * @brief Load and validate a game passcode.
@@ -24,9 +25,10 @@ void generate_pass(int level, int lifes, int money, int score, char* out_pass);
  * @param lifes Pointer to store the loaded number of lifes.
  * @param money Pointer to store the loaded amount of money.
  * @param score Pointer to store the loaded score.
+ * @param books Pointer to store the loaded book stock.
  * @return TRUE if the passcode is valid, FALSE otherwise.
  */
-int load_pass(const char* pass, int *level, int *lifes, int *money, int *score);
+int load_pass(const char* pass, int *level, int *lifes, int *money, int *score, int *books);
 
 #define PASSCODE_LENGTH 10
 

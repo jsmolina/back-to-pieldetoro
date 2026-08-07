@@ -247,11 +247,12 @@ void advance_stage() {
 
 
 
-void continue_game(int cl, int l, int m, int s) {
+void continue_game(int cl, int liv, int mon, int sco, int books) {
     current_level = cl;
-    player.lives = l;
-    m = m;
-    reinit_book_stock();
+    player.lives = liv;
+    game_money = mon;
+    player_energy_up();
+    set_book_count(books);
     load_by_stage();
 }
 
@@ -588,16 +589,17 @@ enum PauseMenuResult game_handle_pause(void) {
         player.lives,
         game_money,
         0,
+        get_book_count(),
         passcode);
-    enum MainMenuOption pause_choice = show_pause_menu(passcode);
+    enum PauseMenuOption pause_choice = show_pause_menu(passcode);
     game_pause = FALSE;
 
     switch (pause_choice) {
-    case NEW_GAME:
+    case PCONTINUE:
         return PAUSE_RESULT_CONTINUE;
-    case PASSWORD:
+    case PMENU:
         return PAUSE_RESULT_RESTART;
-    case EXIT_TO_DOS:
+    case PEXIT_TO_DOS:
         return PAUSE_RESULT_EXIT;
     default:
         return PAUSE_RESULT_CONTINUE;
