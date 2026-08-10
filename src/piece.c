@@ -106,7 +106,7 @@ void load_level_pieces(int level_id) {
 }
 
 inline void draw_pieces(int scroll_x) {
-    printf_at_ingame(10, 10, 71, -1, "PIECES: %d", remaining_pieces);
+    printf_at_ingame(10, 10, 71, 1, "PIECES: %d", remaining_pieces);
     
     for (int i = 0; i < piece_count; i++) {
         if (pieces[i].active && !pieces[i].collected) {

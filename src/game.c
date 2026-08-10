@@ -152,7 +152,7 @@ void lifebar() {
         int year = 1982;
         if (current_level == 1 || current_level == 2) {
             year = 2026;
-        } else if (current_level == 4) {
+        } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -286,7 +286,11 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - 160;
+    if (current_level != 1) {
+        scroll_x = player.pos.x - 160;
+    } else {
+        scroll_x = player.pos.x - 120;
+    }
     if (scroll_x < 0)
         scroll_x = 0;
 
@@ -421,7 +425,7 @@ inline void draw_game() {
     default:
         if (current_level == 3 || current_level == 2) {
             sea_sparkle();
-        } else if (current_level == 4) {
+        } else if (current_level == LEVEL_MOUNTAIN) {
             cascade_palette();
         }
         /* Draw background and player sprite first. Only call player_foot_area
@@ -434,14 +438,14 @@ inline void draw_game() {
         draw_enemy_throwable(scroll_x);
         draw_coins(scroll_x);
         draw_platforms(scroll_x);
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
         collision_check_throwable_vs_enemy();
         collision_check_enemy_throwable_vs_player();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             collision_check_player_vs_pieces();
         }
         lifebar();
@@ -479,7 +483,7 @@ void start_stage() {
         load_level_platforms(current_level);
         reset_coins();
         load_level_coins(current_level);
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
         } else {
@@ -529,7 +533,7 @@ inline int update_game() {
             reset_coins();
             load_level_coins(current_level);
         }
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
         }

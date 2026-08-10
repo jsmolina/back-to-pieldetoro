@@ -454,15 +454,14 @@ static inline void player_in_level4() {
             }
         }
     } else {
-        if (almanac_tile_x >= 0 && piece_get_remaining() > 0) {
+        if (almanac_tile_x >= 0 && piece_get_remaining() == 0) {
             if (player.pos.x >= almanac_tile_x) {
                 player.pos.x = almanac_tile_x - 1;
                 if (player.vx > 0) {
                     player.vx = 0;
+                    player.boss_mode = TRUE;
                 }
             }
-        } else {
-            player.boss_mode = TRUE;
         }
     }
 }
@@ -475,7 +474,7 @@ static void player_clamp_to_map_bounds(int current_level) {
         }
     }
 
-    if (current_level == 4) {
+    if (current_level == LEVEL_MOUNTAIN) {
         player_in_level4();
     }
 
