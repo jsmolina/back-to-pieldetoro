@@ -409,10 +409,7 @@ inline void draw_game() {
     } else if (key[KEY_F2]) {
         all_collected();
         player.pos.x = almanac_tile_x -1;
-    } else if (key[KEY_D]) {
-        player.pos.x += 50;
-        player.pos.y = GROUND_Y - 50;
-    }
+    } 
     collisionType f2;
     int current_door_id;
 

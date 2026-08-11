@@ -46,12 +46,6 @@ void gfx_init_timer() {
     install_int_ex(gfx_timer_proc, BPS_TO_TIMER(70));
     install_int_ex(gfx_fps_proc, BPS_TO_TIMER(1));
 }
-static volatile long speed_counter = 0;
-
-void increment_speed_counter() {
-    speed_counter++;
-}
-END_OF_FUNCTION(increment_speed_counter);
 
 static int skip_fli_on_space(void) {
     return key[KEY_SPACE] ? 1 : 0;
@@ -156,6 +150,15 @@ int main(int argc, char *argv[]) {
 
     short exit_game = 0;
     do {
+        /* pace the loop on the 70Hz PIT timer, not on vsync: dosbox-x does not
+           reliably block on retrace, so vsync alone lets the game run too fast.
+           the timer flag caps us at 70 logic frames/sec on any machine. */
+        while (update_count == 0) {
+            rest(1);
+        }
+        update_count = 0;
+        frame_count++;
+
         switch (game_state) {
         case TITLE:            
             res = show_main_menu();

@@ -1,6 +1,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "allegro/text.h"
+#include "helpers.h"
 #include "intro_statics.h"
 #include "dat_manager.h"
 
@@ -35,10 +37,13 @@ DATAFILE * extract_data() {
     intro_dat_file = load_datafile("intro.dat");
     blit(intro_dat_file[CARS2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     //install_int(rotar_paleta, 100);
+    textprintf_ex(screen, font, 105, 184, 2, 15, "LOADING...");
     install_int_ex(rotar_paleta, BPS_TO_TIMER(40));
     dat_file = load_datafile("datos.dat");
  
     remove_int(rotar_paleta);
+    textprintf_ex(screen, font, 105, 184, 2, 15, "PRESS SPACE");
+    wait_for_space();
     return dat_file;
     //fclose(input);
 }
