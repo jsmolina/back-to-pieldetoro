@@ -27,6 +27,8 @@
 #define BRUNO_TREE_MARGIN 32
 #define BRUNO_MOVE_SPEED 2
 #define BRUNO_VULNERABLE_FRAMES 180
+#define BRUNO_CROUCH_LEFT_CUT 16
+#define BRUNO_CROUCH_RIGHT_CUT 16
 #define BRUNO_HURT_COOLDOWN_FRAMES 60
 #define BOMB_HURTBOX_TOP_CUT 6
 #define BOMB_HURTBOX_SIDE_CUT 1
@@ -69,7 +71,7 @@ static animeItem bruno_animations[11] = {
     { 30, { 0 }, 1, 30 },                                        // EDEAD
     { 60, { 14 }, 1, 60 },                                       // EFALL_END
     { 70, { 0 }, 1, 70 },                                        // EDEAD_END
-    { 90, { 13,13,13, 13,13,13,14,14,14,14, 7, 8, 7,8,7,8,7,8,8,7 }, 13, 30 },   // ECROUCHING, used for impact to tree (90 = BRUNO_VULNERABLE_FRAMES)
+    { BRUNO_VULNERABLE_FRAMES, { 13,13,13, 13,13,13,14,14,14,14, 7, 8, 7,8,7,8,7,8,8,7 }, 13, 30 },   // ECROUCHING, used for impact to tree
     { 100, { 15,0 }, 1, 15 },                                        // ETHROWING OBJECT
 };
 // NOTE: if aseprite frame is N, here is N-1, so 14 becomes 13
@@ -841,7 +843,11 @@ static inline void _spawn_from_static(int spawn_index) {
     if (spawn_index < 0 || spawn_index >= MAX_SPAWNABLE_ENEMIES) {
         return;
     }
-
+    if (player.boss_mode != TRUE && spawnable_enemies[spawn_index].type == ENEMY_BRUNO) {
+        // not yet until in boss mode
+        return; 
+    }
+    
     int slot = _find_free_active_slot();
     if (slot < 0) {
         return; // no room
@@ -862,6 +868,9 @@ void enemy_get_all_aabb(collisionType* enemies) {
             if (data) {
                 enemies[i].w = data->width;
                 enemies[i].h = data->height;
+                if (active_enemies[i].flip == TRUE) {
+                    enemies[i].w -= 5;
+                }
 
                 if (active_enemies[i].type == ENEMY_BOMB) {
                     int side_cut = BOMB_HURTBOX_SIDE_CUT;

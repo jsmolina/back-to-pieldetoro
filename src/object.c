@@ -241,9 +241,10 @@ void collision_check_enemy_vs_player(int scroll_x) {
                     continue;
                 }
             }
-            if (player.state == THROWING && _punch_connects(enemies[enemy_id])) {
+
+            if (player.state == THROWING ) {
                 enemy_on_hit(enemy_id);
-            } else if (player.state == KICKING && _kick_connects(enemies[enemy_id])) {
+            } else if (player.state == KICKING ) {
                 enemy_on_hit(enemy_id);
             } else {
                 player_on_hit();

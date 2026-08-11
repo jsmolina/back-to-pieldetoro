@@ -383,12 +383,19 @@ inline collisionType player_foot_area() {
 }
 
 collisionType player_leg_aabb() {
-    return (collisionType){
-            .x = player.pos.x,
-            .y = player.pos.y + 20,
-            .w = 24,
-            .h = 15
-        };
+     collisionType box = {
+        .x = player.pos.x,
+        .y = player.pos.y + 20,
+        .w = 24,
+        .h = 15
+    };
+    if (player.flip == TRUE) {   // facing left: extend the left edge
+        box.x -= 5;
+        box.w += 5;
+    } else {                     // facing right: extend the right edge
+        box.w += 5;
+    }
+    return box;
 }
 
 collisionType player_fist_aabb() {
@@ -416,9 +423,9 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == KICKING) {
         return (collisionType){
-            .x = player.pos.x,
+            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
             .y = player.pos.y,
-            .w = 24,
+            .w = player.flip == FALSE? 24 : 18,
             .h = 40
         };
     } else if (player.state == RUNNING_CROUCH) {
@@ -427,6 +434,13 @@ inline collisionType player_aabb() {
             .y = player.pos.y + 10,
             .w = 20,
             .h = 36
+        };
+    } else if (player.state == THROWING) {
+        collisionType box = {
+            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
+            .y = player.pos.y + 20,
+            .w = player.flip == FALSE? 24 : 18,
+            .h = 15
         };
     } else {
         return (collisionType){
@@ -445,10 +459,11 @@ inline collisionType player_aabb() {
  *     and cannot return left to the normal map to fight the boss
  */
 static inline void player_in_level4() {
+    int leftside = map_pixel_width - SCREEN_W;
     if (player.boss_mode == TRUE) {
-        int leftside = map_pixel_width - SCREEN_W;
         if (player.pos.x < leftside) {
-            player.pos.x = leftside;
+            player.pos.x += 1;
+            //player.pos.x = leftside;
             if (player.vx < 0) {
                 player.vx = 0;
             }
