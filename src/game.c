@@ -352,6 +352,11 @@ void update_game_run() {
             world_state = STAGE_CLEAR;
             return;
         }
+        
+        if (current_level == LEVEL_MOUNTAIN && player.boss_mode == TRUE && boss_hits >= BOSS_HITS_TO_KILL) {
+            world_state = STAGE_CLEAR;
+        }
+
         if (player_is_deading()) {
             world_state = PLAYER_FALL;
             return;
@@ -359,7 +364,7 @@ void update_game_run() {
         enemy_pool_update(scroll_x);
         enemy_update(scroll_x);
         throwable_update(scroll_x);
-        enemy_throwable_update(scroll_x);
+        enemy_throwable_update(scroll_x);        
 
         break;
     }
@@ -450,6 +455,14 @@ inline void draw_game() {
             collision_check_player_vs_pieces();
         }
         lifebar();
+        if (player.boss_mode == TRUE) {
+            // TODO reduce 50, based on bruno enemy life
+            int width = 50;  
+            for (int i = 0; i < boss_hits; i++) {
+                width -= 5;
+            }
+            blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120, 2, width, 5);
+        }
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);

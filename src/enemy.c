@@ -29,7 +29,7 @@
 #define BRUNO_VULNERABLE_FRAMES 180
 #define BRUNO_CROUCH_LEFT_CUT 16
 #define BRUNO_CROUCH_RIGHT_CUT 16
-#define BRUNO_HURT_COOLDOWN_FRAMES 60
+#define BRUNO_HURT_COOLDOWN_FRAMES 40
 #define BOMB_HURTBOX_TOP_CUT 6
 #define BOMB_HURTBOX_SIDE_CUT 1
 
@@ -46,6 +46,7 @@
 static EnemyData enemy_data[TOTAL_ENEMY_DATA]; // static data for each enemy type
 static Enemy spawnable_enemies[MAX_SPAWNABLE_ENEMIES];
 static Enemy active_enemies[MAX_ACTIVE_ENEMIES];
+int boss_hits = 0;
 
 static animeItem joven_animations[11] = {
     { 0, { 0 }, 0, -1 },                                         // NONE
@@ -843,9 +844,12 @@ static inline void _spawn_from_static(int spawn_index) {
     if (spawn_index < 0 || spawn_index >= MAX_SPAWNABLE_ENEMIES) {
         return;
     }
-    if (player.boss_mode != TRUE && spawnable_enemies[spawn_index].type == ENEMY_BRUNO) {
-        // not yet until in boss mode
-        return; 
+    if (spawnable_enemies[spawn_index].type == ENEMY_BRUNO) {
+        if (player.boss_mode != TRUE) {
+            return;
+        } else {
+            boss_hits = 0;
+        }
     }
     
     int slot = _find_free_active_slot();
@@ -909,8 +913,8 @@ void enemy_on_hit(int enemy_id) {
             return;
         }
         active_enemies[enemy_id].hurt_cooldown = BRUNO_HURT_COOLDOWN_FRAMES;
-        active_enemies[enemy_id].hits++;
-        if (active_enemies[enemy_id].hits < BOSS_HITS_TO_KILL) {
+        boss_hits++;
+        if (boss_hits < BOSS_HITS_TO_KILL) {
             return;
         }
     }

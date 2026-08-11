@@ -95,6 +95,9 @@ typedef struct {
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
 } Enemy;
 
+// is the number of hits of the boss
+extern int boss_hits;
+
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *
  */

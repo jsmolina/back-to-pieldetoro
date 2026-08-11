@@ -38,7 +38,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "HOW DO YOU THINK OF BUYING THIS?",
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",
-    "NOW WE HAVE TO RECOVER THE PIECES"    
+    "NOW WE HAVE TO RECOVER THE PIECES",
+    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD"
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -62,7 +63,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "COMO SE TE OCURRE COMPRAR ESTO?",
     "GANAR ALGUNA APUESTICA, NEN",
     "NOS LO HA ROBADO Y SE LA HA PEGADO",
-    "AHORA HAY QUE RECUPERAR LAS PIEZAS"
+    "AHORA HAY QUE RECUPERAR LAS PIEZAS",
+    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA"
 };
 #endif
 
