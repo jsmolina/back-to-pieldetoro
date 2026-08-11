@@ -22,53 +22,53 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1376,
-                "y": 119.75
+                "y": 98.375
             }
         },
         "bg1.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.6982,
+            "scale": 3.3427,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1200.094217406666,
-                "y": 100.40042397833001
+                "x": 1199.9282017530738,
+                "y": 100.06880665330421
             }
         },
         "bg1_shop.tmx": {
             "scale": 2.4943,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 171.99214208395142,
-                "y": 121.67742452792366
+                "x": 159.96471956059816,
+                "y": 100.02806398588781
             }
         },
         "bg2.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3.3005,
+            "scale": 3.195,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1845.477957885169,
-                "y": 114.67959400090895
+                "x": 2423.474178403756,
+                "y": 77.62128325508607
             }
         },
         "bg2_shop.tmx": {
             "scale": 1.9608,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 150.4487964096287,
-                "y": 99.70420236638105
+                "x": 160.13871889024887,
+                "y": 100.21419828641372
             }
         },
         "bg3.tmx": {
             "scale": 3.1204,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 312.13946929880785,
-                "y": 99.98718113062426
+                "x": 312.1394692988078,
+                "y": 100.14741699782078
             }
         },
         "bg4.tmx": {
@@ -79,15 +79,15 @@
             "selectedLayer": 1,
             "viewCenter": {
                 "x": 1600,
-                "y": 99.83333333333333
+                "y": 99.66666666666667
             }
         },
         "continue.tmx": {
             "scale": 1.8855,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 161.7608061522143,
-                "y": 157.25271811190666
+                "x": 160.1697162556351,
+                "y": 99.97348183505702
             }
         },
         "level1.tmx": {
@@ -103,7 +103,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 100
+                "y": 99.75
             }
         },
         "tiles.tsx": {
@@ -122,10 +122,12 @@
         "bg1.tmx",
         "tiles.tsx",
         "bg4.tmx",
-        "bg1_shop.tmx",
+        "continue.tmx",
         "test.tmx",
         "bg3.tmx",
-        "bg2.tmx"
+        "bg2.tmx",
+        "bg1_shop.tmx",
+        "bg2_shop.tmx"
     ],
     "project": "level1.tiled-project",
     "property.type": "int",
@@ -134,9 +136,11 @@
         "bg1.tmx",
         "tiles.tsx",
         "bg4.tmx",
-        "bg1_shop.tmx",
+        "continue.tmx",
         "test.tmx",
         "bg3.tmx",
+        "bg2_shop.tmx",
+        "bg1_shop.tmx",
         "bg2.tmx",
         "level1.tmx",
         "bg0 copia.tmx"

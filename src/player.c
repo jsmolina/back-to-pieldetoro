@@ -6,6 +6,7 @@
 #include "game.h"
 #include "helpers.h"
 #include "object.h"
+#include "piece.h"
 #include "platform.h"
 #include "player.h"
 
@@ -13,6 +14,7 @@
 #include "tiles.h"
 #include <allegro.h>
 #include <math.h>
+#include <stdio.h>
 
 #define CAR_WIDTH 105
 #define MARTIN_WIDTH 24
@@ -138,7 +140,7 @@ static int kick_key_freed() {
     return FALSE;
 }
 
-static void player_clamp_to_map_bounds();
+static void player_clamp_to_map_bounds(int current_level);
 
 void player_new_game() {
     player.energy = PLAYER_DEFAULT_ENERGY;
@@ -157,6 +159,8 @@ void player_init(int x, int y, int current_level, int max_vx, int jump_vy) {
     player.anime_count = 0;
     player.anime_index = 0;
     player.flip = FALSE;
+    player.boss_mode = FALSE;
+    player.hurt_cooldown = 0;
     player.max_vx = max_vx;
     player.sprite_index = 0;
     player.animations = current_level == LEVEL_ID_INTRO ? car_animations : martin_animations;
@@ -251,6 +255,14 @@ static void player_change_state(unsigned int state) {
 }
 void player_energy_up() {
     player.energy = PLAYER_DEFAULT_ENERGY;
+}
+
+void player_life_up() {
+    player.lives++;
+}
+
+void player_throwable_up() {
+    player.throwable_count++;
 }
 
 void player_on_hit() {
@@ -370,6 +382,31 @@ inline collisionType player_foot_area() {
     return ret;
 }
 
+collisionType player_leg_aabb() {
+     collisionType box = {
+        .x = player.pos.x,
+        .y = player.pos.y + 20,
+        .w = 24,
+        .h = 15
+    };
+    if (player.flip == TRUE) {   // facing left: extend the left edge
+        box.x -= 5;
+        box.w += 5;
+    } else {                     // facing right: extend the right edge
+        box.w += 5;
+    }
+    return box;
+}
+
+collisionType player_fist_aabb() {
+    return (collisionType){
+            .x = player.pos.x,
+            .y = player.pos.y + 10,
+            .w = 24,
+            .h = 10
+        };
+}
+//84x16
 inline collisionType player_aabb() {
     if (player.data == NULL || player.data->height == 0 || player.data->width == 0) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -386,9 +423,9 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == KICKING) {
         return (collisionType){
-            .x = player.pos.x,
+            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
             .y = player.pos.y,
-            .w = 24,
+            .w = player.flip == FALSE? 24 : 18,
             .h = 40
         };
     } else if (player.state == RUNNING_CROUCH) {
@@ -397,6 +434,13 @@ inline collisionType player_aabb() {
             .y = player.pos.y + 10,
             .w = 20,
             .h = 36
+        };
+    } else if (player.state == THROWING) {
+        collisionType box = {
+            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
+            .y = player.pos.y + 20,
+            .w = player.flip == FALSE? 24 : 18,
+            .h = 15
         };
     } else {
         return (collisionType){
@@ -408,12 +452,45 @@ inline collisionType player_aabb() {
     }
 }
 
-static void player_clamp_to_map_bounds() {
+/**
+ * @brief handles special player behavior in level 4
+ *     special treatment for level 4, where boss appears when all pieces taken
+ *     once taken, player can go beyond the right edge of the map to reach the boss
+ *     and cannot return left to the normal map to fight the boss
+ */
+static inline void player_in_level4() {
+    int leftside = map_pixel_width - SCREEN_W;
+    if (player.boss_mode == TRUE) {
+        if (player.pos.x < leftside) {
+            player.pos.x += 1;
+            //player.pos.x = leftside;
+            if (player.vx < 0) {
+                player.vx = 0;
+            }
+        }
+    } else {
+        if (almanac_tile_x >= 0 && piece_get_remaining() == 0) {
+            if (player.pos.x >= almanac_tile_x) {
+                player.pos.x = almanac_tile_x - 1;
+                if (player.vx > 0) {
+                    player.vx = 0;
+                    player.boss_mode = TRUE;
+                }
+            }
+        }
+    }
+}
+
+static void player_clamp_to_map_bounds(int current_level) {
     if (player.pos.x < 2) {
         player.pos.x = 2;
         if (player.vx < 0) {
             player.vx = 0;
         }
+    }
+
+    if (current_level == LEVEL_MOUNTAIN) {
+        player_in_level4();
     }
 
     if (player.data != NULL && map_pixel_width > 0) {
@@ -455,7 +532,7 @@ static int player_update_platform_support() {
     return FALSE;
 }
 
-static void player_apply_platform_carry() {
+static void player_apply_platform_carry(int current_level) {
     int dx = 0;
     int dy = 0;
 
@@ -470,7 +547,7 @@ static void player_apply_platform_carry() {
 
     player.pos.x += dx;
     player.pos.y += dy;
-    player_clamp_to_map_bounds();
+    // a bit overkill to check this player_clamp_to_map_bounds(current_level);
 }
 
 /**
@@ -501,8 +578,8 @@ static void player_check_vy() {
 /**
  * @brief Checks vx for hits
  */
-static void player_check_vx() {
-    player_clamp_to_map_bounds();
+static void player_check_vx(int current_level) {
+    player_clamp_to_map_bounds(current_level);
 
     if (player.vx != 0) {
         if (checkHitObj()) {
@@ -522,7 +599,8 @@ static void player_move_y_substeps() {
 
     int step_dir = (player.vy > 0) ? 1 : -1;
     int steps = (player.vy > 0) ? player.vy : -player.vy;
-    if (steps > 10) steps = 10; 
+    if (steps > 10)
+        steps = 10;
 
     for (int i = 0; i < steps; i++) {
         player.pos.y += step_dir;
@@ -569,14 +647,14 @@ static void player_move_y_substeps() {
     }
 }
 
-static void player_update_position() {
-    player_apply_platform_carry();
+static void player_update_position(int current_level) {
+    player_apply_platform_carry(current_level);
 
-    player_check_vx();
+    player_check_vx(current_level);
     player_check_vy();
     player.pos.x = round(player.pos.x + player.vx);
 
-    player_clamp_to_map_bounds();
+    player_clamp_to_map_bounds(current_level);
 
     player_move_y_substeps();
 
@@ -925,16 +1003,18 @@ static void player_action_jump_up() {
                 player.vx -= PLAYER_ACCEL;
                 if (player.vx < -player.max_vx)
                     player.vx = -player.max_vx;
+            } else {
+                player.vx = -1;
             }
-            else {player.vx = -1;}
         } else if (key[KEY_RIGHT]) {
             player.flip = FALSE;
             if (player.vx > 0) {
                 player.vx += PLAYER_ACCEL;
                 if (player.vx > player.max_vx)
                     player.vx = player.max_vx;
+            } else {
+                player.vx = 1;
             }
-            else {player.vx = 1;}
         }
     }
     // arc driven by gravity: transition when vy reaches 0 or positive
@@ -986,6 +1066,7 @@ static void player_action_breaking() {
 static void player_action_dead() {
     if (player_count_move(0, 0) == FINISHED) {
         player.energy = PLAYER_DEFAULT_ENERGY;
+        reinit_book_stock();
         if (megahit_mode == 0) {
             player.lives--;
         }
@@ -1077,7 +1158,7 @@ void player_anime_update() {
     player.anime_count++;
 }
 inline void player_draw(int scroll_x) {
-    if (player.hurt_cooldown > 0 && ((player.hurt_cooldown / PLAYER_BLINK_INTERVAL) & 1) == 0) {
+    if (player.hurt_cooldown > 0 && ((player.hurt_cooldown >> 1) & 1) == 0) {
         return;
     }
 
@@ -1105,10 +1186,10 @@ void player_update(int current_level) {
     // gravity always applied for smooth arc
     player_affect_force(0, (player.anime_index & 1) == 0);
     // extra gravity on descent for snappier fall (Mario-style)
-    if ((current_level != 3) &&(player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
+    if ((current_level != 3) && (player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
         player_affect_force(0, 1);
     }
-    player_update_position();
+    player_update_position(current_level);
 
     if (current_level == 2) {
         if (player_is_over_almanac_tile()) {

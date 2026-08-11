@@ -15,7 +15,7 @@
 #define LAMP_FRAMES 1
 #define SYRINGE_FRAMES 1
 
-#define ENEMY_HITS_TO_KILL 2
+#define BOSS_HITS_TO_KILL 10
 /**
 spawn_enemies (Estáticos): Una lista o array con la posición
 inicial y el tipo de todos los enemigos del nivel. Esto ocupa muy poca memoria.
@@ -89,10 +89,14 @@ typedef struct {
     unsigned int state;
     unsigned int prev_state;
     int hits; // number of hits taken, used for enemies that require multiple hits to die
+    int hurt_cooldown;
     int active;
     int killed; // to mark if the enemy has been killed for static data
     int origin; // index in spawnable_enemies this instance was spawned from, -1 if none
 } Enemy;
+
+// is the number of hits of the boss
+extern int boss_hits;
 
 /** @brief Resets the spawnable enemies array to default values, marking all as inactive and not killed. -
  *

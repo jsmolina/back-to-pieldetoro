@@ -9,7 +9,7 @@
 #include <allegro.h>
 
 // this is the maximum number of frames an animation can have, not the total number of frames across all animations
-#define MAX_FRAMES 13
+#define MAX_FRAMES 20
 
 /** @struct animeItem
  * @brief Represents an animation item with frame information
@@ -52,6 +52,7 @@ typedef enum {
     TXT_STAGE4_02,
     TXT_STAGE4_03,
     TXT_STAGE4_04,
+    TXT_STAGE5_01,
     TXT_COUNT
 } gameTextId;
 
@@ -79,6 +80,8 @@ typedef struct {
  */
 void beep(int frequency, int duration);
 
+void screen_shake();
+
 /** @brief Waits for the spacebar key to be pressed and released. */
 void wait_for_space();
 
@@ -95,6 +98,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg);
  * ensures the text fits within the screen width.
  */
 void printf_at_simple(int x, int y, int col, int bg, const char* format, ...);
+void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...);
 
 /** @brief Gets game text by ID for the selected compile-time language. */
 const char* game_text(gameTextId id);

@@ -1,6 +1,7 @@
 
 #ifndef GAME_H
 #define GAME_H
+#define LEVEL_MOUNTAIN 4
 #include <allegro.h>
 
 #define COIN_MONEY_VALUE 5
@@ -43,6 +44,7 @@ extern int megahit_mode; // flag to enable megahit mode for testing
  * for the start of gameplay.
  */
 void start_new_game();
+void continue_game(int cl, int liv, int mon, int sco, int books);
 
 /** @brief Adds one collected coin reward to game economy counters. */
 void game_on_coin_collected();

@@ -13,6 +13,7 @@
 #include "platform.h"
 #include "player.h"
 #include "tiles.h"
+#include "main_menu.h"
 
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -71,7 +72,7 @@ static void wait_a_bit(int amount) {
     }
 }
 
-inline void show_main_menu() {
+inline void show_intro_menu() {
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     for (int i = 0; i < 40; i++) {
@@ -84,6 +85,7 @@ int main(int argc, char *argv[]) {
     if (argc > 1 && strcmp(argv[1], "megahit") == 0) {
         megahit_mode = 1;
     }
+    MainMenuResult res;
 
     RGB black = { 16, 16, 16, 0 };
 
@@ -143,7 +145,7 @@ int main(int argc, char *argv[]) {
     wait_a_bit(200);
     set_palette(palette);
 
-    show_main_menu();
+    show_intro_menu();
 
     load_enemy_spritesheets();
     load_coche_spritesheet();
@@ -155,11 +157,24 @@ int main(int argc, char *argv[]) {
     short exit_game = 0;
     do {
         switch (game_state) {
-        case TITLE:
-            if (key[KEY_SPACE]) {
+        case TITLE:            
+            res = show_main_menu();
+            if (res.selected == EXIT_TO_DOS) {
+                exit_game = 1;
+            } else if(res.selected == PASSWORD) {
                 game_state = GAME;
-                do {
-                } while (key[KEY_SPACE]);
+                stop_midi();
+                start_new_game();
+                // now continue
+                continue_game(
+                    res.current_level,
+                    res.lives,
+                    res.money,
+                    res.score,
+                    res.books
+                );
+            } else {
+                game_state = GAME;
                 stop_midi();
                 start_new_game();
             }
@@ -173,7 +188,7 @@ int main(int argc, char *argv[]) {
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
             wait_for_space();
             set_palette(palette);
-            show_main_menu();
+            show_intro_menu();
             game_state = TITLE;
             break;
         }
@@ -190,7 +205,6 @@ int main(int argc, char *argv[]) {
                 case PAUSE_RESULT_RESTART:
                     stop_midi();
                     game_state = TITLE; // go back to title/menu
-                    show_main_menu();
                     break;
                 case PAUSE_RESULT_EXIT:
                     stop_midi();
@@ -211,7 +225,7 @@ int main(int argc, char *argv[]) {
     // destroy_bitmap(scroller);
     unload_game_memory();
     // unload_datafile(dat_file);
-    printf("Enjoyed playing? See you soon!\n");
+    allegro_message("Enjoyed playing? See you soon!\n");
     clear_keybuf();
     return 0;
 }

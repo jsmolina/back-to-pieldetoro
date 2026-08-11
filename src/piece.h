@@ -12,6 +12,8 @@ typedef enum {
     PIECE_TYPE_COUNT = 3
 } PieceType;
 
+void all_collected();
+
 /** @brief Loads the piece sprite from datafile. Call once at startup. */
 void load_piece_spritesheet();
 

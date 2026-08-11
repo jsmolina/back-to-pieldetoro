@@ -14,7 +14,7 @@
 #define LANG_ES 1
 #endif
 
-#define PRINT_SLOW_DELAY_MS 100
+#define PRINT_SLOW_DELAY_MS 10
 
 #if defined(LANG_EN)
 static const char* const game_texts[TXT_COUNT] = {
@@ -38,7 +38,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "HOW DO YOU THINK OF BUYING THIS?",
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",
-    "NOW WE HAVE TO RECOVER THE PIECES"    
+    "NOW WE HAVE TO RECOVER THE PIECES",
+    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD"
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -62,7 +63,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "COMO SE TE OCURRE COMPRAR ESTO?",
     "GANAR ALGUNA APUESTICA, NEN",
     "NOS LO HA ROBADO Y SE LA HA PEGADO",
-    "AHORA HAY QUE RECUPERAR LAS PIEZAS"
+    "AHORA HAY QUE RECUPERAR LAS PIEZAS",
+    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA"
 };
 #endif
 
@@ -152,6 +154,23 @@ void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
     textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
 }
 
+void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
+    FONT* myfont = dat_file[FONT_FNT].dat;
+    char buffer[256];
+
+    if (!format || !myfont) {
+        return;
+    }
+
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    buffer[sizeof(buffer) - 1] = '\0';
+    textprintf_ex(current_screen, myfont, x, y, col, bg, "%s", buffer);
+}
+
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int cursor_x = x;
@@ -169,6 +188,21 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
         cursor_x += text_length(myfont, ch);
         rest(PRINT_SLOW_DELAY_MS);
     }
+}
+
+void screen_shake() {
+    int offsets[] = { 3, -3, 2, -2, 1, 0 };  // logical, map to pel values
+    int i;
+    for (i = 0; i < 6; i++) {
+        // pel panning: 0x3C0 index 0x13, value 0-7
+        int pel = offsets[i] < 0 ? 0 : offsets[i];
+        outportb(0x3C0, 0x13);
+        outportb(0x3C0, pel & 0x07);
+        rest(16); // ~1 frame at 60fps
+    }
+    // reset
+    outportb(0x3C0, 0x13);
+    outportb(0x3C0, 0);
 }
 
 void beep(int frequency, int duration) {

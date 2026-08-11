@@ -63,6 +63,7 @@ struct playerType {
     int max_vx;
     int flip;
     int lives;
+    int throwable_count;
     int energy;
     int hurt_cooldown;
     int move_count;
@@ -71,6 +72,7 @@ struct playerType {
     int sprite_index;
     int type;
     int has_almanac;
+    int boss_mode; // TRUE if player is in boss mode, FALSE otherwise
     unsigned int state;
     unsigned int prev_state;
     int jump_vy;
@@ -165,6 +167,8 @@ collisionType player_foot_area();
  * @return collisionType struct representing the AABB
  */
 collisionType player_aabb();
+collisionType player_leg_aabb();
+collisionType player_fist_aabb();
 void player_on_hit();
 void player_energy_up();
 
@@ -179,6 +183,8 @@ FlowEventType player_consume_flow_event();
  *
  */
 void player_energy_up();
+void player_throwable_up();
+void player_life_up();
 
 extern struct playerType player;
 

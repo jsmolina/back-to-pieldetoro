@@ -48,6 +48,12 @@ int wheels_on_tiles();
  */
 void collision_check_throwable_vs_enemy();
 
+/** 
+* @brief checks for collisions of enemy throwables vs player 
+* If a collision is detected, it calls the appropriate functions to handle the hit logic for player
+*/
+void collision_check_enemy_throwable_vs_player();
+
 /**
  * @brief Checks for collisions between enemies and the player.
  * If an enemy collides with the player, the player loses a life and the enemy is marked as killed.

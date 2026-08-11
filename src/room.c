@@ -5,6 +5,7 @@
 #include "player.h"
 #include "helpers.h"
 #include "tiles.h"
+#include "book.h"
 #include <allegro.h>
 #include <stdio.h>
 
@@ -31,7 +32,7 @@ typedef struct {
 
 static RoomOption room_options[ROOM_COUNT][ROOM_OPTION_COUNT] = {
     { { 110, 1000, FALSE }, { 160, 30, FALSE }, { 203, 1, TRUE } },
-    { { 104, 5, FALSE }, { 160, 70, FALSE }, { 210, 60, FALSE } },
+    { { 104, 5, FALSE }, { 160, 70, FALSE }, { 210, 6, FALSE } },
     { { 110, 5, FALSE }, { 160, 30, FALSE }, { 203, 10, FALSE } },
 };
 
@@ -157,11 +158,23 @@ int enter_room(int room_id, int level) {
                 draw_selector_at(options, selected, room_index);
                 draw_room_static_text(room_id, TXT_ROOM_03);
                 draw_money_panel();
-                if (room_id == 2 && selected == 0) {
+                if (room_id == 2) {
                    // special case for 1st option in room 2, which is a health upgrade
-                   player_energy_up();
+                   if (selected == 0) {
+                        player_energy_up();
+                   } else if (selected == 2) {
+                        reinit_book_stock();
+                   }
                 } else if (room_id == 1 && selected == 1) {
                     player_took_almanac();
+                } else if (room_id == 3) {
+                    if (selected == 0) {
+                        player_energy_up();
+                    } else if (selected == 1) {
+                        player_life_up();
+                    } else if(selected == 2) {
+                        player_throwable_up();
+                    }
                 }
             } else {
                 draw_room_static_text(room_id, TXT_ROOM_02);

@@ -1,6 +1,7 @@
 #include "piece.h"
 #include "dat_manager.h"
 #include "errors.h"
+#include "helpers.h"
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
@@ -18,6 +19,14 @@ static Piece pieces[MAX_PIECES];
 static BITMAP* piece_sprites[PIECE_TYPE_COUNT];
 static int piece_count = 0;
 static int remaining_pieces = 0;
+
+// forces all collected for debugging purposes
+void all_collected() {
+    for (int i = 0; i < piece_count; i++) {
+        pieces[i].collected = TRUE;
+    }
+    remaining_pieces = 0;
+}
 
 static inline BITMAP* _get_piece_sprite(PieceType type) {
     if (type < 0 || type >= PIECE_TYPE_COUNT) {
@@ -97,7 +106,8 @@ void load_level_pieces(int level_id) {
 }
 
 inline void draw_pieces(int scroll_x) {
-    textprintf_ex(screen, font, 10, 10, makecol(255, 255, 255), -1, "Remaining pieces: %d", remaining_pieces);
+    printf_at_ingame(10, 10, 71, 1, "PIECES: %d", remaining_pieces);
+    
     for (int i = 0; i < piece_count; i++) {
         if (pieces[i].active && !pieces[i].collected) {
             BITMAP* sprite = _get_piece_sprite(pieces[i].type);

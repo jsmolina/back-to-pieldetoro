@@ -25,6 +25,7 @@ extern int tiles_values[MAX_VERT_TILES][MAX_HORIZ_TILES];
 extern int curr_tiles_width;
 extern int map_width;
 extern int map_pixel_width;
+extern int almanac_tile_x;
 /**
 Preloads all tiles as a bitmap to blit them to screen
 */

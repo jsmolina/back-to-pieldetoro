@@ -4,9 +4,11 @@
 #include "dat_manager.h"
 #include "door.h"
 #include "enemy.h"
+#include "enemy_throw.h"
 #include "helpers.h"
 #include "intros.h"
 #include "object.h"
+#include "passcode.h"
 #include "pause.h"
 #include "piece.h"
 #include "platform.h"
@@ -45,7 +47,7 @@ int megahit_mode = 0;
 int next_x = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
-BITMAP * continue_bg;
+BITMAP* continue_bg;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
@@ -53,6 +55,7 @@ static int hud_last_level = -1;
 static int hud_last_energy = -1;
 static int hud_last_lives = -1;
 static int hud_last_coins = -1;
+static int hud_last_books = -1;
 static int hud_last_pieces_collected = -1;
 static int hud_last_pieces_total = -1;
 static int coins_collected = 0;
@@ -149,7 +152,7 @@ void lifebar() {
         int year = 1982;
         if (current_level == 1 || current_level == 2) {
             year = 2026;
-        } else if (current_level == 4) {
+        } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -190,7 +193,35 @@ void lifebar() {
         hud_last_coins = money;
     }
 
+    int books = get_book_count();
+    if (force_full_redraw || hud_last_books != books) {
+        /*rect(screen, 83, 185, 132, 190, 19);
+        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, 65, 5);
+        */
+        int width = 65;
+        for (int i = books; i < DEFAULT_STOCK; i++)
+            width -= 5;
+        if (width >= 0) {
+            rectfill(screen, 83, 185, 132, 190, 19);
+            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, width, 5);
+        }
+        hud_last_books = books;
+    }
+
     hud_last_level = current_level;
+}
+
+/**
+* Loads current background
+*/
+static void load_by_stage() {
+    int dat_id = level_to_dat_id(current_level);
+    if (current_level > 0) {
+        current_background = load_background(dat_id);
+        world_state = START_STAGE;
+    } else {
+        world_state = CONTINUE;
+    }
 }
 
 void advance_stage() {
@@ -211,13 +242,18 @@ void advance_stage() {
     }
 
     current_level++;
-    int dat_id = level_to_dat_id(current_level);
-    if (current_level > 0) {
-        current_background = load_background(dat_id);
-        world_state = START_STAGE;
-    } else {
-        world_state = CONTINUE;
-    }
+    load_by_stage();
+}
+
+
+
+void continue_game(int cl, int liv, int mon, int sco, int books) {
+    current_level = cl;
+    player.lives = liv;
+    game_money = mon;
+    player_energy_up();
+    set_book_count(books);
+    load_by_stage();
 }
 
 // loads first level and passes it to scroller bitmap
@@ -250,11 +286,15 @@ void start_new_game() {
 void update_game_run() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
-    scroll_x = player.pos.x - 160;
+    if (current_level != 1) {
+        scroll_x = player.pos.x - 160;
+    } else {
+        scroll_x = player.pos.x - 120;
+    }
     if (scroll_x < 0)
         scroll_x = 0;
 
-    if (scroll_x > map_pixel_width - SCREEN_W) {
+    if (player.boss_mode == TRUE || scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
 
@@ -312,6 +352,11 @@ void update_game_run() {
             world_state = STAGE_CLEAR;
             return;
         }
+        
+        if (current_level == LEVEL_MOUNTAIN && player.boss_mode == TRUE && boss_hits >= BOSS_HITS_TO_KILL) {
+            world_state = STAGE_CLEAR;
+        }
+
         if (player_is_deading()) {
             world_state = PLAYER_FALL;
             return;
@@ -319,6 +364,7 @@ void update_game_run() {
         enemy_pool_update(scroll_x);
         enemy_update(scroll_x);
         throwable_update(scroll_x);
+        enemy_throwable_update(scroll_x);        
 
         break;
     }
@@ -345,7 +391,7 @@ void repaint_dirty_tiles() {
     }
 }*/
 void init_per_stages() {
-     if (current_level == 1) {
+    if (current_level == 1) {
         player_init(10, GROUND_Y, current_level, MAX_CAR_VX, -8);
     } else if (current_level == 3) {
         player_init(20, GROUND_Y, current_level, MAX_MARTIN_VX, -14);
@@ -360,9 +406,12 @@ inline void draw_game() {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
+    } else if (key[KEY_F2]) {
+        all_collected();
+        player.pos.x = almanac_tile_x -1;
     } else if (key[KEY_D]) {
         player.pos.x += 50;
-        player.pos.y = GROUND_Y- 50;
+        player.pos.y = GROUND_Y - 50;
     }
     collisionType f2;
     int current_door_id;
@@ -382,7 +431,7 @@ inline void draw_game() {
     default:
         if (current_level == 3 || current_level == 2) {
             sea_sparkle();
-        } else if (current_level == 4) {
+        } else if (current_level == LEVEL_MOUNTAIN) {
             cascade_palette();
         }
         /* Draw background and player sprite first. Only call player_foot_area
@@ -392,22 +441,32 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
+        draw_enemy_throwable(scroll_x);
         draw_coins(scroll_x);
-        if (current_level == 4) {
+        draw_platforms(scroll_x);
+        if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
-        draw_platforms(scroll_x);
         collision_check_throwable_vs_enemy();
+        collision_check_enemy_throwable_vs_player();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             collision_check_player_vs_pieces();
         }
         lifebar();
+        if (player.boss_mode == TRUE) {
+            // TODO reduce 50, based on bruno enemy life
+            int width = 50;  
+            for (int i = 0; i < boss_hits; i++) {
+                width -= 5;
+            }
+            blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120, 2, width, 5);
+        }
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
-        //textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
+        // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;
@@ -438,7 +497,7 @@ void start_stage() {
         load_level_platforms(current_level);
         reset_coins();
         load_level_coins(current_level);
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
         } else {
@@ -488,7 +547,7 @@ inline int update_game() {
             reset_coins();
             load_level_coins(current_level);
         }
-        if (current_level == 4) {
+        if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
         }
@@ -521,7 +580,7 @@ inline int update_game() {
     case CONTINUE:
         continue_bg = load_shop_bg(CONTINUE_TMX);
         blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-        while(!key[KEY_Y] && !key[KEY_N]) {
+        while (!key[KEY_Y] && !key[KEY_N]) {
             vsync();
         }
         if (key[KEY_Y]) {
@@ -542,15 +601,23 @@ inline int update_game() {
 
 enum PauseMenuResult game_handle_pause(void) {
     game_pause = TRUE;
-    enum PauseMenuOption pause_choice = show_pause_menu();
+    char passcode[15];
+    generate_pass(
+        current_level,
+        player.lives,
+        game_money,
+        0,
+        get_book_count(),
+        passcode);
+    enum PauseMenuOption pause_choice = show_pause_menu(passcode);
     game_pause = FALSE;
 
     switch (pause_choice) {
-    case PAUSE_CONTINUE:
+    case PCONTINUE:
         return PAUSE_RESULT_CONTINUE;
-    case PAUSE_MENU:
+    case PMENU:
         return PAUSE_RESULT_RESTART;
-    case PAUSE_EXIT_TO_DOS:
+    case PEXIT_TO_DOS:
         return PAUSE_RESULT_EXIT;
     default:
         return PAUSE_RESULT_CONTINUE;
