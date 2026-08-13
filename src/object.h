@@ -5,6 +5,7 @@
 #define HARMFUL_TILE_1 852
 #define HARMFUL_TILE_2 923
 #define BACK_IN_TIME_TILE 876
+#define WALL_TILE 1077
 
 #define ROAD 0
 #define HARMFUL 1
@@ -12,6 +13,7 @@
 #define PLATFORM 3
 #define ALMANAC 4
 #define ADVANCE 5
+#define WALL 6
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
@@ -64,6 +66,7 @@ int martin_is_on_obj();
 int car_is_on_obj();
 int player_is_over_almanac_tile();
 int player_is_over_advance_tile();
+int player_is_over_wall_tile();
 
 /** @brief Checks if Martin is over a door using AABB collision.
  *  @return TRUE if player overlaps any door, FALSE otherwise.

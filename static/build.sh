@@ -26,6 +26,7 @@ dat datos.dat -a ./money.bmp -h statics.h -t BMP
 dat datos.dat -a ./font.fnt -h statics.h
 dat datos.dat -a ./bg1_shop2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
+dat datos.dat -a ./level3_intro2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level3_intro3.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_crash.bmp -h statics.h -t BMP

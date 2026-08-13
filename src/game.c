@@ -149,11 +149,17 @@ void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
     if (force_full_redraw) {
         blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
-        int year = 1982;
-        if (current_level == 1 || current_level == 2) {
+        int year = 0001;
+        if (current_level == 1) {
             year = 2026;
+        } else if (current_level == 2) {
+            year = 2039;
+        } else if (current_level == 3){
+            year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
+        } else if (current_level == 5) {
+            year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
     }
@@ -464,6 +470,8 @@ inline void draw_game() {
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
+        textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", player.pos.x, player.pos.y);
+
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
         break;

@@ -42,7 +42,7 @@ DATAFILE * extract_data() {
     dat_file = load_datafile("datos.dat");
  
     remove_int(rotar_paleta);
-    textprintf_ex(screen, font, 105, 184, 2, 15, "PRESS SPACE");
+    textprintf_ex(screen, font, 105, 184, 40, 15, "PRESS SPACE");
     wait_for_space();
     return dat_file;
     //fclose(input);

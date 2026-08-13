@@ -122,6 +122,8 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
                     return PLATFORM;
                 if (is_back_in_time_tile(tile_id))
                     return BACK_IN_TIME;
+                if (tile_id == WALL_TILE)
+                    return WALL;
             }
         }
     }
@@ -266,6 +268,11 @@ int car_is_on_obj() {
 }
 
 int player_is_over_almanac_tile() {
+    collisionType foot = player_foot_area();
+    return rect_over_tile_types(foot, FALSE) == ALMANAC;
+}
+
+int player_is_over_wall_tile() {
     collisionType foot = player_foot_area();
     return rect_over_tile_types(foot, FALSE) == ALMANAC;
 }

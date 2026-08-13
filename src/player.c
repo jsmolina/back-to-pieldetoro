@@ -1,6 +1,7 @@
 #include "player.h"
 #include "allegro/gfx.h"
 #include "allegro/inline/draw.inl"
+#include "allegro/text.h"
 #include "book.h"
 #include "dat_manager.h"
 #include "game.h"
@@ -31,6 +32,11 @@
 #define ALMANAC_DIALOG_H 32
 #define ALMANAC_DIALOG_TEXT_X 72
 #define ALMANAC_DIALOG_TEXT_Y 96
+
+#define LEVEL5_WALL_X_LEFT 1551
+#define LEVEL5_WALL_X_RIGHT 1576
+#define LEVEL5_WALL_Y_TOP 80
+#define LEVEL5_WALL_Y_BOTTOM 118
 
 #define PLAYER_ACCEL 1
 #define PLATFORM_SUPPORT_SNAP_PIXELS 2
@@ -481,6 +487,20 @@ static inline void player_in_level4() {
     }
 }
 
+/**
+ * @brief invisible wall in level 5: blocks rightward passage through the
+ *        rectangle x [LEVEL5_WALL_X_LEFT, LEVEL5_WALL_X_RIGHT], y [80, 118].
+ */
+static inline void player_in_level5() {
+    if (player.pos.y >= LEVEL5_WALL_Y_TOP && player.pos.y <= LEVEL5_WALL_Y_BOTTOM &&
+        player.pos.x >= LEVEL5_WALL_X_LEFT && player.pos.x <= LEVEL5_WALL_X_RIGHT) {
+        player.pos.x = LEVEL5_WALL_X_LEFT - 1;
+        if (player.vx > 0) {
+            player.vx = 0;
+        }
+    }
+}
+
 static void player_clamp_to_map_bounds(int current_level) {
     if (player.pos.x < 2) {
         player.pos.x = 2;
@@ -491,6 +511,10 @@ static void player_clamp_to_map_bounds(int current_level) {
 
     if (current_level == LEVEL_MOUNTAIN) {
         player_in_level4();
+    }
+
+    if (current_level == 5) {
+        player_in_level5();
     }
 
     if (player.data != NULL && map_pixel_width > 0) {
@@ -1204,6 +1228,12 @@ void player_update(int current_level) {
         } else {
             almanac_tile_trigger_available = TRUE;
         }
+    }
+
+    if (current_level == 5) {
+        /*if (player.vx > 0 && player_is_over_wall_tile()) {
+            player.vx = 0;
+        }*/
     }
 
     if (player_is_over_advance_tile()) {
