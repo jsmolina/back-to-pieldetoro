@@ -30,10 +30,10 @@
                 2
             ],
             "scale": 2.4829,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1703.8543638487254,
-                "y": 92.43223649764388
+                "x": 1101.534495952314,
+                "y": 125.45813363405695
             }
         },
         "bg1_shop.tmx": {
@@ -51,8 +51,8 @@
             "scale": 3.195,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1256.8075117370893,
-                "y": 149.13928012519563
+                "x": 1033.489827856025,
+                "y": 120.03129890453836
             }
         },
         "bg2_shop.tmx": {
@@ -67,11 +67,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 5.2406,
+            "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1527.0198068923405,
-                "y": 157.32931343739267
+                "x": 1756,
+                "y": 88.83333333333331
             }
         },
         "bg4.tmx": {
@@ -81,8 +81,8 @@
             "scale": 1.5159,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": -176.4628273632825,
-                "y": 179.10152384721945
+                "x": 1120.126657431229,
+                "y": 100.27046638960351
             }
         },
         "continue.tmx": {
@@ -128,23 +128,21 @@
         "continue.tmx",
         "test.tmx",
         "bg3.tmx",
-        "bg2.tmx",
-        "bg1_shop.tmx",
-        "bg2_shop.tmx"
+        "bg2.tmx"
     ],
     "project": "level1.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "bg2.tmx",
-        "bg2_shop.tmx",
-        "bg1_shop.tmx",
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
         "bg4.tmx",
         "continue.tmx",
         "test.tmx",
+        "bg2.tmx",
         "bg3.tmx",
+        "bg2_shop.tmx",
+        "bg1_shop.tmx",
         "level1.tmx",
         "bg0 copia.tmx"
     ],
