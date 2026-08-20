@@ -40,6 +40,7 @@
 #define LEVEL5_WALL_Y_BOTTOM 118
 
 #define PLAYER_ACCEL 1
+#define CLIMBING_SPEED 1
 #define PLATFORM_SUPPORT_SNAP_PIXELS 2
 #define JUMP_CUT_VY (-2)
 
@@ -53,7 +54,7 @@ PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
 static int almanac_tile_trigger_available = TRUE;
 
-static animeItem car_animations[22] = {
+static animeItem car_animations[23] = {
     { 0, { 0 }, 0, -1 },     // NONE
     { 1, { 0 }, 1, 60 },     // STOP
     { 12, { 0, 1 }, 2, 2 },  // MOVE_LEFT
@@ -76,9 +77,10 @@ static animeItem car_animations[22] = {
     { 0, {}, 0, 0 },         // RUNNING_JUMP (cars don't run)
     { 0, {}, 0, 0 },         // RUNNING_CROUCH (cars don't run)
     { 0, {}, 0, 0 },         // RUNNING_JUMP_DOWN (cars don't run)
+    { 0, {}, 0, 0 },         // CLIMBING (cars don't climb)
 };
 
-static animeItem martin_animations[22] = {
+static animeItem martin_animations[23] = {
     { 0, { 0 }, 0, -1 },                                        // NONE
     { 1, { 0 }, 1, 60 },                                        // STOP
     { 4, { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 13, 5 }, // MOVE_LEFT
@@ -101,6 +103,7 @@ static animeItem martin_animations[22] = {
     { 20, { 13 }, 1, 1 },                                       // RUNNING_JUMP
     { 8, { 18, 19 }, 2, 5 },                                    // RUNNING_CROUCH
     { 12, { 13 }, 1, 1 },                                       // RUNNING_JUMP_DOWN
+    { 8, { 21, 22 }, 2, 8 },                                    // CLIMBING (ladder)
 };
 
 static uint8_t space_was_pressed = 0;
@@ -390,16 +393,16 @@ inline collisionType player_foot_area() {
 }
 
 collisionType player_leg_aabb() {
-     collisionType box = {
+    collisionType box = {
         .x = player.pos.x,
         .y = player.pos.y + 20,
         .w = 24,
         .h = 15
     };
-    if (player.flip == TRUE) {   // facing left: extend the left edge
+    if (player.flip == TRUE) { // facing left: extend the left edge
         box.x -= 5;
         box.w += 5;
-    } else {                     // facing right: extend the right edge
+    } else { // facing right: extend the right edge
         box.w += 5;
     }
     return box;
@@ -407,13 +410,13 @@ collisionType player_leg_aabb() {
 
 collisionType player_fist_aabb() {
     return (collisionType){
-            .x = player.pos.x,
-            .y = player.pos.y + 10,
-            .w = 24,
-            .h = 10
-        };
+        .x = player.pos.x,
+        .y = player.pos.y + 10,
+        .w = 24,
+        .h = 10
+    };
 }
-//84x16
+// 84x16
 inline collisionType player_aabb() {
     if (player.data == NULL || player.data->height == 0 || player.data->width == 0) {
         return (collisionType){ 0, 0, 0, 0 };
@@ -430,9 +433,9 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == KICKING) {
         return (collisionType){
-            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
+            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x,
             .y = player.pos.y,
-            .w = player.flip == FALSE? 24 : 18,
+            .w = player.flip == FALSE ? 24 : 18,
             .h = 40
         };
     } else if (player.state == RUNNING_CROUCH) {
@@ -444,9 +447,9 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == THROWING) {
         collisionType box = {
-            .x = player.flip == TRUE? player.pos.x - 10 : player.pos.x,
+            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x,
             .y = player.pos.y + 20,
-            .w = player.flip == FALSE? 24 : 18,
+            .w = player.flip == FALSE ? 24 : 18,
             .h = 15
         };
     } else {
@@ -470,7 +473,7 @@ static inline void player_in_level4() {
     if (player.boss_mode == TRUE) {
         if (player.pos.x < leftside) {
             player.pos.x += 1;
-            //player.pos.x = leftside;
+            // player.pos.x = leftside;
             if (player.vx < 0) {
                 player.vx = 0;
             }
@@ -491,7 +494,7 @@ static inline void player_in_level4() {
 /**
  * @brief invisible wall in level 5: blocks rightward passage through the
  *        rectangle x [LEVEL5_WALL_X_LEFT, LEVEL5_WALL_X_RIGHT], y [80, 118].
- 
+
 static inline void player_in_level5() {
     if (player.pos.y >= LEVEL5_WALL_Y_TOP && player.pos.y <= LEVEL5_WALL_Y_BOTTOM &&
         player.pos.x >= LEVEL5_WALL_X_LEFT && player.pos.x <= LEVEL5_WALL_X_RIGHT) {
@@ -831,6 +834,84 @@ static void player_traveling() {
  */
 static inline void player_do_crouch() {
     player_change_state(CROUCHING);
+}
+
+/**
+ * @brief If the player presses up/down while over a ladder tile, grab it:
+ *        snap to the ladder column, kill velocity, enter CLIMBING.
+ * @return TRUE if the ladder was grabbed this frame.
+ */
+static int player_try_enter_ladder() {
+    if (player.type != MARTIN_TYPE || player.state == CLIMBING) {
+        return FALSE;
+    }
+    if (!player_is_over_ladder()) {
+        return FALSE;
+    }
+    // grab when the player wants to climb, or when falling onto the ladder
+    int wants_climb = key[KEY_UP] || key[KEY_DOWN];
+    int is_falling = (player.state == FALL || player.state == FALL2);
+    if (!wants_climb && !is_falling) {
+        return FALSE;
+    }
+    // center the player on the ladder tile column (shifts only, no division)
+    int col = (player.pos.x + (player.data->width >> 1)) >> 3;
+    player.pos.x = (col << 3) + 4 - (player.data->width >> 1);
+    player.vx = 0;
+    player.vy = 0;
+    player_change_state(CLIMBING);
+    return TRUE;
+}
+
+/**
+ * @brief Ladder climbing FSM action.
+ *        UP/DOWN climb (DOWN stops at the ladder foot), LEFT/RIGHT walk off the
+ *        side, and leaving the ladder returns to STOP so gravity resumes.
+ *        Note: UP is also the jump key, so there is no jump-to-dismount.
+ */
+static void player_action_climbing() {
+    // stay on the ladder while either the body center or the feet overlap it,
+    // so climbing up continues until the feet clear the top onto the platform
+    if (!player_is_over_ladder() && !player_foot_over_ladder()) { // off the top or walked off the side
+        player_change_state(STOP);
+        player.vy = 0;
+        return;
+    }
+
+    int moving = FALSE;
+
+    if (key[KEY_UP]) {
+        player.pos.y -= CLIMBING_SPEED;
+        moving = TRUE;
+    } else if (key[KEY_DOWN]) {
+        if (player_foot_over_ladder()) { // keep footing on the ladder
+            player.pos.y += CLIMBING_SPEED;
+            moving = TRUE;
+        } else { // reached the bottom of the ladder, stand on the ground
+            player_change_state(STOP);
+            player.vy = 0;
+            return;
+        }
+    }
+
+    if (key[KEY_LEFT]) {
+        player.pos.x -= CLIMBING_SPEED;
+        player.flip = TRUE;
+        moving = TRUE;
+    } else if (key[KEY_RIGHT]) {
+        player.pos.x += CLIMBING_SPEED;
+        player.flip = FALSE;
+        moving = TRUE;
+    }
+
+    if (moving) {
+        player_count_move(0, 0);
+    } else {
+        // idle on the ladder: freeze on frame 21 (reset the anime timer so
+        // player_anime_update does not tick it forward to frame 22)
+        player.anime_index = 0;
+        player.anime_count = 0;
+    }
 }
 
 // ACTIONS: called on update loop to perform current action and transitions
@@ -1217,8 +1298,12 @@ void player_update(int current_level) {
         player.hurt_cooldown--;
     }
 
-    // gravity always applied for smooth arc
-    player_affect_force(0, (player.anime_index & 1) == 0);
+    player_try_enter_ladder();
+
+    // gravity always applied for smooth arc (except while climbing a ladder)
+    if (player.state != CLIMBING) {
+        player_affect_force(0, (player.anime_index & 1) == 0);
+    }
     // extra gravity on descent for snappier fall (Mario-style)
     if ((current_level != 3) && (player.vy > 0 && (player.state == JUMP_UP || player.state == JUMP_DOWN || player.state == RUNNING_JUMP || player.state == RUNNING_JUMP_DOWN))) {
         player_affect_force(0, 1);
@@ -1239,7 +1324,6 @@ void player_update(int current_level) {
             almanac_tile_trigger_available = TRUE;
         }
     }
-
 
     if (player_is_over_advance_tile()) {
         pending_flow_event.type = PLAYER_ADVANCE_STAGE;
@@ -1294,6 +1378,9 @@ void player_update(int current_level) {
         break;
     case KICKING:
         player_action_kick();
+        break;
+    case CLIMBING:
+        player_action_climbing();
         break;
     case FALL_TO_FLOOR:
         player.pos.y += 1;

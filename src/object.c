@@ -282,6 +282,28 @@ int player_is_over_advance_tile() {
     return rect_over_tile_types(foot, FALSE) == ADVANCE;
 }
 
+int player_is_over_ladder() {
+    if (player.data == NULL) {
+        return FALSE;
+    }
+    // check the player's body center so the ladder can be grabbed mid-climb
+    int cx = player.pos.x + (player.data->width >> 1);
+    int cy = player.pos.y + (player.data->height >> 1);
+    int tile_id = get_tile_at_position(cx, cy) - 1;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+}
+
+int player_foot_over_ladder() {
+    collisionType foot = player_foot_area();
+    if (foot.w <= 0) {
+        return FALSE;
+    }
+    int cx = foot.x + (foot.w >> 1);
+    int cy = foot.y + foot.h - 1;
+    int tile_id = get_tile_at_position(cx, cy) - 1;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+}
+
 int martin_is_over_door() {
     collisionType player_area = player_aabb();
     collisionType door_boxes[MAX_DOORS];
