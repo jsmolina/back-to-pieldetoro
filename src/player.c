@@ -10,6 +10,7 @@
 #include "piece.h"
 #include "platform.h"
 #include "player.h"
+#include "sinking.h"
 
 #include "statics.h"
 #include "tiles.h"
@@ -490,7 +491,7 @@ static inline void player_in_level4() {
 /**
  * @brief invisible wall in level 5: blocks rightward passage through the
  *        rectangle x [LEVEL5_WALL_X_LEFT, LEVEL5_WALL_X_RIGHT], y [80, 118].
- */
+ 
 static inline void player_in_level5() {
     if (player.pos.y >= LEVEL5_WALL_Y_TOP && player.pos.y <= LEVEL5_WALL_Y_BOTTOM &&
         player.pos.x >= LEVEL5_WALL_X_LEFT && player.pos.x <= LEVEL5_WALL_X_RIGHT) {
@@ -499,7 +500,7 @@ static inline void player_in_level5() {
             player.vx = 0;
         }
     }
-}
+}*/
 
 static void player_clamp_to_map_bounds(int current_level) {
     if (player.pos.x < 2) {
@@ -513,9 +514,9 @@ static void player_clamp_to_map_bounds(int current_level) {
         player_in_level4();
     }
 
-    if (current_level == 5) {
+    /*if (current_level == 5) {
         player_in_level5();
-    }
+    }*/
 
     if (player.data != NULL && map_pixel_width > 0) {
         int max_x = map_pixel_width - player.data->width;
@@ -651,6 +652,15 @@ static void player_move_y_substeps() {
                         player.pos.y = platform_top - player.data->height;
                     }
                     player.riding_platform_idx = platform_index;
+                    player.vy = 0;
+                    break;
+                }
+                // sinking platforms give footing only while solid; no carry (they don't move).
+                // pool is empty outside LEVEL_CITY (reset_sinking), so this is a no-op there.
+                if (sinking_find_support(foot, PLATFORM_SUPPORT_SNAP_PIXELS, &platform_index, &platform_top)) {
+                    if (player.data != NULL) {
+                        player.pos.y = platform_top - player.data->height;
+                    }
                     player.vy = 0;
                     break;
                 }
@@ -1230,11 +1240,6 @@ void player_update(int current_level) {
         }
     }
 
-    if (current_level == 5) {
-        /*if (player.vx > 0 && player_is_over_wall_tile()) {
-            player.vx = 0;
-        }*/
-    }
 
     if (player_is_over_advance_tile()) {
         pending_flow_event.type = PLAYER_ADVANCE_STAGE;

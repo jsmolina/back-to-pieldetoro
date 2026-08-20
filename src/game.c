@@ -14,6 +14,7 @@
 #include "platform.h"
 #include "player.h"
 #include "room.h"
+#include "sinking.h"
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
@@ -158,7 +159,7 @@ void lifebar() {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == 5) {
+        } else if (current_level == LEVEL_CITY) {
             year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -338,6 +339,9 @@ void update_game_run() {
         break;
     default:
         platform_update(scroll_x);
+        if (current_level == LEVEL_CITY) {
+            sinking_update(scroll_x);
+        }
         player_update(current_level);
 
         flow_event = player_consume_flow_event();
@@ -441,12 +445,16 @@ inline void draw_game() {
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         draw_door_getin(scroll_x);
+        if (current_level == LEVEL_CITY) {
+            sinking_draw(scroll_x);
+        }
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
         draw_enemy_throwable(scroll_x);
         draw_coins(scroll_x);
         draw_platforms(scroll_x);
+
         if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
@@ -470,7 +478,7 @@ inline void draw_game() {
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
-        textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", player.pos.x, player.pos.y);
+        textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
 
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
@@ -500,6 +508,10 @@ void start_stage() {
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
         load_level_platforms(current_level);
+        reset_sinking();
+        if (current_level == LEVEL_CITY) {
+            load_level_sinking(current_level);
+        }
         reset_coins();
         load_level_coins(current_level);
         if (current_level == LEVEL_MOUNTAIN) {

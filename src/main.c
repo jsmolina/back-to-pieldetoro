@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "platform.h"
 #include "player.h"
+#include "sinking.h"
 #include "tiles.h"
 #include "main_menu.h"
 
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]) {
     load_martin_spritesheet();
     load_coin_spritesheet();
     load_piece_spritesheet();
-    load_platform_spritesheet();
+    load_sinking_spritesheet();
 
     short exit_game = 0;
     do {

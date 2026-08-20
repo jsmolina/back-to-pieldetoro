@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Fri Aug 14 06:58:18 2026 */
+/* Date: Thu Aug 20 21:30:05 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -49,8 +49,11 @@
 #define PFLOW_BMP                        43       /* BMP  */
 #define PFUEL_BMP                        44       /* BMP  */
 #define PIELDETORO_INTRO3_BMP            45       /* BMP  */
-#define PLATAFORMA_BMP                   46       /* BMP  */
-#define TEXT_MENU_BMP                    47       /* BMP  */
-#define TILES_BMP                        48       /* BMP  */
-#define USHANKA_BMP                      49       /* BMP  */
+#define PLATAFORMA2_BMP                  46       /* BMP  */
+#define PLATAFORMA_BMP                   47       /* BMP  */
+#define SINKING1_BMP                     48       /* BMP  */
+#define SINKING2_BMP                     49       /* BMP  */
+#define TEXT_MENU_BMP                    50       /* BMP  */
+#define TILES_BMP                        51       /* BMP  */
+#define USHANKA_BMP                      52       /* BMP  */
 

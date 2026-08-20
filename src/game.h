@@ -2,6 +2,7 @@
 #ifndef GAME_H
 #define GAME_H
 #define LEVEL_MOUNTAIN 4
+#define LEVEL_CITY 5
 #include <allegro.h>
 
 #define COIN_MONEY_VALUE 5

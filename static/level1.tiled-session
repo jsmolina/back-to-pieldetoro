@@ -22,7 +22,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1376,
-                "y": 119.75
+                "y": 98.625
             }
         },
         "bg1.tmx": {
@@ -30,10 +30,10 @@
                 2
             ],
             "scale": 2.4829,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1101.534495952314,
-                "y": 125.45813363405695
+                "x": 1711.7080832897018,
+                "y": 113.77824318337429
             }
         },
         "bg1_shop.tmx": {
@@ -49,10 +49,10 @@
                 2
             ],
             "scale": 3.195,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1033.489827856025,
-                "y": 120.03129890453836
+                "x": 750.8607198748044,
+                "y": 132.2378716744914
             }
         },
         "bg2_shop.tmx": {
@@ -67,11 +67,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3,
-            "selectedLayer": 0,
+            "scale": 2.6587,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 1756,
-                "y": 88.83333333333331
+                "x": 2013.7661263023283,
+                "y": 118.66701771542485
             }
         },
         "bg4.tmx": {
@@ -82,15 +82,15 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 1120.126657431229,
-                "y": 100.27046638960351
+                "y": 99.94062932911142
             }
         },
         "continue.tmx": {
             "scale": 1.8855,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 160.1697162556351,
-                "y": 100.23866348448688
+                "x": 160.16971625563514,
+                "y": 99.97348183505702
             }
         },
         "level1.tmx": {
@@ -106,7 +106,7 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 320,
-                "y": 100
+                "y": 99.75
             }
         },
         "tiles.tsx": {
