@@ -35,6 +35,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "ARE YOU IN OR WHAT, BRO?",
     "NAH, BASED",
     "HELL YEAH, BASED, FOR HIM!",
+    "WE LIVED IN POVERTY AND HE CAME, IN 1954,"
     "HOW DO YOU THINK OF BUYING THIS?",
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",
@@ -60,6 +61,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "TE APUNTAS, BRO?",
     "NAH, BASADO",
     "DE UNA, BASADO, POR EL!",
+    "VIVIAMOS EN LA POBREZA Y VINO EL, EN 1954",
     "COMO SE TE OCURRE COMPRAR ESTO?",
     "GANAR ALGUNA APUESTICA, NEN",
     "NOS LO HA ROBADO Y SE LA HA PEGADO",

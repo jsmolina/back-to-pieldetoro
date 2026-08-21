@@ -26,6 +26,7 @@ dat datos.dat -a ./money.bmp -h statics.h -t BMP
 dat datos.dat -a ./font.fnt -h statics.h
 dat datos.dat -a ./bg1_shop2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
+dat datos.dat -a ./level3_intro2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level3_intro3.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_crash.bmp -h statics.h -t BMP
@@ -34,6 +35,7 @@ dat datos.dat -a ./bomb_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./arrow_getin.bmp -h statics.h -t BMP
 dat datos.dat -a ./jeringa.bmp -h statics.h -t BMP
 dat datos.dat -a ./plataforma.bmp -h statics.h -t BMP
+dat datos.dat -a ./plataforma2.bmp -h statics.h -t BMP
 dat datos.dat -a ./pfuel.bmp -h statics.h -t BMP
 dat datos.dat -a ./pcondenser.bmp -h statics.h -t BMP
 dat datos.dat -a ./pflow.bmp -h statics.h -t BMP
@@ -44,6 +46,8 @@ dat datos.dat -a ./lifebar_throwable.bmp -h statics.h -t BMP
 dat datos.dat -a ./lifebar_enemy.bmp -h statics.h -t BMP
 dat datos.dat -a ./minicar.bmp -h statics.h -t BMP
 dat datos.dat -a ./text_menu.bmp -h statics.h -t BMP
+dat datos.dat -a ./sinking1.bmp -h statics.h -t BMP
+dat datos.dat -a ./sinking2.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

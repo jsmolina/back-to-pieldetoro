@@ -25,18 +25,13 @@ typedef struct {
     int dir;
     int active;
     int move_tick;
+    BITMAP * sp;
 } Platform;
 
 static Platform platforms[MAX_PLATFORMS];
-static BITMAP* platform_sprite = NULL;
+
 static int platform_count = 0;
 
-void load_platform_spritesheet() {
-    platform_sprite = dat_file[PLATAFORMA_BMP].dat;
-    if (!platform_sprite) {
-        die("cannot load PLATAFORMA_BMP from datafile");
-    }
-}
 
 void reset_platforms() {
     for (int i = 0; i < MAX_PLATFORMS; i++) {
@@ -80,6 +75,7 @@ void load_level_platforms(int level_id) {
 
         if (matched >= 6 && strcmp(name, "PLATFORM") == 0) {
             int yy = (object_type[0] == 'L') ? y : (y + height); // for vertical platforms, adjust y to bottom edge
+            platforms[idx].sp = level_id == 5? dat_file[PLATAFORMA2_BMP].dat : dat_file[PLATAFORMA_BMP].dat;
             platforms[idx].x = x;
             platforms[idx].y = y;
             platforms[idx].pos.x = x;
@@ -139,14 +135,10 @@ void platform_update(int scroll_x) {
 }
 
 void draw_platforms(int scroll_x) {
-    if (!platform_sprite) {
-        return;
-    }
-
     for (int i = 0; i < platform_count; i++) {
         if (platforms[i].active) {
             int screen_x = platforms[i].pos.x - scroll_x;
-            draw_sprite(current_screen, platform_sprite, screen_x, platforms[i].pos.y);
+            draw_sprite(current_screen, platforms[i].sp, screen_x, platforms[i].pos.y);
         }
     }
 }

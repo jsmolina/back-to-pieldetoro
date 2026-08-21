@@ -5,6 +5,9 @@
 #define HARMFUL_TILE_1 852
 #define HARMFUL_TILE_2 923
 #define BACK_IN_TIME_TILE 876
+#define WALL_TILE 1077
+#define LADDER_TILE_1 1698
+#define LADDER_TILE_2 1699
 
 #define ROAD 0
 #define HARMFUL 1
@@ -12,6 +15,8 @@
 #define PLATFORM 3
 #define ALMANAC 4
 #define ADVANCE 5
+#define WALL 6
+#define LADDER 7
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
@@ -64,6 +69,14 @@ int martin_is_on_obj();
 int car_is_on_obj();
 int player_is_over_almanac_tile();
 int player_is_over_advance_tile();
+int player_is_over_wall_tile();
+
+/** @brief TRUE if the player's center is over a ladder tile (IDs 1698/1699). */
+int player_is_over_ladder();
+
+/** @brief TRUE if the tile under the player's feet is a ladder tile. Used to
+ *  stop downward climbing at the bottom of the ladder. */
+int player_foot_over_ladder();
 
 /** @brief Checks if Martin is over a door using AABB collision.
  *  @return TRUE if player overlaps any door, FALSE otherwise.

@@ -54,7 +54,9 @@ void level4_intro() {
     RGB black = { 16, 16, 16, 0 };
     get_palette(palette);
     set_color(0, &black);
-
+    blit(dat_file[LEVEL3_INTRO2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE3_04), makecol(255, 255, 255), 16);
+    wait_for_space();
     DATAFILE *video_data = obtain_videodata("INTRO_LEVEL41_FLI");
     blit(dat_file[LEVEL4_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     print_at(10, START_Y, game_text(TXT_STAGE4_01), makecol(255, 255, 255), 16);

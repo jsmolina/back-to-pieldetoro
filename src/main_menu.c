@@ -132,8 +132,10 @@ MainMenuResult show_main_menu() {
                 return res;
             } 
 
-        }  else if (key_code == KEY_ESC || key_code == KEY_SPACE) {
+        }  else if (key_code == KEY_ESC) {
             show_menu = !show_menu;
+        } else if (key_code == KEY_SPACE) {
+            show_menu = 1;
         }
         vsync();
     }
