@@ -9,6 +9,7 @@
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
 #define BRUNO_FRAMES 16
+#define BIG_FRAMES 5
 #define BIRD_FRAMES 2
 #define DOG_FRAMES 7
 #define BOMB_FRAMES 2
@@ -67,6 +68,7 @@ enum EnemyType {
     ENEMY_BIRD,
     ENEMY_DOG,
     ENEMY_BRUNO,
+    ENEMY_BIG,
     // NON-ANIMATED ENEMIES
     ENEMY_LAMP,
     ENEMY_SYRINGE,

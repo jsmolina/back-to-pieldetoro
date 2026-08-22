@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="290" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="25">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="290" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="29">
  <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="290" height="25">
   <data encoding="csv">
@@ -55,5 +55,17 @@
   </object>
   <object id="22" name="SINKING" type="R" x="2127" y="98" width="41" height="5"/>
   <object id="24" name="SINKING" type="R" x="2093" y="78" width="41" height="5"/>
+  <object id="25" name="ENEMY_BIG" type="EL" x="383" y="160">
+   <point/>
+  </object>
+  <object id="26" name="ENEMY_DOG" type="ER" x="740" y="160">
+   <point/>
+  </object>
+  <object id="27" name="ENEMY_BIRD" type="EL" x="1625" y="80">
+   <point/>
+  </object>
+  <object id="28" name="ENEMY_DOG" type="ER" x="1296" y="159">
+   <point/>
+  </object>
  </objectgroup>
 </map>

@@ -30,6 +30,7 @@
 #define BRUNO_CROUCH_LEFT_CUT 16
 #define BRUNO_CROUCH_RIGHT_CUT 16
 #define BRUNO_HURT_COOLDOWN_FRAMES 40
+#define BIG_HURT_COOLDOWN_FRAMES 10
 #define BOMB_HURTBOX_TOP_CUT 6
 #define BOMB_HURTBOX_SIDE_CUT 1
 
@@ -102,6 +103,20 @@ static animeItem dog_animations[11] = {
     { 2, { 0 }, 2, 4 },                // BDEAD_END
     { 1, { 0 }, 1, 30 },               // ECROUCHING
     { 5, { 0 }, 1, 0 },                // ETHROWING OBJECT
+};
+
+static animeItem big_animations[11] = {
+    { 0, { 0 }, 0, -1 },   // NONE
+    { 1, { 0 }, 1, 60 },   // BSTOP
+    { 2, { 0, 1,2,3,4 }, 5, 4 }, // BMOVE_LEFT
+    { 2, { 0, 1,2,3,4 }, 5, 4 }, // BMOVE_RIGHT
+    { 1, { 0 }, 1, 1 },    // EFALL
+    { 1, { 0 }, 1, 1 },    // EFALL2
+    { 12, { 0 }, 2, 4 },   // BDEAD
+    { 60, { 0 }, 1, 60 },  // EFALL_END
+    { 2, { 0 }, 2, 4 },    // EDEAD_END
+    { 1, { 0 }, 1, 30 },   // ECROUCHING
+    { 5, { 0 }, 1, 0 },    // ETHROWING OBJECT
 };
 
 static animeItem lamp_animations[4] = {
@@ -202,6 +217,8 @@ static enum EnemyType parse_enemy_type(const char* name) {
         return ENEMY_BOMB;
     else if (strcmp(name, "ENEMY_BRUNO") == 0)
         return ENEMY_BRUNO;
+    else if (strcmp(name, "ENEMY_BIG") == 0)
+        return ENEMY_BIG;
     return -1;
 }
 
@@ -250,7 +267,7 @@ void load_level_enemies_v2(int level_id) {
                     vy = 1;
                 } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
                     vx = 4;
-                } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG || enemy_type == ENEMY_BRUNO) {
+                } else if (enemy_type == ENEMY_JOVEN || enemy_type == ENEMY_DOG || enemy_type == ENEMY_BRUNO || enemy_type == ENEMY_BIG) {
                     y = y - enemy_data[enemy_type].height; // adjust for sprite height
                 }
                 init_enemy(enemy_index, enemy_type, x, y, vx, vy, enemy_spawn_x);
@@ -294,6 +311,8 @@ static void _load_enemy_generic(enum EnemyType type, int frame_count, int frame_
         enem->animations = bomb_animations;
     } else if (type == ENEMY_BRUNO) {
         enem->animations = bruno_animations;
+    } else if (type == ENEMY_BIG) {
+        enem->animations = big_animations;
     }
 }
 
@@ -306,6 +325,7 @@ void load_enemy_spritesheets() {
     _load_enemy_generic(ENEMY_SYRINGE, SYRINGE_FRAMES, 0, JERINGA_BMP);
     _load_enemy_generic(ENEMY_BOMB, BOMB_FRAMES, 16, BOMB_SPRITESHEET_BMP);
     _load_enemy_generic(ENEMY_BRUNO, BRUNO_FRAMES, 24, BRUNO_SPRITESHEET_BMP);
+    _load_enemy_generic(ENEMY_BIG, BIG_FRAMES, 35, BIG_SPRITESHEET_BMP);
 }
 
 void reset_spawnable_enemies() {
@@ -915,6 +935,17 @@ void enemy_on_hit(int enemy_id) {
         active_enemies[enemy_id].hurt_cooldown = BRUNO_HURT_COOLDOWN_FRAMES;
         boss_hits++;
         if (boss_hits < BOSS_HITS_TO_KILL) {
+            return;
+        }
+    }
+    if (active_enemies[enemy_id].type == ENEMY_BIG) {
+        if (active_enemies[enemy_id].hurt_cooldown > 0) {
+            return;
+        }
+        active_enemies[enemy_id].hurt_cooldown = BIG_HURT_COOLDOWN_FRAMES;
+        
+        active_enemies[enemy_id].hits++;
+        if (active_enemies[enemy_id].hits < 4) {
             return;
         }
     }

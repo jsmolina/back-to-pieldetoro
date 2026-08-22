@@ -54,6 +54,9 @@ void level4_intro() {
     RGB black = { 16, 16, 16, 0 };
     get_palette(palette);
     set_color(0, &black);
+    blit(dat_file[END_LEVEL_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y + OFFSET, "OK OK!", makecol(255, 255, 255), 16);
+    wait_for_space();
     blit(dat_file[LEVEL3_INTRO2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     print_at(10, START_Y + OFFSET, game_text(TXT_STAGE3_04), makecol(255, 255, 255), 16);
     wait_for_space();
