@@ -159,7 +159,7 @@ void lifebar() {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == LEVEL_CITY) {
+        } else if (current_level == LEVEL_CITY || current_level == 6) {
             year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);

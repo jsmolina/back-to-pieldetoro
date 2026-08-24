@@ -6,6 +6,7 @@
 #define HARMFUL_TILE_2 923
 #define BACK_IN_TIME_TILE 876
 #define WALL_TILE 1077
+#define WALL_TILE_2 1080 // solid floor tile the player cannot cross horizontally
 #define LADDER_TILE_1 1698
 #define LADDER_TILE_2 1699
 

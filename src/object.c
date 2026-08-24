@@ -160,8 +160,20 @@ int checkOverObj(collisionType area) {
     return FALSE;
 }
 
+// TRUE if the player is walking into a solid wall tile (blocks both directions).
 int checkHitObj() {
-    return FALSE;
+    if (player.vx == 0) {
+        return FALSE;
+    }
+    collisionType foot = player_foot_area();
+    if (foot.w <= 0) {
+        return FALSE;
+    }
+    // probe just past the leading edge of the foot, at the floor-tile row
+    int probe_x = (player.vx > 0) ? (foot.x + foot.w) : (foot.x - 1);
+    int probe_y = foot.y + foot.h - 1;
+    int tile_id = get_tile_at_position(probe_x, probe_y) - 1;
+    return tile_id == WALL_TILE_2;
 }
 
 void collision_check_throwable_vs_enemy() {

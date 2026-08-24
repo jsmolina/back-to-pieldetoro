@@ -611,7 +611,7 @@ static void player_check_vx(int current_level) {
 
     if (player.vx != 0) {
         if (checkHitObj()) {
-            player.vx = -player.vx;
+            player.vx = 0; // wall ahead: stop, do not cross
         }
     }
 }

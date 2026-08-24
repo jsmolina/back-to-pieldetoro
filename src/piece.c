@@ -67,6 +67,7 @@ void load_level_pieces(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
     const char* cursor;
     int idx = 0;
+    int type_cycle = 0; // cycles 0,1,2 across pieces (no modulo)
 
     if (tmx_id < 0) {
         die("invalid level id %d for TMX (pieces)", level_id);
@@ -90,10 +91,14 @@ void load_level_pieces(int level_id) {
         if (matched == 5 && strcmp(name, "PIECE") == 0 && strcmp(object_type, "O") == 0) {
             pieces[idx].x = x;
             pieces[idx].y = y - 18;
-            pieces[idx].type = (PieceType)(idx % PIECE_TYPE_COUNT);
+            pieces[idx].type = (PieceType)type_cycle;
             pieces[idx].active = TRUE;
             pieces[idx].collected = FALSE;
             idx++;
+            type_cycle++;
+            if (type_cycle >= PIECE_TYPE_COUNT) {
+                type_cycle = 0;
+            }
             if (idx >= MAX_PIECES) {
                 break;
             }

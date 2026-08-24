@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg3.tmx",
+    "activeFile": "bg5.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -30,10 +30,10 @@
                 2
             ],
             "scale": 2.4829,
-            "selectedLayer": 1,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1200.0080550968626,
-                "y": 100.08457851705666
+                "x": 2282.210318579081,
+                "y": 129.48568206532684
             }
         },
         "bg1_shop.tmx": {
@@ -51,8 +51,8 @@
             "scale": 3.195,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1360.093896713615,
-                "y": 100.00000000000001
+                "x": 1855.399061032864,
+                "y": 85.9154929577465
             }
         },
         "bg2_shop.tmx": {
@@ -67,11 +67,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.6587,
-            "selectedLayer": 1,
+            "scale": 4.4619,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1273.7428066348216,
-                "y": 119.41926505434986
+                "x": 2157.1527824469395,
+                "y": 66.67563145745085
             }
         },
         "bg4.tmx": {
@@ -81,7 +81,7 @@
             "scale": 1.5159,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1119.796820370737,
+                "x": 1049.5415264859157,
                 "y": 99.94062932911142
             }
         },
@@ -89,11 +89,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.8561,
+            "scale": 2.8408,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 959.8081999892247,
-                "y": 99.94073595172672
+                "x": 1155.3083638411715,
+                "y": 106.83610250633623
             }
         },
         "continue.tmx": {
@@ -145,15 +145,15 @@
     "project": "level1.tiled-project",
     "property.type": "int",
     "recentFiles": [
+        "bg5.tmx",
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
         "bg4.tmx",
         "continue.tmx",
         "test.tmx",
-        "bg5.tmx",
-        "bg2.tmx",
         "bg3.tmx",
+        "bg2.tmx",
         "bg2_shop.tmx",
         "bg1_shop.tmx",
         "level1.tmx"
