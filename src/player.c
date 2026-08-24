@@ -847,13 +847,12 @@ static int player_try_enter_ladder() {
     if (player.type != MARTIN_TYPE || player.state == CLIMBING) {
         return FALSE;
     }
-    if (!player_is_over_ladder()) {
-        return FALSE;
-    }
-    // grab when the player wants to climb, or when falling onto the ladder
-    int wants_climb = key[KEY_UP] || key[KEY_DOWN];
-    int is_falling = (player.state == FALL || player.state == FALL2);
-    if (!wants_climb && !is_falling) {
+    // UP grabs when the body center is over the shaft (climbing up from below);
+    // DOWN grabs when the feet are over a ladder tile (descending from the top,
+    // where the center is still above the ladder). Never auto-grab while falling.
+    int grab_up = key[KEY_UP] && player_is_over_ladder();
+    int grab_down = key[KEY_DOWN] && player_foot_over_ladder();
+    if (!grab_up && !grab_down) {
         return FALSE;
     }
     // center the player on the ladder tile column (shifts only, no division)
@@ -861,6 +860,11 @@ static int player_try_enter_ladder() {
     player.pos.x = (col << 3) + 4 - (player.data->width >> 1);
     player.vx = 0;
     player.vy = 0;
+    // entering from the top: nudge down into the shaft so the center probe
+    // catches the ladder and we clear the solid top tile
+    if (grab_down && !player_is_over_ladder()) {
+        player.pos.y += CLIMBING_SPEED;
+    }
     player_change_state(CLIMBING);
     return TRUE;
 }

@@ -4,6 +4,7 @@
 #include "door.h"
 #include "enemy.h"
 #include "enemy_throw.h"
+#include "game.h"
 #include "helpers.h"
 #include "piece.h"
 #include "player.h"
@@ -172,7 +173,7 @@ int checkHitObj() {
     }
     // probe just past the leading edge of the foot, at the floor-tile row
     int probe_x = (player.vx > 0) ? (foot.x + foot.w) : (foot.x - 1);
-    int probe_y = foot.y + foot.h - 1;
+    int probe_y = 161;
     int tile_id = get_tile_at_position(probe_x, probe_y) - 1;
     return tile_id == WALL_TILE_2;
 }
@@ -303,7 +304,7 @@ int player_is_over_ladder() {
     int cx = player.pos.x + (player.data->width >> 1);
     int cy = player.pos.y + (player.data->height >> 1);
     int tile_id = get_tile_at_position(cx, cy) - 1;
-    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2 || tile_id == LADDER_TILE_3 || tile_id == LADDER_TILE_4 ;
 }
 
 int player_foot_over_ladder() {
@@ -314,7 +315,7 @@ int player_foot_over_ladder() {
     int cx = foot.x + (foot.w >> 1);
     int cy = foot.y + foot.h - 1;
     int tile_id = get_tile_at_position(cx, cy) - 1;
-    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2 || tile_id == LADDER_TILE_3 || tile_id == LADDER_TILE_4 ;
 }
 
 int martin_is_over_door() {

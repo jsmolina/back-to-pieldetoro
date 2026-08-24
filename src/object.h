@@ -10,6 +10,8 @@
 #define TNT_TILE_ID 1081 // solid floor tile the player can only cross if tnt are placed
 #define LADDER_TILE_1 1698
 #define LADDER_TILE_2 1699
+#define LADDER_TILE_3 1082
+#define LADDER_TILE_4 1083
 
 #define ROAD 0
 #define HARMFUL 1
