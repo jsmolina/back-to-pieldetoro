@@ -30,10 +30,10 @@
                 2
             ],
             "scale": 2.4829,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 2282.210318579081,
-                "y": 129.48568206532684
+                "x": 1628.1364533408514,
+                "y": 153.65097265294617
             }
         },
         "bg1_shop.tmx": {
@@ -51,8 +51,8 @@
             "scale": 3.195,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1855.399061032864,
-                "y": 85.9154929577465
+                "x": 1360.093896713615,
+                "y": 100.00000000000001
             }
         },
         "bg2_shop.tmx": {
@@ -70,8 +70,8 @@
             "scale": 4.4619,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2157.1527824469395,
-                "y": 66.67563145745085
+                "x": 1159.93186759004,
+                "y": 100.0694771285775
             }
         },
         "bg4.tmx": {
@@ -81,7 +81,7 @@
             "scale": 1.5159,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1049.5415264859157,
+                "x": 1119.7968203707367,
                 "y": 99.94062932911142
             }
         },
@@ -89,11 +89,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.8408,
-            "selectedLayer": 1,
+            "scale": 1.8253,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 1155.3083638411715,
-                "y": 106.83610250633623
+                "x": 1326.0833835533886,
+                "y": 132.85487317153346
             }
         },
         "continue.tmx": {
@@ -145,7 +145,6 @@
     "project": "level1.tiled-project",
     "property.type": "int",
     "recentFiles": [
-        "bg5.tmx",
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
@@ -154,6 +153,7 @@
         "test.tmx",
         "bg3.tmx",
         "bg2.tmx",
+        "bg5.tmx",
         "bg2_shop.tmx",
         "bg1_shop.tmx",
         "level1.tmx"

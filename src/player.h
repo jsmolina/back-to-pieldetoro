@@ -73,6 +73,7 @@ struct playerType {
     int sprite_index;
     int type;
     int has_almanac;
+    int tnt_count; // TNT carried in inventory (level 6), max MAX_TNT_CARRY
     int boss_mode; // TRUE if player is in boss mode, FALSE otherwise
     unsigned int state;
     unsigned int prev_state;

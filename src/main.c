@@ -14,6 +14,7 @@
 #include "player.h"
 #include "sinking.h"
 #include "tiles.h"
+#include "tnt.h"
 #include "main_menu.h"
 
 #include <allegro.h>
@@ -148,6 +149,7 @@ int main(int argc, char *argv[]) {
     load_coin_spritesheet();
     load_piece_spritesheet();
     load_sinking_spritesheet();
+    load_tnt_spritesheet();
 
     short exit_game = 0;
     do {

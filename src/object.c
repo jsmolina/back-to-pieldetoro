@@ -8,6 +8,7 @@
 #include "piece.h"
 #include "player.h"
 #include "tiles.h"
+#include "tnt.h"
 
 #define CAR_PLATFORM_SIZE 9
 #define ALMANAC_TILE_ID 1040
@@ -360,6 +361,38 @@ void collision_check_player_vs_pieces() {
 
         if (collision(player_area, piece_boxes[i])) {
             piece_on_collect(i);
+        }
+    }
+}
+
+void collision_check_player_vs_tnt() {
+    collisionType player_area = player_aabb();
+    collisionType tnt_boxes[MAX_TNT];
+    tnt_get_all_aabb(tnt_boxes);
+
+    for (int i = 0; i < MAX_TNT; i++) {
+        if (tnt_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, tnt_boxes[i])) {
+            tnt_on_collect(i);
+        }
+    }
+}
+
+// door-style Space interaction: place carried TNT on the overlapped BOX
+void tnt_place_on_box_if_over() {
+    collisionType player_area = player_aabb();
+    collisionType box_boxes[MAX_TNT];
+    tnt_box_get_all_aabb(box_boxes);
+
+    for (int i = 0; i < MAX_TNT; i++) {
+        if (box_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, box_boxes[i])) {
+            tnt_place_on_box(i);
+            return; // one box per press
         }
     }
 }

@@ -17,6 +17,7 @@
 #include "sinking.h"
 #include "statics.h"
 #include "tiles.h"
+#include "tnt.h"
 #include <allegro.h>
 #include <stdio.h>
 
@@ -159,7 +160,7 @@ void lifebar() {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == LEVEL_CITY || current_level == 6) {
+        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE) {
             year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -448,6 +449,9 @@ inline void draw_game() {
         if (current_level == LEVEL_CITY) {
             sinking_draw(scroll_x);
         }
+        if (current_level == LEVEL_AUTOVOICE) {
+            tnt_draw(scroll_x);
+        }
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
@@ -458,12 +462,16 @@ inline void draw_game() {
         if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
+   
         collision_check_throwable_vs_enemy();
         collision_check_enemy_throwable_vs_player();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
         if (current_level == LEVEL_MOUNTAIN) {
             collision_check_player_vs_pieces();
+        }
+        if (current_level == LEVEL_AUTOVOICE) {
+            collision_check_player_vs_tnt();
         }
         lifebar();
         if (player.boss_mode == TRUE) {
@@ -478,7 +486,7 @@ inline void draw_game() {
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
-        textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
+        //textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
 
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
@@ -522,6 +530,10 @@ void start_stage() {
         }
         reset_doors();
         load_level_doors(current_level);
+        reset_tnt();
+        if (current_level == LEVEL_AUTOVOICE) {
+            load_level_tnt(current_level);
+        }
         break;
     }
     init_per_stages();
@@ -567,6 +579,10 @@ inline int update_game() {
         if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
+        }
+        if (current_level == LEVEL_AUTOVOICE) {
+            reset_tnt();
+            load_level_tnt(current_level);
         }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart

@@ -765,6 +765,8 @@ static inline void player_do_open() {
         pending_flow_event.type = PLAYER_ENTER_ROOM;
         pending_flow_event.data = result;
     }
+    // same Space/AABB interaction as doors: drop carried TNT onto a BOX (level 6)
+    tnt_place_on_box_if_over();
 }
 
 /**

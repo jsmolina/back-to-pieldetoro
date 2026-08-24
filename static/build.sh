@@ -48,6 +48,7 @@ dat datos.dat -a ./minicar.bmp -h statics.h -t BMP
 dat datos.dat -a ./text_menu.bmp -h statics.h -t BMP
 dat datos.dat -a ./sinking1.bmp -h statics.h -t BMP
 dat datos.dat -a ./sinking2.bmp -h statics.h -t BMP
+dat datos.dat -a ./tnt.bmp -h statics.h -t BMP
 dat datos.dat -a ./end_level.bmp -h statics.h -t BMP
 dat datos.dat -a ./big_spritesheet.bmp -h statics.h -t BMP
 
