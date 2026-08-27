@@ -30,6 +30,8 @@
 #define BRUNO_CROUCH_LEFT_CUT 16
 #define BRUNO_CROUCH_RIGHT_CUT 16
 #define BRUNO_HURT_COOLDOWN_FRAMES 40
+#define GUARD_THROW_RANGE_X 40
+#define GUARD_THROW_RANGE_Y 40
 #define BIG_HURT_COOLDOWN_FRAMES 10
 #define BOMB_HURTBOX_TOP_CUT 6
 #define BOMB_HURTBOX_SIDE_CUT 1
@@ -706,6 +708,27 @@ void joven_action_ai(int index) {
     // Otherwise maintain current position (player directly above/below)
 }
 
+/** @brief Guard AI: a stationary shooter. Throws at the player when close
+ *  (within GUARD_THROW_RANGE_X horizontally and up to GUARD_THROW_RANGE_Y
+ *  above); otherwise it stays put. It does NOT chase the player.
+ *
+ * @param index The index of the active guard enemy
+ */
+static void guard_action_ai(int index) {
+    int dx = player.pos.x - active_enemies[index].pos.x;
+    int dy = active_enemies[index].pos.y - player.pos.y; // positive when player is above
+    int adx = dx < 0 ? -dx : dx;
+
+    if (adx <= GUARD_THROW_RANGE_X && dy >= 0 && dy <= GUARD_THROW_RANGE_Y) {
+        active_enemies[index].vx = 0;
+        enemy_change_state(index, ETHROWING);
+        return;
+    }
+
+    // out of range: hold position, do not chase (avoids jitter across floors)
+   // joven_action_ai(index);
+}
+
 void bruno_action_stop(int index) {
     if (index < 0 || index >= MAX_ACTIVE_ENEMIES)
         return;
@@ -763,15 +786,18 @@ static void guard_action_throw(int index) {
     if (index < 0 || index >= MAX_ACTIVE_ENEMIES || active_enemies[index].type != ENEMY_GUARD)
         return;
     // turn to the player before throwing
+    int initx = active_enemies[index].pos.x;
     if (player.pos.x > active_enemies[index].pos.x) {
         active_enemies[index].flip = FALSE; // facing right
+        initx += 16;
     } else {
         active_enemies[index].flip = TRUE; // facing left
+        initx -= 16;
     }
     // throw the object from Bruno's position, slightly above his feet
     init_enemy_throwable(
         active_enemies[index].pos.x, 
-        active_enemies[index].pos.y + 15, 
+        active_enemies[index].pos.y + 16, 
         active_enemies[index].flip,
         BULLET_TYPE
     );
@@ -848,12 +874,16 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         // joven_action_move_left();
         if (active_enemies[index].type == ENEMY_BRUNO) {
             bruno_action_move_left(index);
+        } else if (active_enemies[index].type == ENEMY_GUARD) {
+            guard_action_ai(index);
         }
         break;
     case EMOVE_RIGHT:
         // joven_action_move_right();
         if (active_enemies[index].type == ENEMY_BRUNO) {
             bruno_action_move_right(index);
+        } else if (active_enemies[index].type == ENEMY_GUARD) {
+            guard_action_ai(index);
         }
         break;
     case EFALL:
@@ -862,10 +892,10 @@ static inline void _update_specific_enemy(int index, int scroll_x) {
         break;
     case ESTOP:
         if (active_enemies[index].type < ENEMY_LAMP) {
-            if (active_enemies[index].type != ENEMY_BRUNO) {
-                joven_action_ai(index);
-            } else {
+            if (active_enemies[index].type == ENEMY_BRUNO) {
                 bruno_action_stop(index);
+            } else {
+                joven_action_ai(index);
             }
         }
         break;
