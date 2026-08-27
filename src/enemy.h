@@ -9,12 +9,15 @@
 #define ENEMY_FRAMES 16
 #define JOVEN_FRAMES 16
 #define BRUNO_FRAMES 16
+#define GUARD_FRAMES 16
 #define BIG_FRAMES 5
 #define BIRD_FRAMES 2
 #define DOG_FRAMES 7
 #define BOMB_FRAMES 2
 #define LAMP_FRAMES 1
 #define SYRINGE_FRAMES 1
+
+#define NO_TTYPE -1
 
 #define BOSS_HITS_TO_KILL 10
 /**
@@ -61,6 +64,7 @@ typedef struct {
     int total_frames;
     BITMAP* sprites[ENEMY_FRAMES];
     animeItem* animations; // pointer to sprite animations
+    int respawn; // if TRUE, will respawn even when killed
 } EnemyData;
 
 enum EnemyType {
@@ -69,6 +73,7 @@ enum EnemyType {
     ENEMY_DOG,
     ENEMY_BRUNO,
     ENEMY_BIG,
+    ENEMY_GUARD,
     // NON-ANIMATED ENEMIES
     ENEMY_LAMP,
     ENEMY_SYRINGE,

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="240" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="37">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="240" height="25" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="49">
  <tileset firstgid="1" source="tiles.tsx"/>
  <layer id="1" name="Tile Layer 1" width="240" height="25">
   <data encoding="csv">
@@ -43,7 +43,7 @@
   <object id="29" name="TNT" type="O" x="419" y="80">
    <point/>
   </object>
-  <object id="30" name="TNT" type="O" x="281" y="159">
+  <object id="30" name="TNT" type="O" x="281" y="160">
    <point/>
   </object>
   <object id="31" name="BOX" type="1" x="1209" y="133" width="32" height="27"/>
@@ -51,5 +51,41 @@
   <object id="34" name="BOX" type="1" x="1273" y="133" width="32" height="27"/>
   <object id="35" name="BOX" type="1" x="1305" y="133" width="32" height="27"/>
   <object id="36" name="BOX" type="1" x="1337" y="133" width="32" height="27"/>
+  <object id="37" name="ENEMY_GUARD" type="EL" x="665" y="160">
+   <point/>
+  </object>
+  <object id="38" name="ENEMY_GUARD" type="EL" x="371" y="80">
+   <point/>
+  </object>
+  <object id="39" name="ENEMY_GUARD" type="ER" x="446" y="80">
+   <point/>
+  </object>
+  <object id="40" name="ENEMY_GUARD" type="EL" x="1181" y="80">
+   <point/>
+  </object>
+  <object id="41" name="ENEMY_GUARD" type="EL" x="1369" y="79">
+   <point/>
+  </object>
+  <object id="42" name="ENEMY_GUARD" type="EL" x="1139" y="160">
+   <point/>
+  </object>
+  <object id="43" name="TNT" type="O" x="1122" y="160">
+   <point/>
+  </object>
+  <object id="44" name="TNT" type="O" x="46" y="160">
+   <point/>
+  </object>
+  <object id="45" name="TNT" type="O" x="706" y="160">
+   <point/>
+  </object>
+  <object id="46" name="TNT" type="O" x="1341" y="80">
+   <point/>
+  </object>
+  <object id="47" name="TNT" type="O" x="20" y="80">
+   <point/>
+  </object>
+  <object id="48" name="ENEMY_GUARD" type="ER" x="45" y="80">
+   <point/>
+  </object>
  </objectgroup>
 </map>

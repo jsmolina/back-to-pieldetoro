@@ -9,13 +9,13 @@
 static ThrowableObject throwable_objects[MAX_ENEMY_THROWABLE_OBJECTS];
 static int throw_cooldown = 0;
 
-int init_enemy_throwable(int x, int y, int flip) {
+int init_enemy_throwable(int x, int y, int flip, int ttype) {
     if (throw_cooldown > 0) {
         throw_cooldown--;
         return FALSE;
     }
     // limited to two types (0 or 1)
-    int throw_type = rand() & 1;
+    int throw_type = ttype > 0 ? ttype : rand() & 1;
     for (int i = 0; i < MAX_ENEMY_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == FALSE) {
             throwable_objects[i].x = x;

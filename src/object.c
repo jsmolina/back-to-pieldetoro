@@ -173,7 +173,7 @@ int checkHitObj() {
     }
     // probe just past the leading edge of the foot, at the floor-tile row
     int probe_x = (player.vx > 0) ? (foot.x + foot.w) : (foot.x - 1);
-    int probe_y = 161;
+    int probe_y = player.pos.y > 81 ? 161: 81;
     int tile_id = get_tile_at_position(probe_x, probe_y) - 1;
     return tile_id == WALL_TILE_2;
 }
@@ -393,6 +393,8 @@ void tnt_place_on_box_if_over() {
 
         if (collision(player_area, box_boxes[i])) {
             tnt_place_on_box(i);
+            enemy_spawn_init();
+            enemy_pool_init(); // respawns the enemies again
             return; // one box per press
         }
     }
