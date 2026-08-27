@@ -31,18 +31,23 @@ int init_enemy_throwable(int x, int y, int flip, int ttype) {
 }
 
 inline void draw_enemy_throwable(int scroll_x) {
-    
-    BITMAP* mic_bmp = dat_file[MICROPHONE_BMP].dat;
-    BITMAP* ushanka_bmp = dat_file[USHANKA_BMP].dat;
-    if (!mic_bmp || !ushanka_bmp) {
-        return; // bitmap not loaded
-    }
+
+    BITMAP* sprite = NULL;
+
 
     for (int i = 0; i < MAX_ENEMY_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
+            if (throwable_objects[i].type == MIC_TYPE) {
+                sprite = dat_file[MICROPHONE_BMP].dat;
+            } else if (throwable_objects[i].type == USHANKA_TYPE) {
+                sprite = dat_file[USHANKA_BMP].dat;
+            } else {
+                sprite = dat_file[BULLET_BMP].dat;
+            }
+            
             draw_sprite(
                 current_screen, 
-                throwable_objects[i].type == MIC_TYPE ? mic_bmp : ushanka_bmp, 
+                sprite, 
                 throwable_objects[i].x - scroll_x, 
                 throwable_objects[i].y
             );

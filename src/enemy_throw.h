@@ -7,6 +7,7 @@
 typedef enum {
     MIC_TYPE,
     USHANKA_TYPE,
+    BULLET_TYPE,
     // Add more types here if needed
 } EnThrowableEnum;
 
