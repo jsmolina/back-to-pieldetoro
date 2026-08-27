@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Mon Aug 24 22:18:50 2026 */
+/* Date: Thu Aug 27 17:41:58 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -24,40 +24,41 @@
 #define END_LEVEL_BMP                    18       /* BMP  */
 #define FAROLA_BMP                       19       /* BMP  */
 #define FONT_FNT                         20       /* FONT */
-#define HEAD_BMP                         21       /* BMP  */
-#define INTRO_MID                        22       /* MIDI */
-#define JERINGA_BMP                      23       /* BMP  */
-#define JORDI_LOGO_BMP                   24       /* BMP  */
-#define JOVEN_SPRITESHEET_BMP            25       /* BMP  */
-#define LEVEL2_INTRO_BMP                 26       /* BMP  */
-#define LEVEL3_INTRO2_BMP                27       /* BMP  */
-#define LEVEL3_INTRO3_BMP                28       /* BMP  */
-#define LEVEL4_CRASH_BMP                 29       /* BMP  */
-#define LEVEL4_INTRO_BMP                 30       /* BMP  */
-#define LIFEBAR_BMP                      31       /* BMP  */
-#define LIFEBAR_BRUNO_BMP                32       /* BMP  */
-#define LIFEBAR_ENEMY_BMP                33       /* BMP  */
-#define LIFEBAR_MARTIN_BMP               34       /* BMP  */
-#define LIFEBAR_THROWABLE_BMP            35       /* BMP  */
-#define MARTIN_SPRITESHEET_BMP           36       /* BMP  */
-#define MENU2_BMP                        37       /* BMP  */
-#define MICROPHONE_BMP                   38       /* BMP  */
-#define MINICAR_BMP                      39       /* BMP  */
-#define MONEY_BMP                        40       /* BMP  */
-#define MSDOS_MID                        41       /* MIDI */
-#define MSDOSCLUB_BMP                    42       /* BMP  */
-#define PALETE_INTRO_BMP                 43       /* PAL  */
-#define PALETE_JORDI_LOGO_BMP            44       /* PAL  */
-#define PCONDENSER_BMP                   45       /* BMP  */
-#define PFLOW_BMP                        46       /* BMP  */
-#define PFUEL_BMP                        47       /* BMP  */
-#define PIELDETORO_INTRO3_BMP            48       /* BMP  */
-#define PLATAFORMA2_BMP                  49       /* BMP  */
-#define PLATAFORMA_BMP                   50       /* BMP  */
-#define SINKING1_BMP                     51       /* BMP  */
-#define SINKING2_BMP                     52       /* BMP  */
-#define TEXT_MENU_BMP                    53       /* BMP  */
-#define TILES_BMP                        54       /* BMP  */
-#define TNT_BMP                          55       /* BMP  */
-#define USHANKA_BMP                      56       /* BMP  */
+#define GUARD_SPRITESHEET_BMP            21       /* BMP  */
+#define HEAD_BMP                         22       /* BMP  */
+#define INTRO_MID                        23       /* MIDI */
+#define JERINGA_BMP                      24       /* BMP  */
+#define JORDI_LOGO_BMP                   25       /* BMP  */
+#define JOVEN_SPRITESHEET_BMP            26       /* BMP  */
+#define LEVEL2_INTRO_BMP                 27       /* BMP  */
+#define LEVEL3_INTRO2_BMP                28       /* BMP  */
+#define LEVEL3_INTRO3_BMP                29       /* BMP  */
+#define LEVEL4_CRASH_BMP                 30       /* BMP  */
+#define LEVEL4_INTRO_BMP                 31       /* BMP  */
+#define LIFEBAR_BMP                      32       /* BMP  */
+#define LIFEBAR_BRUNO_BMP                33       /* BMP  */
+#define LIFEBAR_ENEMY_BMP                34       /* BMP  */
+#define LIFEBAR_MARTIN_BMP               35       /* BMP  */
+#define LIFEBAR_THROWABLE_BMP            36       /* BMP  */
+#define MARTIN_SPRITESHEET_BMP           37       /* BMP  */
+#define MENU2_BMP                        38       /* BMP  */
+#define MICROPHONE_BMP                   39       /* BMP  */
+#define MINICAR_BMP                      40       /* BMP  */
+#define MONEY_BMP                        41       /* BMP  */
+#define MSDOS_MID                        42       /* MIDI */
+#define MSDOSCLUB_BMP                    43       /* BMP  */
+#define PALETE_INTRO_BMP                 44       /* PAL  */
+#define PALETE_JORDI_LOGO_BMP            45       /* PAL  */
+#define PCONDENSER_BMP                   46       /* BMP  */
+#define PFLOW_BMP                        47       /* BMP  */
+#define PFUEL_BMP                        48       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            49       /* BMP  */
+#define PLATAFORMA2_BMP                  50       /* BMP  */
+#define PLATAFORMA_BMP                   51       /* BMP  */
+#define SINKING1_BMP                     52       /* BMP  */
+#define SINKING2_BMP                     53       /* BMP  */
+#define TEXT_MENU_BMP                    54       /* BMP  */
+#define TILES_BMP                        55       /* BMP  */
+#define TNT_BMP                          56       /* BMP  */
+#define USHANKA_BMP                      57       /* BMP  */
 
