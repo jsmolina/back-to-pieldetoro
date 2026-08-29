@@ -53,6 +53,7 @@ dat datos.dat -a ./tnt.bmp -h statics.h -t BMP
 dat datos.dat -a ./end_level.bmp -h statics.h -t BMP
 dat datos.dat -a ./big_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./guard_spritesheet.bmp -h statics.h -t BMP
+dat datos.dat -a ./pelobrocoli_spritesheet.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

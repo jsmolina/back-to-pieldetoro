@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Sat Aug 29 21:06:31 2026 */
+/* Date: Sat Aug 29 22:09:50 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -51,15 +51,16 @@
 #define PALETE_INTRO_BMP                 45       /* PAL  */
 #define PALETE_JORDI_LOGO_BMP            46       /* PAL  */
 #define PCONDENSER_BMP                   47       /* BMP  */
-#define PFLOW_BMP                        48       /* BMP  */
-#define PFUEL_BMP                        49       /* BMP  */
-#define PIELDETORO_INTRO3_BMP            50       /* BMP  */
-#define PLATAFORMA2_BMP                  51       /* BMP  */
-#define PLATAFORMA_BMP                   52       /* BMP  */
-#define SINKING1_BMP                     53       /* BMP  */
-#define SINKING2_BMP                     54       /* BMP  */
-#define TEXT_MENU_BMP                    55       /* BMP  */
-#define TILES_BMP                        56       /* BMP  */
-#define TNT_BMP                          57       /* BMP  */
-#define USHANKA_BMP                      58       /* BMP  */
+#define PELOBROCOLI_SPRITESHEET_BMP      48       /* BMP  */
+#define PFLOW_BMP                        49       /* BMP  */
+#define PFUEL_BMP                        50       /* BMP  */
+#define PIELDETORO_INTRO3_BMP            51       /* BMP  */
+#define PLATAFORMA2_BMP                  52       /* BMP  */
+#define PLATAFORMA_BMP                   53       /* BMP  */
+#define SINKING1_BMP                     54       /* BMP  */
+#define SINKING2_BMP                     55       /* BMP  */
+#define TEXT_MENU_BMP                    56       /* BMP  */
+#define TILES_BMP                        57       /* BMP  */
+#define TNT_BMP                          58       /* BMP  */
+#define USHANKA_BMP                      59       /* BMP  */
 
