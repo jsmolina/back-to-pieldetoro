@@ -40,7 +40,9 @@ static const char* const game_texts[TXT_COUNT] = {
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",
     "NOW WE HAVE TO RECOVER THE PIECES",
-    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD"
+    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD",
+    "THE AUTOVOICE, DESTROY IT",
+    "GO AND DESTROY SERVER ROOM WITH TNT"
 };
 #else
 static const char* const game_texts[TXT_COUNT] = {
@@ -66,7 +68,9 @@ static const char* const game_texts[TXT_COUNT] = {
     "GANAR ALGUNA APUESTICA, NEN",
     "NOS LO HA ROBADO Y SE LA HA PEGADO",
     "AHORA HAY QUE RECUPERAR LAS PIEZAS",
-    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA"
+    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA",
+    "EL AUTOVOICE, HAY QUE DESTRUIRLO",
+    "VE Y DESTRUYE LA SALA DE SERVIDORES CON TNT"
 };
 #endif
 
@@ -235,6 +239,8 @@ int level_to_dat_id(int level) {
         return BG3_TMX;
     case 6:
         return BG5_TMX;
+    case 7:
+        return BG6_TMX;
     default:
         return -1;
     }

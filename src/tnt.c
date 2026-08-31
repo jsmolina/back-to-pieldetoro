@@ -2,7 +2,6 @@
 #include "dat_manager.h"
 #include "errors.h"
 #include "helpers.h"
-#include "object.h"
 #include "player.h"
 #include "statics.h"
 #include <allegro.h>
@@ -40,6 +39,7 @@ static Tnt tnts[MAX_TNT];
 static TntBox boxes[MAX_TNT];
 static int tnt_count = 0;
 static int box_count = 0;
+static int collected_in_box = 0;
 static BITMAP* tnt_sprite = NULL;
 
 void load_tnt_spritesheet() {
@@ -65,6 +65,7 @@ void reset_tnt() {
     tnt_count = 0;
     box_count = 0;
     player.tnt_count = 0;
+    collected_in_box = 0;
 }
 
 void load_level_tnt(int level_id) {
@@ -209,5 +210,9 @@ void tnt_place_on_box(int index) {
     while (player.tnt_count > 0 && boxes[index].tnt_on_box < MAX_TNT_PER_BOX) {
         boxes[index].tnt_on_box++;
         player.tnt_count--;
+        collected_in_box++;
+    }
+    if (collected_in_box >= 10) {
+       player_has_all_tnt();
     }
 }

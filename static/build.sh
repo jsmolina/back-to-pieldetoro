@@ -28,7 +28,9 @@ dat datos.dat -a ./bg1_shop2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level2_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level3_intro2.bmp -h statics.h -t BMP
 dat datos.dat -a ./level3_intro3.bmp -h statics.h -t BMP
+dat datos.dat -a ./level7_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_intro.bmp -h statics.h -t BMP
+dat datos.dat -a ./level5_intro.bmp -h statics.h -t BMP
 dat datos.dat -a ./level4_crash.bmp -h statics.h -t BMP
 dat datos.dat -a ./farola.bmp -h statics.h -t BMP
 dat datos.dat -a ./bomb_spritesheet.bmp -h statics.h -t BMP

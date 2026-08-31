@@ -188,6 +188,9 @@ void player_energy_up();
 void player_throwable_up();
 void player_life_up();
 
+// signals the player has collected all tnt
+void player_has_all_tnt();
+
 extern struct playerType player;
 
 #endif

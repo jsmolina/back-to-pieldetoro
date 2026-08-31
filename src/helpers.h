@@ -54,6 +54,8 @@ typedef enum {
     TXT_STAGE4_03,
     TXT_STAGE4_04,
     TXT_STAGE5_01,
+    TXT_STAGE6_01,
+    TXT_STAGE6_02,
     TXT_COUNT
 } gameTextId;
 

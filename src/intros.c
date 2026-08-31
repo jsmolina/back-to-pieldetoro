@@ -74,6 +74,21 @@ void level4_intro() {
     wait_for_space();
 }
 
+void level5_intro() {
+    blit(dat_file[LEVEL5_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE5_01), 43, 16);
+    wait_for_space();
+    print_at(10, START_Y, game_text(TXT_STAGE6_01), 43, 16);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE6_02), 43, 16);
+    wait_for_space();
+}
+
+void level7_intro() {
+    blit(dat_file[LEVEL7_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
+    wait_for_space();
+}
+
 void show_intro(int level) {
     switch (level) {
     case 1:
@@ -87,6 +102,12 @@ void show_intro(int level) {
         break;
     case 4:
         level4_intro();
+        break;
+    case 5:
+        level5_intro();
+        break;
+    case 7:
+        level7_intro();
         break;
     default:
         break;

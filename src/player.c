@@ -1398,3 +1398,7 @@ void player_update(int current_level) {
     }
     player_anime_update();
 }
+
+void player_has_all_tnt() {
+    pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+}

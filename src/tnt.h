@@ -3,7 +3,7 @@
 
 #include "helpers.h"
 
-#define MAX_TNT 20
+#define MAX_TNT 10 // level actually has 10 tnt
 #define MAX_TNT_CARRY 2   // TNT the player can carry at once
 #define MAX_TNT_PER_BOX 2 // TNT a single BOX can hold
 
