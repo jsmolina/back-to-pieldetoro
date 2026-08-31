@@ -14,6 +14,7 @@
 #define CAR_PLATFORM_SIZE 9
 #define ALMANAC_TILE_ID 1040
 #define ADVANCE_TILE_ID 1071
+#define ADVANCE_TILE_ID2 1084
 #define BOMB_JUMP_CLEARANCE_MARGIN 5
 
 // simple AABB collision detection
@@ -118,7 +119,7 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
             } else {
                 if (tile_id == ALMANAC_TILE_ID)
                     return ALMANAC;
-                if (tile_id == ADVANCE_TILE_ID)
+                if (tile_id == ADVANCE_TILE_ID || tile_id == ADVANCE_TILE_ID2)
                     return ADVANCE;
                 if (is_a_platform(tile_id))
                     return PLATFORM;
