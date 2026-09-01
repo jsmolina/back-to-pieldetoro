@@ -626,7 +626,8 @@ static inline void enemy_check_vx(int index, int scroll_x) {
 
 static inline int enemy_uses_platform_edge_check(int index) {
     enum EnemyType type = active_enemies[index].type;
-    return type <= ENEMY_GUARD;
+    return type <= ENEMY_GUARD && type >= ENEMY_DOG;
+    
 }
 
 static inline int enemy_should_flip_for_missing_ground(int index) {

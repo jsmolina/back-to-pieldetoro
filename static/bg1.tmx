@@ -31,7 +31,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="3" name="ENEMY_BIRD" type="EL" x="490" y="115">
+  <object id="3" name="ENEMY_BIRD" type="EL" x="495" y="96">
    <point/>
   </object>
   <object id="4" name="COIN" type="O" x="959" y="88">

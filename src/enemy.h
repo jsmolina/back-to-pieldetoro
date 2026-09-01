@@ -68,9 +68,9 @@ typedef struct {
 } EnemyData;
 
 enum EnemyType {
-    ENEMY_JOVEN,
     ENEMY_BIRD,
     ENEMY_DOG,
+    ENEMY_JOVEN,
     ENEMY_BRUNO,
     ENEMY_BIG,
     ENEMY_GUARD,
