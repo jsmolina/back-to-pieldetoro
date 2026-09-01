@@ -1,4 +1,5 @@
 #include "game.h"
+#include "allegro/midi.h"
 #include "book.h"
 #include "coin.h"
 #include "dat_manager.h"
@@ -160,7 +161,7 @@ void lifebar() {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE) {
+        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE || current_level == 7) {
             year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -232,6 +233,37 @@ static void load_by_stage() {
     }
 }
 
+static inline void start_music() {
+    stop_midi();
+
+    switch(current_level) {
+        case 1:
+            play_midi(dat_file[LEVEL1_FUNKY_MID].dat, TRUE);
+        break;
+        case 2:
+            play_midi(dat_file[LEVEL2_POLICIACO_MID].dat, TRUE);
+        break;
+        case 3:
+            play_midi(dat_file[LEVEL3_MID].dat, TRUE);
+        break;
+        case 4:
+            play_midi(dat_file[LEVEL4_DETECTIVE_MID].dat, TRUE);
+        break;
+        case 5:
+            play_midi(dat_file[LEVEL5_MID].dat, TRUE);
+        break;
+        case 6:
+            play_midi(dat_file[LEVEL6_MID].dat, TRUE);
+        break;
+        case 7:
+            play_midi(dat_file[FINAL_MID].dat, TRUE);
+        break;
+        case 8:
+            play_midi(dat_file[WON_MID].dat, TRUE);
+        break;
+    }
+}
+
 void advance_stage() {
     remove_int(_stage_tick);
     int secs = stage_tick_count;
@@ -251,6 +283,8 @@ void advance_stage() {
 
     current_level++;
     load_by_stage();
+    start_music();
+    reset_palette_to_vga_original();
 }
 
 

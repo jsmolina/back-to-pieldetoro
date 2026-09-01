@@ -85,7 +85,7 @@ void level5_intro() {
 
 void level7_intro() {
     blit(dat_file[LEVEL7_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
-    print_at(10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
+    print_at(10, START_Y, game_text(TXT_STAGE7_01), 43, 16);
     wait_for_space();
 }
 

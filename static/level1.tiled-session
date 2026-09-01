@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "tiles.tsx",
+    "activeFile": "bg2.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -22,8 +22,8 @@
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1376.125,
-                "y": 98.625
+                "x": 1354.375,
+                "y": 92.875
             }
         },
         "bg1.tmx": {
@@ -68,11 +68,11 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.3524,
+            "scale": 2.0687,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 2118.0863649807748,
-                "y": 103.88938183969239
+                "x": 1321.84463672838,
+                "y": 134.14221491758107
             }
         },
         "bg4.tmx": {
@@ -82,8 +82,8 @@
             "scale": 1.5159,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2110.6273500890557,
-                "y": 102.57932581304834
+                "x": 1119.7968203707367,
+                "y": 99.94062932911142
             }
         },
         "bg5.tmx": {
@@ -93,16 +93,16 @@
             "scale": 2.5526,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1320.4183969286219,
-                "y": 122.81595236229728
+                "x": 960.0015670296953,
+                "y": 100.09402178171277
             }
         },
         "bg6.tmx": {
             "scale": 1.2914,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 256.6981570388726,
-                "y": 39.10484745237724
+                "x": 272.18522533684376,
+                "y": 100.27876722936347
             }
         },
         "continue.tmx": {
@@ -149,24 +149,25 @@
         "test.tmx",
         "bg3.tmx",
         "bg2.tmx",
-        "bg5.tmx",
-        "bg1_shop.tmx"
+        "bg6.tmx",
+        "bg1_shop.tmx",
+        "bg5.tmx"
     ],
     "project": "level1.tiled-project",
     "property.type": "int",
     "recentFiles": [
         "bg0.tmx",
         "bg1.tmx",
-        "bg1_shop.tmx",
-        "bg5.tmx",
-        "bg2.tmx",
-        "bg3.tmx",
-        "test.tmx",
-        "continue.tmx",
-        "bg4.tmx",
         "tiles.tsx",
-        "bg2_shop.tmx",
-        "level1.tmx"
+        "bg4.tmx",
+        "continue.tmx",
+        "test.tmx",
+        "bg3.tmx",
+        "bg5.tmx",
+        "bg1_shop.tmx",
+        "bg6.tmx",
+        "bg2.tmx",
+        "bg2_shop.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
