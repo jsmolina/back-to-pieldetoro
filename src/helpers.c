@@ -17,6 +17,7 @@
 #define PRINT_SLOW_DELAY_MS 10
 
 #if defined(LANG_EN)
+static const char * game_name = "Back to cowhide";
 static const char* const game_texts[TXT_COUNT] = {
     "YOU BUILT A TIME MACHINE IN A BETSY?",
     "IF YOU BUILD A TIME MACHINE, MAKE IT COOL, DUDE!",
@@ -46,6 +47,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "YOU KILLED AUTOVOICE, PREPARE TO DIE"
 };
 #else
+static const char* game_name = "Back to cowhide";
 static const char* const game_texts[TXT_COUNT] = {
     "HAS MONTAO UNA MAQUINA DEL TIEMPO EN UNA LOCA?",
     "SI VAS A MONTAR UNA MAQUINA DEL TIEMPO,QUE MOLE,TRON!",

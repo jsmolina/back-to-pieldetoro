@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg2.tmx",
+    "activeFile": "bg6.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -33,8 +33,8 @@
             "scale": 2.4829,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 995.0058399452253,
-                "y": 118.20854645777115
+                "x": 1200.0080550968626,
+                "y": 100.08457851705666
             }
         },
         "bg1_shop.tmx": {
@@ -98,11 +98,11 @@
             }
         },
         "bg6.tmx": {
-            "scale": 1.2914,
+            "scale": 2.4217,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 272.18522533684376,
-                "y": 100.27876722936347
+                "x": 271.9164223479374,
+                "y": 100.13626791097164
             }
         },
         "continue.tmx": {
@@ -130,7 +130,7 @@
             }
         },
         "tiles.tsx": {
-            "scaleInDock": 3,
+            "scaleInDock": 1.2422,
             "scaleInEditor": 4.89
         }
     },
@@ -163,10 +163,10 @@
         "continue.tmx",
         "test.tmx",
         "bg3.tmx",
+        "bg2.tmx",
         "bg5.tmx",
         "bg1_shop.tmx",
         "bg6.tmx",
-        "bg2.tmx",
         "bg2_shop.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",

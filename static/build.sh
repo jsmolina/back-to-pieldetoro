@@ -52,6 +52,7 @@ dat datos.dat -a ./pcondenser.bmp -h statics.h -t BMP
 dat datos.dat -a ./pflow.bmp -h statics.h -t BMP
 dat datos.dat -a ./microphone.bmp -h statics.h -t BMP
 dat datos.dat -a ./bullet.bmp -h statics.h -t BMP
+dat datos.dat -a ./wave_bullet.bmp -h statics.h -t BMP
 dat datos.dat -a ./ushanka.bmp -h statics.h -t BMP
 dat datos.dat -a ./rama.bmp -h statics.h -t BMP
 dat datos.dat -a ./lifebar_throwable.bmp -h statics.h -t BMP

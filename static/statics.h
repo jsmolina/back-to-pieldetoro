@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Tue Sep  1 21:53:55 2026 */
+/* Date: Thu Sep  3 22:10:33 2026 */
 /* Do not hand edit! */
 
 #define ARROW_GETIN_BMP                  0        /* BMP  */
@@ -73,5 +73,6 @@
 #define TILES_BMP                        67       /* BMP  */
 #define TNT_BMP                          68       /* BMP  */
 #define USHANKA_BMP                      69       /* BMP  */
-#define WON_MID                          70       /* MIDI */
+#define WAVE_BULLET_BMP                  70       /* BMP  */
+#define WON_MID                          71       /* MIDI */
 
