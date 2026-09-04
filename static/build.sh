@@ -24,6 +24,7 @@ dat datos.dat -a ./level3.mid -h statics.h -t MIDI
 dat datos.dat -a ./level4_detective.mid -h statics.h -t MIDI
 dat datos.dat -a ./level5.mid -h statics.h -t MIDI
 dat datos.dat -a ./level6.mid -h statics.h -t MIDI
+dat datos.dat -a ./inter.mid -h statics.h -t MIDI
 dat datos.dat -a ./final.mid -h statics.h -t MIDI
 dat datos.dat -a ./won.mid -h statics.h -t MIDI
 #dat datos.dat -a ./stage_enemies.def -h statics.h 

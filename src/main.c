@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "platform.h"
 #include "player.h"
+#include "boss.h"
 #include "sinking.h"
 #include "tiles.h"
 #include "tnt.h"
@@ -150,6 +151,7 @@ int main(int argc, char *argv[]) {
     load_piece_spritesheet();
     load_sinking_spritesheet();
     load_tnt_spritesheet();
+    load_boss_spritesheet();
 
     short exit_game = 0;
     do {

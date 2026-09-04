@@ -6,6 +6,7 @@
 #include "enemy_throw.h"
 #include "game.h"
 #include "helpers.h"
+#include "boss.h"
 #include "piece.h"
 #include "player.h"
 #include "tiles.h"
@@ -378,6 +379,46 @@ void collision_check_player_vs_tnt() {
 
         if (collision(player_area, tnt_boxes[i])) {
             tnt_on_collect(i);
+        }
+    }
+}
+
+void collision_check_player_vs_boss() {
+    collisionType player_area = player_aabb();
+
+    // player throw/kick hitbox damages the boss; touching the body otherwise hurts
+    collisionType boss_box;
+    boss_get_aabb(&boss_box);
+    if (boss_box.w != 0 && collision(player_area, boss_box)) {
+        if (player.state == THROWING || player.state == KICKING) {
+            boss_on_hit();
+        } else {
+            player_on_hit();
+        }
+    }
+
+    // thrown books also damage the boss (boss_on_hit self-gates to the tired window)
+    if (boss_box.w != 0) {
+        collisionType books[MAX_THROWABLE_OBJECTS];
+        book_get_all_aabb(books);
+        for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
+            if (books[i].w == 0)
+                continue;
+            if (collision(books[i], boss_box)) {
+                book_on_hit(i);
+                boss_on_hit();
+            }
+        }
+    }
+
+    // wave projectiles hurt the player
+    collisionType waves[BOSS_MAX_WAVES];
+    boss_wave_get_all_aabb(waves);
+    for (int i = 0; i < BOSS_MAX_WAVES; i++) {
+        if (waves[i].w == 0)
+            continue;
+        if (collision(player_area, waves[i])) {
+            player_on_hit();
         }
     }
 }

@@ -1,3 +1,4 @@
+#include "allegro/midi.h"
 #include "dat_manager.h"
 #include "helpers.h"
 #include "statics.h"
@@ -90,6 +91,8 @@ void level7_intro() {
 }
 
 void show_intro(int level) {
+    stop_midi();
+    play_midi(dat_file[INTER_MID].dat, 0);
     switch (level) {
     case 1:
         level1_intro();

@@ -112,4 +112,10 @@ void collision_check_player_vs_tnt();
  */
 void tnt_place_on_box_if_over();
 
+/**
+ * @brief Level-7 boss collisions: the player's throw/kick hitbox damages the
+ * boss, the boss body and its wave projectiles hurt the player.
+ */
+void collision_check_player_vs_boss();
+
 #endif

@@ -1,6 +1,7 @@
 #include "game.h"
 #include "allegro/midi.h"
 #include "book.h"
+#include "boss.h"
 #include "coin.h"
 #include "dat_manager.h"
 #include "door.h"
@@ -283,7 +284,6 @@ void advance_stage() {
 
     current_level++;
     load_by_stage();
-    start_music();
     reset_palette_to_vga_original();
 }
 
@@ -376,6 +376,9 @@ void update_game_run() {
         platform_update(scroll_x);
         if (current_level == LEVEL_CITY) {
             sinking_update(scroll_x);
+        }
+        if (current_level == LEVEL_BOSS) {
+            boss_update(scroll_x);
         }
         player_update(current_level);
 
@@ -486,6 +489,9 @@ inline void draw_game() {
         if (current_level == LEVEL_AUTOVOICE) {
             tnt_draw(scroll_x);
         }
+        if (current_level == LEVEL_BOSS) {
+            boss_draw(scroll_x);
+        }
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
@@ -506,6 +512,9 @@ inline void draw_game() {
         }
         if (current_level == LEVEL_AUTOVOICE) {
             collision_check_player_vs_tnt();
+        }
+        if (current_level == LEVEL_BOSS) {
+            collision_check_player_vs_boss();
         }
         lifebar();
         if (player.boss_mode == TRUE) {
@@ -541,11 +550,13 @@ void start_stage() {
     switch (current_level) {
     case 1:
         level1_intro();
+        start_music();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_new_game();
         break;
     default:
         show_intro(current_level);
+        start_music();
         GROUND_Y = LEVEL2_GROUND_Y;
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
@@ -567,6 +578,10 @@ void start_stage() {
         reset_tnt();
         if (current_level == LEVEL_AUTOVOICE) {
             load_level_tnt(current_level);
+        }
+        reset_boss();
+        if (current_level == LEVEL_BOSS) {
+            spawn_boss();
         }
         break;
     }
@@ -617,6 +632,9 @@ inline int update_game() {
         if (current_level == LEVEL_AUTOVOICE) {
             reset_tnt();
             load_level_tnt(current_level);
+        }
+        if (current_level == LEVEL_BOSS) {
+            spawn_boss();
         }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart
