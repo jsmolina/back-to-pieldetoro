@@ -24,7 +24,7 @@
 #define BOSS_START_Y 104
 #define BOSS_STOP_X 240
 #define BOSS_FRAME_COUNT 28 // frames 0..25
-#define BOSS_MAX_HP 20
+#define BOSS_MAX_HP 30
 #define BOSS_HURT_COOLDOWN 10 // ticks of invulnerability after a hit
 #define BOSS_WALK_SPEED 1
 #define BOSS_WALK_INTERVAL 4 // ticks per walk-in animation frame
@@ -365,10 +365,10 @@ void boss_wave_get_all_aabb(collisionType* boxes) {
     }
 }
 
-void boss_on_hit() {
+int boss_on_hit() {
     // only vulnerable while tired (the rest window between attacks)
     if (boss.hurt_cooldown > 0) {
-        return;
+        return FALSE;
     }
     boss.hurt_cooldown = BOSS_HURT_COOLDOWN;
     boss.hp--;
@@ -379,5 +379,7 @@ void boss_on_hit() {
         for (int i = 0; i < BOSS_MAX_WAVES; i++) {
             waves[i].active = FALSE;
         }
+        return TRUE;
     }
+    return FALSE;
 }

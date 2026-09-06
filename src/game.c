@@ -31,6 +31,7 @@
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
 #define CONTINUE 7
+#define GAME_PASSED 8
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 2
@@ -399,6 +400,9 @@ void update_game_run() {
         } else if (flow_event.type == PLAYER_ADVANCE_STAGE) {
             world_state = STAGE_CLEAR;
             return;
+        } else if (flow_event.type == PLAYER_BEAT_BOSS) {
+            world_state = GAME_PASSED;
+            return;
         }
         
         if (current_level == LEVEL_MOUNTAIN && player.boss_mode == TRUE && boss_hits >= BOSS_HITS_TO_KILL) {
@@ -678,6 +682,9 @@ inline int update_game() {
         continue_bg = NULL;
         break;
     case GAME_OVER:
+        return 1;
+        break;
+    case GAME_PASSED:
         return 1;
         break;
     }

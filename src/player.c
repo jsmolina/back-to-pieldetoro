@@ -1402,3 +1402,7 @@ void player_update(int current_level) {
 void player_has_all_tnt() {
     pending_flow_event.type = PLAYER_ADVANCE_STAGE;
 }
+
+void player_has_beaten_boss() {
+    pending_flow_event.type = PLAYER_BEAT_BOSS;
+}

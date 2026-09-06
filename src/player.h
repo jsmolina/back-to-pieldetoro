@@ -41,6 +41,7 @@ typedef enum {
     PLAYER_ENTER_ROOM,
     PLAYER_FLOW_BACK_IN_TIME,
     PLAYER_ADVANCE_STAGE,
+    PLAYER_BEAT_BOSS,
 } PlayerFlowEvent;
 
 typedef struct {
@@ -190,6 +191,9 @@ void player_life_up();
 
 // signals the player has collected all tnt
 void player_has_all_tnt();
+
+// signals boss is beaten
+void player_has_beaten_boss();
 
 extern struct playerType player;
 

@@ -5,10 +5,8 @@
 
 /**
  * @file boss.h
- * @brief Level-7 boss ("pelobrocoli"): walks in, then fires oscillating wave
- *        projectiles at the player. Two phases based on HP. Self-contained,
- *        modelled on the enemy.c / sinking.c object style; collision glue lives
- *        in object.c like the other objects.
+ * @brief Level-7 boss: walks in, then fires oscillating wave
+ *        projectiles at the player. 
  */
 
 #define BOSS_MAX_WAVES 24 // active wave-projectile instances pool
@@ -38,6 +36,6 @@ void boss_get_aabb(collisionType* box);
 void boss_wave_get_all_aabb(collisionType* boxes);
 
 /** @brief Applies one hit to the boss, honoring the invulnerability cooldown. */
-void boss_on_hit();
+int boss_on_hit();
 
 #endif

@@ -385,13 +385,14 @@ void collision_check_player_vs_tnt() {
 
 void collision_check_player_vs_boss() {
     collisionType player_area = player_aabb();
+    int boss_result;
 
     // player throw/kick hitbox damages the boss; touching the body otherwise hurts
     collisionType boss_box;
     boss_get_aabb(&boss_box);
     if (boss_box.w != 0 && collision(player_area, boss_box)) {
         if (player.state == THROWING || player.state == KICKING) {
-            boss_on_hit();
+            boss_result = boss_on_hit();
         } else {
             player_on_hit();
         }
@@ -406,9 +407,14 @@ void collision_check_player_vs_boss() {
                 continue;
             if (collision(books[i], boss_box)) {
                 book_on_hit(i);
-                boss_on_hit();
+                boss_result = boss_on_hit();
             }
         }
+    }
+
+    if (boss_result == TRUE) {
+        player_has_beaten_boss();
+        return;        
     }
 
     // wave projectiles hurt the player
