@@ -17,7 +17,7 @@
 #define WAVE_KIND_WAVE 0 // follows the oscillating wave curve
 #define WAVE_KIND_LINE 1 // straight horizontal line at LINE_Y
 
-#define BOSS_TIRED_FRAMES 180 // 120 ~1.7s or vulnerable window between attacks (~3.4s)
+#define BOSS_TIRED_FRAMES 140 // 120 ~1.7s or vulnerable window between attacks (~3.4s)
 
 // placement and stats
 #define BOSS_START_X 215

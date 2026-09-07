@@ -68,6 +68,8 @@ dat datos.dat -a ./big_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./guard_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./pelobrocoli_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./girl.fli -h statics.h
+dat datos.dat -a ./cars.bmp -h statics.h -t BMP
+dat datos.dat -a ./diario.bmp -h statics.h -t BMP
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

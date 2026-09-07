@@ -447,7 +447,7 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == THROWING) {
         return (collisionType){
-            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x,
+            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x +5,
             .y = player.pos.y + 20,
             .w = player.flip == FALSE ? 24 : 18,
             .h = 15

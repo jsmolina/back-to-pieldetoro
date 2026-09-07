@@ -611,6 +611,10 @@ void palete_flash() {
     }
 }
 
+static inline int skip_fli_on_space2(void) {
+    return key[KEY_SPACE] ? 1 : 0;
+}
+
 inline int update_game() {
     switch (world_state) {
     case START_STAGE:
@@ -685,6 +689,17 @@ inline int update_game() {
         return 1;
         break;
     case GAME_PASSED:
+        play_midi(dat_file[WON_MID].dat, TRUE);
+        print_at_slow(90, 40, "  YOU WON!  ", 31, 16);
+        wait_for_space();
+        blit(dat_file[CARS_BMP].dat, screen, 0, 0, 48, 0, 223, 177);
+        print_at_slow(2, 30, game_text(TXT_WON1), 31, 16);
+        wait_for_space();
+        blit(dat_file[DIARIO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+        wait_for_space();
+        print_at_slow(2, 30, game_text(TXT_WON2), 31, 16);
+        wait_for_space();
+        play_memory_fli(dat_file[GIRL_FLI].dat, screen, 1, skip_fli_on_space2);
         return 1;
         break;
     }

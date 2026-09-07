@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
         megahit_mode = 1;
     }
     MainMenuResult res;
+    int update_res;
 
     RGB black = { 16, 16, 16, 0 };
 
@@ -190,7 +191,7 @@ int main(int argc, char *argv[]) {
         case GAME:
             if (update_game() == 1) {
                 game_state = GAME_OVER;
-            }
+            } 
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);

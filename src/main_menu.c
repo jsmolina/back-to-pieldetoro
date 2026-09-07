@@ -3,7 +3,6 @@
 #include "allegro/keyboard.h"
 #include "allegro/text.h"
 #include "dat_manager.h"
-#include "helpers.h"
 #include "passcode.h"
 #include "statics.h"
 #include <allegro.h>
@@ -21,11 +20,6 @@
 #define MENU_MENU_BORDER_COLOR 63        /* bright white */
 #define PASSCODE_Y 40
 
-static const char* main_menu_options[MAIN_MENU_OPTION_COUNT] = {
-    "START",
-    "PASSSWORD",
-    "EXIT TO DOS"
-};
 
 static int show_menu = 1;
 static int read_passcode(char* buf) {
