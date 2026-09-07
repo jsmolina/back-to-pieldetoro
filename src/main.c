@@ -12,8 +12,10 @@
 #include "piece.h"
 #include "platform.h"
 #include "player.h"
+#include "boss.h"
 #include "sinking.h"
 #include "tiles.h"
+#include "tnt.h"
 #include "main_menu.h"
 
 #include <allegro.h>
@@ -81,6 +83,7 @@ int main(int argc, char *argv[]) {
         megahit_mode = 1;
     }
     MainMenuResult res;
+    int update_res;
 
     RGB black = { 16, 16, 16, 0 };
 
@@ -148,6 +151,8 @@ int main(int argc, char *argv[]) {
     load_coin_spritesheet();
     load_piece_spritesheet();
     load_sinking_spritesheet();
+    load_tnt_spritesheet();
+    load_boss_spritesheet();
 
     short exit_game = 0;
     do {
@@ -186,7 +191,7 @@ int main(int argc, char *argv[]) {
         case GAME:
             if (update_game() == 1) {
                 game_state = GAME_OVER;
-            }
+            } 
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);

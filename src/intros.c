@@ -1,3 +1,4 @@
+#include "allegro/midi.h"
 #include "dat_manager.h"
 #include "helpers.h"
 #include "statics.h"
@@ -54,6 +55,9 @@ void level4_intro() {
     RGB black = { 16, 16, 16, 0 };
     get_palette(palette);
     set_color(0, &black);
+    blit(dat_file[END_LEVEL_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y + OFFSET, "OK OK!", makecol(255, 255, 255), 16);
+    wait_for_space();
     blit(dat_file[LEVEL3_INTRO2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     print_at(10, START_Y + OFFSET, game_text(TXT_STAGE3_04), makecol(255, 255, 255), 16);
     wait_for_space();
@@ -71,7 +75,24 @@ void level4_intro() {
     wait_for_space();
 }
 
+void level5_intro() {
+    blit(dat_file[LEVEL5_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE5_01), 43, 16);
+    wait_for_space();
+    print_at(10, START_Y, game_text(TXT_STAGE6_01), 43, 16);
+    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE6_02), 43, 16);
+    wait_for_space();
+}
+
+void level7_intro() {
+    blit(dat_file[LEVEL7_INTRO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    print_at(10, START_Y, game_text(TXT_STAGE7_01), 43, 16);
+    wait_for_space();
+}
+
 void show_intro(int level) {
+    stop_midi();
+    play_midi(dat_file[INTER_MID].dat, 0);
     switch (level) {
     case 1:
         level1_intro();
@@ -84,6 +105,12 @@ void show_intro(int level) {
         break;
     case 4:
         level4_intro();
+        break;
+    case 5:
+        level5_intro();
+        break;
+    case 7:
+        level7_intro();
         break;
     default:
         break;

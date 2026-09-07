@@ -4,14 +4,18 @@
 #include "door.h"
 #include "enemy.h"
 #include "enemy_throw.h"
+#include "game.h"
 #include "helpers.h"
+#include "boss.h"
 #include "piece.h"
 #include "player.h"
 #include "tiles.h"
+#include "tnt.h"
 
 #define CAR_PLATFORM_SIZE 9
 #define ALMANAC_TILE_ID 1040
 #define ADVANCE_TILE_ID 1071
+#define ADVANCE_TILE_ID2 1084
 #define BOMB_JUMP_CLEARANCE_MARGIN 5
 
 // simple AABB collision detection
@@ -116,7 +120,7 @@ static int rect_over_tile_types(collisionType r, int is_wheel) {
             } else {
                 if (tile_id == ALMANAC_TILE_ID)
                     return ALMANAC;
-                if (tile_id == ADVANCE_TILE_ID)
+                if (tile_id == ADVANCE_TILE_ID || tile_id == ADVANCE_TILE_ID2)
                     return ADVANCE;
                 if (is_a_platform(tile_id))
                     return PLATFORM;
@@ -160,8 +164,20 @@ int checkOverObj(collisionType area) {
     return FALSE;
 }
 
+// TRUE if the player is walking into a solid wall tile (blocks both directions).
 int checkHitObj() {
-    return FALSE;
+    if (player.vx == 0) {
+        return FALSE;
+    }
+    collisionType foot = player_foot_area();
+    if (foot.w <= 0) {
+        return FALSE;
+    }
+    // probe just past the leading edge of the foot, at the floor-tile row
+    int probe_x = (player.vx > 0) ? (foot.x + foot.w) : (foot.x - 1);
+    int probe_y = player.pos.y > 81 ? 161: 81;
+    int tile_id = get_tile_at_position(probe_x, probe_y) - 1;
+    return tile_id == WALL_TILE_2;
 }
 
 void collision_check_throwable_vs_enemy() {
@@ -290,7 +306,7 @@ int player_is_over_ladder() {
     int cx = player.pos.x + (player.data->width >> 1);
     int cy = player.pos.y + (player.data->height >> 1);
     int tile_id = get_tile_at_position(cx, cy) - 1;
-    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2 || tile_id == LADDER_TILE_3 || tile_id == LADDER_TILE_4 ;
 }
 
 int player_foot_over_ladder() {
@@ -301,7 +317,7 @@ int player_foot_over_ladder() {
     int cx = foot.x + (foot.w >> 1);
     int cy = foot.y + foot.h - 1;
     int tile_id = get_tile_at_position(cx, cy) - 1;
-    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2;
+    return tile_id == LADDER_TILE_1 || tile_id == LADDER_TILE_2 || tile_id == LADDER_TILE_3 || tile_id == LADDER_TILE_4 ;
 }
 
 int martin_is_over_door() {
@@ -348,6 +364,86 @@ void collision_check_player_vs_pieces() {
 
         if (collision(player_area, piece_boxes[i])) {
             piece_on_collect(i);
+        }
+    }
+}
+
+void collision_check_player_vs_tnt() {
+    collisionType player_area = player_aabb();
+    collisionType tnt_boxes[MAX_TNT];
+    tnt_get_all_aabb(tnt_boxes);
+
+    for (int i = 0; i < MAX_TNT; i++) {
+        if (tnt_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, tnt_boxes[i])) {
+            tnt_on_collect(i);
+        }
+    }
+}
+
+void collision_check_player_vs_boss() {
+    collisionType player_area = player_aabb();
+    int boss_result;
+
+    // player throw/kick hitbox damages the boss; touching the body otherwise hurts
+    collisionType boss_box;
+    boss_get_aabb(&boss_box);
+    if (boss_box.w != 0 && collision(player_area, boss_box)) {
+        if (player.state == THROWING || player.state == KICKING) {
+            boss_result = boss_on_hit();
+        } else {
+            player_on_hit();
+        }
+    }
+
+    // thrown books also damage the boss (boss_on_hit self-gates to the tired window)
+    if (boss_box.w != 0) {
+        collisionType books[MAX_THROWABLE_OBJECTS];
+        book_get_all_aabb(books);
+        for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
+            if (books[i].w == 0)
+                continue;
+            if (collision(books[i], boss_box)) {
+                book_on_hit(i);
+                boss_result = boss_on_hit();
+            }
+        }
+    }
+
+    if (boss_result == TRUE) {
+        player_has_beaten_boss();
+        return;        
+    }
+
+    // wave projectiles hurt the player
+    collisionType waves[BOSS_MAX_WAVES];
+    boss_wave_get_all_aabb(waves);
+    for (int i = 0; i < BOSS_MAX_WAVES; i++) {
+        if (waves[i].w == 0)
+            continue;
+        if (collision(player_area, waves[i])) {
+            player_on_hit();
+        }
+    }
+}
+
+// door-style Space interaction: place carried TNT on the overlapped BOX
+void tnt_place_on_box_if_over() {
+    collisionType player_area = player_aabb();
+    collisionType box_boxes[MAX_TNT];
+    tnt_box_get_all_aabb(box_boxes);
+
+    for (int i = 0; i < MAX_TNT; i++) {
+        if (box_boxes[i].w == 0)
+            continue;
+
+        if (collision(player_area, box_boxes[i])) {
+            tnt_place_on_box(i);
+            enemy_spawn_init();
+            enemy_pool_init(); // respawns the enemies again
+            return; // one box per press
         }
     }
 }

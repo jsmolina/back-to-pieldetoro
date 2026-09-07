@@ -41,6 +41,7 @@ typedef enum {
     PLAYER_ENTER_ROOM,
     PLAYER_FLOW_BACK_IN_TIME,
     PLAYER_ADVANCE_STAGE,
+    PLAYER_BEAT_BOSS,
 } PlayerFlowEvent;
 
 typedef struct {
@@ -73,6 +74,7 @@ struct playerType {
     int sprite_index;
     int type;
     int has_almanac;
+    int tnt_count; // TNT carried in inventory (level 6), max MAX_TNT_CARRY
     int boss_mode; // TRUE if player is in boss mode, FALSE otherwise
     unsigned int state;
     unsigned int prev_state;
@@ -186,6 +188,12 @@ FlowEventType player_consume_flow_event();
 void player_energy_up();
 void player_throwable_up();
 void player_life_up();
+
+// signals the player has collected all tnt
+void player_has_all_tnt();
+
+// signals boss is beaten
+void player_has_beaten_boss();
 
 extern struct playerType player;
 

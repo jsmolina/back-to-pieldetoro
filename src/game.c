@@ -1,5 +1,7 @@
 #include "game.h"
+#include "allegro/midi.h"
 #include "book.h"
+#include "boss.h"
 #include "coin.h"
 #include "dat_manager.h"
 #include "door.h"
@@ -17,6 +19,7 @@
 #include "sinking.h"
 #include "statics.h"
 #include "tiles.h"
+#include "tnt.h"
 #include <allegro.h>
 #include <stdio.h>
 
@@ -28,6 +31,7 @@
 #define RESTART_STAGE 5
 #define WBACK_IN_TIME 6
 #define CONTINUE 7
+#define GAME_PASSED 8
 #define LEVEL1_GROUND_Y 67
 #define LEVEL2_GROUND_Y 118
 #define MAX_MARTIN_VX 2
@@ -159,7 +163,7 @@ void lifebar() {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == LEVEL_CITY) {
+        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE || current_level == 7) {
             year = 1997;
         }
         printf_at_simple(26, 185, 46, -1, "%d", year);
@@ -231,6 +235,37 @@ static void load_by_stage() {
     }
 }
 
+static inline void start_music() {
+    stop_midi();
+
+    switch(current_level) {
+        case 1:
+            play_midi(dat_file[LEVEL1_FUNKY_MID].dat, TRUE);
+        break;
+        case 2:
+            play_midi(dat_file[LEVEL2_POLICIACO_MID].dat, TRUE);
+        break;
+        case 3:
+            play_midi(dat_file[LEVEL3_MID].dat, TRUE);
+        break;
+        case 4:
+            play_midi(dat_file[LEVEL4_DETECTIVE_MID].dat, TRUE);
+        break;
+        case 5:
+            play_midi(dat_file[LEVEL5_MID].dat, TRUE);
+        break;
+        case 6:
+            play_midi(dat_file[LEVEL6_MID].dat, TRUE);
+        break;
+        case 7:
+            play_midi(dat_file[FINAL_MID].dat, TRUE);
+        break;
+        case 8:
+            play_midi(dat_file[WON_MID].dat, TRUE);
+        break;
+    }
+}
+
 void advance_stage() {
     remove_int(_stage_tick);
     int secs = stage_tick_count;
@@ -250,6 +285,7 @@ void advance_stage() {
 
     current_level++;
     load_by_stage();
+    reset_palette_to_vga_original();
 }
 
 
@@ -342,6 +378,9 @@ void update_game_run() {
         if (current_level == LEVEL_CITY) {
             sinking_update(scroll_x);
         }
+        if (current_level == LEVEL_BOSS) {
+            boss_update(scroll_x);
+        }
         player_update(current_level);
 
         flow_event = player_consume_flow_event();
@@ -360,6 +399,9 @@ void update_game_run() {
             return;
         } else if (flow_event.type == PLAYER_ADVANCE_STAGE) {
             world_state = STAGE_CLEAR;
+            return;
+        } else if (flow_event.type == PLAYER_BEAT_BOSS) {
+            world_state = GAME_PASSED;
             return;
         }
         
@@ -448,6 +490,12 @@ inline void draw_game() {
         if (current_level == LEVEL_CITY) {
             sinking_draw(scroll_x);
         }
+        if (current_level == LEVEL_AUTOVOICE) {
+            tnt_draw(scroll_x);
+        }
+        if (current_level == LEVEL_BOSS) {
+            boss_draw(scroll_x);
+        }
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
@@ -458,12 +506,19 @@ inline void draw_game() {
         if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
+   
         collision_check_throwable_vs_enemy();
         collision_check_enemy_throwable_vs_player();
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
         if (current_level == LEVEL_MOUNTAIN) {
             collision_check_player_vs_pieces();
+        }
+        if (current_level == LEVEL_AUTOVOICE) {
+            collision_check_player_vs_tnt();
+        }
+        if (current_level == LEVEL_BOSS) {
+            collision_check_player_vs_boss();
         }
         lifebar();
         if (player.boss_mode == TRUE) {
@@ -478,7 +533,7 @@ inline void draw_game() {
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
-        textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
+        //textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
 
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
@@ -499,11 +554,13 @@ void start_stage() {
     switch (current_level) {
     case 1:
         level1_intro();
+        start_music();
         GROUND_Y = LEVEL1_GROUND_Y;
         player_new_game();
         break;
     default:
         show_intro(current_level);
+        start_music();
         GROUND_Y = LEVEL2_GROUND_Y;
         enemy_spawn_init();
         load_level_enemies_v2(current_level);
@@ -522,6 +579,14 @@ void start_stage() {
         }
         reset_doors();
         load_level_doors(current_level);
+        reset_tnt();
+        if (current_level == LEVEL_AUTOVOICE) {
+            load_level_tnt(current_level);
+        }
+        reset_boss();
+        if (current_level == LEVEL_BOSS) {
+            spawn_boss();
+        }
         break;
     }
     init_per_stages();
@@ -546,6 +611,10 @@ void palete_flash() {
     }
 }
 
+static inline int skip_fli_on_space2(void) {
+    return key[KEY_SPACE] ? 1 : 0;
+}
+
 inline int update_game() {
     switch (world_state) {
     case START_STAGE:
@@ -567,6 +636,13 @@ inline int update_game() {
         if (current_level == LEVEL_MOUNTAIN) {
             reset_pieces();
             load_level_pieces(current_level);
+        }
+        if (current_level == LEVEL_AUTOVOICE) {
+            reset_tnt();
+            load_level_tnt(current_level);
+        }
+        if (current_level == LEVEL_BOSS) {
+            spawn_boss();
         }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
         hud_last_level = -1; // force HUD redraw on stage restart
@@ -610,6 +686,20 @@ inline int update_game() {
         continue_bg = NULL;
         break;
     case GAME_OVER:
+        return 1;
+        break;
+    case GAME_PASSED:
+        play_midi(dat_file[WON_MID].dat, TRUE);
+        print_at_slow(90, 40, "  YOU WON!  ", 31, 16);
+        wait_for_space();
+        blit(dat_file[CARS_BMP].dat, screen, 0, 0, 48, 0, 223, 177);
+        print_at_slow(2, 30, game_text(TXT_WON1), 31, 16);
+        wait_for_space();
+        blit(dat_file[DIARIO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+        wait_for_space();
+        print_at_slow(2, 30, game_text(TXT_WON2), 31, 16);
+        wait_for_space();
+        play_memory_fli(dat_file[GIRL_FLI].dat, screen, 1, skip_fli_on_space2);
         return 1;
         break;
     }

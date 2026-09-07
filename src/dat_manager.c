@@ -22,7 +22,7 @@ static void rotar_paleta() {
     get_palette(pal);
 
     for (int i = 200; i < 240; i++) {
-        int nuevo_indice = (i + 1) % 256;
+        int nuevo_indice = (i + 1);
         RGB color_temp = pal[i];
         pal[i] = pal[nuevo_indice];
         pal[nuevo_indice] = color_temp;

@@ -3,10 +3,11 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "bg3.tmx",
+    "activeFile": "bg4.tmx",
     "expandedProjectPaths": [
         "."
     ],
+    "exportAsImage.drawTileGrid": true,
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "bg0 copia.tmx": {
@@ -21,8 +22,8 @@
             "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1376,
-                "y": 98.625
+                "x": 1376.125,
+                "y": 119.75
             }
         },
         "bg1.tmx": {
@@ -32,16 +33,16 @@
             "scale": 2.4829,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1199.806677675299,
-                "y": 100.08457851705666
+                "x": 357.6463006967659,
+                "y": 99.8832010954932
             }
         },
         "bg1_shop.tmx": {
             "scale": 2.4943,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 159.96471956059818,
-                "y": 100.02806398588784
+                "x": 160.16517660265407,
+                "y": 99.82760694383195
             }
         },
         "bg2.tmx": {
@@ -49,10 +50,10 @@
                 2
             ],
             "scale": 3.195,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 750.8607198748044,
-                "y": 132.2378716744914
+                "x": 1360.2503912363068,
+                "y": 100.1564945226917
             }
         },
         "bg2_shop.tmx": {
@@ -67,41 +68,49 @@
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 2.6587,
-            "selectedLayer": 0,
+            "scale": 2.0687,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 179.4109903336217,
-                "y": 162.29736337307708
+                "x": 615.845700198192,
+                "y": 99.57944602890703
             }
         },
         "bg4.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 1.5159,
+            "scale": 2.645,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1120.126657431229,
-                "y": 99.94062932911142
+                "x": 280.5293005671077,
+                "y": 91.87145557655955
             }
         },
         "bg5.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 3.3709,
+            "scale": 2.5526,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 341.1551811089027,
-                "y": 91.22192886172834
+                "x": 960.1974457415968,
+                "y": 99.89814306981118
+            }
+        },
+        "bg6.tmx": {
+            "scale": 1.9388,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 421.910460078399,
+                "y": 139.77718176191456
             }
         },
         "continue.tmx": {
             "scale": 1.8855,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 160.16971625563514,
-                "y": 99.97348183505702
+                "x": 159.90453460620523,
+                "y": 100.23866348448688
             }
         },
         "level1.tmx": {
@@ -116,12 +125,12 @@
             "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 320,
-                "y": 99.75
+                "x": 320.25,
+                "y": 100
             }
         },
         "tiles.tsx": {
-            "scaleInDock": 3,
+            "scaleInDock": 1.2422,
             "scaleInEditor": 4.89
         }
     },
@@ -139,7 +148,10 @@
         "continue.tmx",
         "test.tmx",
         "bg3.tmx",
-        "bg2.tmx"
+        "bg2.tmx",
+        "bg6.tmx",
+        "bg1_shop.tmx",
+        "bg5.tmx"
     ],
     "project": "level1.tiled-project",
     "property.type": "int",
@@ -147,15 +159,15 @@
         "bg0.tmx",
         "bg1.tmx",
         "tiles.tsx",
-        "bg4.tmx",
-        "continue.tmx",
-        "test.tmx",
+        "bg5.tmx",
+        "bg1_shop.tmx",
+        "bg6.tmx",
         "bg2.tmx",
         "bg3.tmx",
-        "bg2_shop.tmx",
-        "bg1_shop.tmx",
-        "level1.tmx",
-        "bg0 copia.tmx"
+        "test.tmx",
+        "continue.tmx",
+        "bg4.tmx",
+        "bg2_shop.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {

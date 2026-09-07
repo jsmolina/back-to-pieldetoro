@@ -17,6 +17,7 @@
 #define PRINT_SLOW_DELAY_MS 10
 
 #if defined(LANG_EN)
+static const char * game_name = "Back to cowhide";
 static const char* const game_texts[TXT_COUNT] = {
     "YOU BUILT A TIME MACHINE IN A BETSY?",
     "IF YOU BUILD A TIME MACHINE, MAKE IT COOL, DUDE!",
@@ -40,9 +41,15 @@ static const char* const game_texts[TXT_COUNT] = {
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",
     "NOW WE HAVE TO RECOVER THE PIECES",
-    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD"
+    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD",
+    "THE AUTOVOICE, DESTROY IT",
+    "GO AND DESTROY SERVER ROOM WITH TNT",
+    "YOU KILLED AUTOVOICE, PREPARE TO DIE",
+    "BETSY GOES BACK, JENNY WAITS",
+    "COME HERE HANDSOME"
 };
 #else
+static const char* game_name = "Back to cowhide";
 static const char* const game_texts[TXT_COUNT] = {
     "HAS MONTAO UNA MAQUINA DEL TIEMPO EN UNA LOCA?",
     "SI VAS A MONTAR UNA MAQUINA DEL TIEMPO,QUE MOLE,TRON!",
@@ -66,7 +73,12 @@ static const char* const game_texts[TXT_COUNT] = {
     "GANAR ALGUNA APUESTICA, NEN",
     "NOS LO HA ROBADO Y SE LA HA PEGADO",
     "AHORA HAY QUE RECUPERAR LAS PIEZAS",
-    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA"
+    "BRUNO HA SIDO DERROTADO, PERO QUEDA SU MUSICA",
+    "EL AUTOVOICE, HAY QUE DESTRUIRLO",
+    "VE Y DESTRUYE LA SALA DE SERVIDORES CON TNT",
+    "MATASTE A MI AUTOVOICE, PREPARATE A MORIR",
+    "TOMAS TU LOCA, JENNY TE ESPERA",
+    "GUAPO VEN AQUI"
 };
 #endif
 
@@ -233,6 +245,10 @@ int level_to_dat_id(int level) {
         return BG2_TMX;
     case 5:
         return BG3_TMX;
+    case 6:
+        return BG5_TMX;
+    case 7:
+        return BG6_TMX;
     default:
         return -1;
     }

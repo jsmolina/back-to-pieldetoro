@@ -3,6 +3,8 @@
 #define GAME_H
 #define LEVEL_MOUNTAIN 4
 #define LEVEL_CITY 5
+#define LEVEL_AUTOVOICE 6
+#define LEVEL_BOSS 7
 #include <allegro.h>
 
 #define COIN_MONEY_VALUE 5

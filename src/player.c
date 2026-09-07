@@ -446,8 +446,8 @@ inline collisionType player_aabb() {
             .h = 36
         };
     } else if (player.state == THROWING) {
-        collisionType box = {
-            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x,
+        return (collisionType){
+            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x +5,
             .y = player.pos.y + 20,
             .w = player.flip == FALSE ? 24 : 18,
             .h = 15
@@ -611,7 +611,7 @@ static void player_check_vx(int current_level) {
 
     if (player.vx != 0) {
         if (checkHitObj()) {
-            player.vx = -player.vx;
+            player.vx = 0; // wall ahead: stop, do not cross
         }
     }
 }
@@ -765,6 +765,8 @@ static inline void player_do_open() {
         pending_flow_event.type = PLAYER_ENTER_ROOM;
         pending_flow_event.data = result;
     }
+    // same Space/AABB interaction as doors: drop carried TNT onto a BOX (level 6)
+    tnt_place_on_box_if_over();
 }
 
 /**
@@ -845,13 +847,12 @@ static int player_try_enter_ladder() {
     if (player.type != MARTIN_TYPE || player.state == CLIMBING) {
         return FALSE;
     }
-    if (!player_is_over_ladder()) {
-        return FALSE;
-    }
-    // grab when the player wants to climb, or when falling onto the ladder
-    int wants_climb = key[KEY_UP] || key[KEY_DOWN];
-    int is_falling = (player.state == FALL || player.state == FALL2);
-    if (!wants_climb && !is_falling) {
+    // UP grabs when the body center is over the shaft (climbing up from below);
+    // DOWN grabs when the feet are over a ladder tile (descending from the top,
+    // where the center is still above the ladder). Never auto-grab while falling.
+    int grab_up = key[KEY_UP] && player_is_over_ladder();
+    int grab_down = key[KEY_DOWN] && player_foot_over_ladder();
+    if (!grab_up && !grab_down) {
         return FALSE;
     }
     // center the player on the ladder tile column (shifts only, no division)
@@ -859,6 +860,11 @@ static int player_try_enter_ladder() {
     player.pos.x = (col << 3) + 4 - (player.data->width >> 1);
     player.vx = 0;
     player.vy = 0;
+    // entering from the top: nudge down into the shaft so the center probe
+    // catches the ladder and we clear the solid top tile
+    if (grab_down && !player_is_over_ladder()) {
+        player.pos.y += CLIMBING_SPEED;
+    }
     player_change_state(CLIMBING);
     return TRUE;
 }
@@ -1391,4 +1397,12 @@ void player_update(int current_level) {
         break;
     }
     player_anime_update();
+}
+
+void player_has_all_tnt() {
+    pending_flow_event.type = PLAYER_ADVANCE_STAGE;
+}
+
+void player_has_beaten_boss() {
+    pending_flow_event.type = PLAYER_BEAT_BOSS;
 }

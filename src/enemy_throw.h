@@ -7,6 +7,7 @@
 typedef enum {
     MIC_TYPE,
     USHANKA_TYPE,
+    BULLET_TYPE,
     // Add more types here if needed
 } EnThrowableEnum;
 
@@ -32,7 +33,7 @@ typedef struct {
  * @param flip The flip flag for the object. 
  * @return TRUE if the object was initialized successfully, FALSE otherwise.
  */
-int init_enemy_throwable(int x, int y, int flip);
+int init_enemy_throwable(int x, int y, int flip, int ttype);
 
 /** @brief Draws all active throwable objects on the screen.
  *

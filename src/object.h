@@ -6,8 +6,12 @@
 #define HARMFUL_TILE_2 923
 #define BACK_IN_TIME_TILE 876
 #define WALL_TILE 1077
+#define WALL_TILE_2 1080 // solid floor tile the player cannot cross horizontally
+#define TNT_TILE_ID 1081 // solid floor tile the player can only cross if tnt are placed
 #define LADDER_TILE_1 1698
 #define LADDER_TILE_2 1699
+#define LADDER_TILE_3 1082
+#define LADDER_TILE_4 1083
 
 #define ROAD 0
 #define HARMFUL 1
@@ -17,6 +21,7 @@
 #define ADVANCE 5
 #define WALL 6
 #define LADDER 7
+
 /**
  * @file object.h
  * @brief Header file for object collision detection and management
@@ -53,10 +58,10 @@ int wheels_on_tiles();
  */
 void collision_check_throwable_vs_enemy();
 
-/** 
-* @brief checks for collisions of enemy throwables vs player 
-* If a collision is detected, it calls the appropriate functions to handle the hit logic for player
-*/
+/**
+ * @brief checks for collisions of enemy throwables vs player
+ * If a collision is detected, it calls the appropriate functions to handle the hit logic for player
+ */
 void collision_check_enemy_throwable_vs_player();
 
 /**
@@ -94,5 +99,23 @@ void collision_check_player_vs_coins();
  * If the player overlaps a piece, it is collected.
  */
 void collision_check_player_vs_pieces();
+
+/**
+ * @brief Checks for collisions between the player and level-6 TNT objects.
+ * Collects TNT on overlap when the player has room to carry it.
+ */
+void collision_check_player_vs_tnt();
+
+/**
+ * @brief Door-style Space interaction: if the player overlaps a level-6 BOX,
+ * place carried TNT onto it (up to the box capacity). No-op otherwise.
+ */
+void tnt_place_on_box_if_over();
+
+/**
+ * @brief Level-7 boss collisions: the player's throw/kick hitbox damages the
+ * boss, the boss body and its wave projectiles hurt the player.
+ */
+void collision_check_player_vs_boss();
 
 #endif
