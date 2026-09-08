@@ -25,7 +25,6 @@ Salva a tus hijos.
 **Y, por encima de todo, elimina el reguetón del futuro.**
 
 ### MARTIN: BACK TO COWHIDE
-### MARTIN: BACK TO THE FUTURE... AGAIN
 
 Martin has made a terrible discovery: in the future, **his children listen to reggaeton**.
 
