@@ -195,7 +195,7 @@ void lifebar() {
         int x = 182;
         for (int i = 0; i < player.lives; i++) {
             draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
-            x += 20;
+            x += 15;
         }
         hud_last_lives = player.lives;
     }
@@ -466,6 +466,8 @@ inline void draw_game() {
     } else if (megahit_mode == 1 && key[KEY_F2]) {
         all_collected();
         player.pos.x = almanac_tile_x -1;
+    } else if (megahit_mode == 1 && key[KEY_F3]) {
+        player.energy = 6;
     } 
     collisionType f2;
     int current_door_id;

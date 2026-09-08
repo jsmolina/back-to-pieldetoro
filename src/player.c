@@ -276,9 +276,6 @@ void player_throwable_up() {
 }
 
 void player_on_hit() {
-    if (megahit_mode == 1) {
-        return; // in megahit mode, player is invincible
-    }
     if (player.state == DEAD || player.state == FALL_END || player.state == DEAD_END) {
         return; // already in dying/dead state, ignore further hits
     }
