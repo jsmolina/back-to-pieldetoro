@@ -71,6 +71,18 @@ dat datos.dat -a ./girl.fli -h statics.h
 dat datos.dat -a ./cars.bmp -h statics.h -t BMP
 dat datos.dat -a ./diario.bmp -h statics.h -t BMP
 
+dat datos.dat -a ./aaa.wav -h statics.h
+dat datos.dat -a ./hit.wav -h statics.h 
+dat datos.dat -a ./electricity.wav -h statics.h 
+dat datos.dat -a ./electricity2.wav -h statics.h 
+dat datos.dat -a ./clonk.wav -h statics.h 
+dat datos.dat -a ./money.wav -h statics.h 
+dat datos.dat -a ./bark.wav -h statics.h 
+dat datos.dat -a ./bird.wav -h statics.h 
+dat datos.dat -a ./bro.wav -h statics.h 
+dat datos.dat -a ./finished.wav -h statics.h 
+dat datos.dat -a ./onhit.wav -h statics.h 
+
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 
 dat video.dat -a ./intro.fli -h video_statics.h 

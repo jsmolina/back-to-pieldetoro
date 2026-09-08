@@ -1,4 +1,5 @@
 #include "boss.h"
+#include "allegro/stream.h"
 #include "dat_manager.h"
 #include "errors.h"
 #include "helpers.h"
@@ -253,6 +254,11 @@ static void boss_enter_attack(int attack_state) {
     boss.fired = FALSE;
     boss.anime_index = 0;
     boss.anime_count = 0;
+    if (attack_state == BOSS_ATTACK_LINE) {
+        play_sample(dat_file[ELECTRICITY_WAV].dat, 255, 127, 1000, 0);
+    } else {
+        play_sample(dat_file[ELECTRICITY2_WAV].dat, 255, 127, 1000, 0);
+    }
 }
 
 void boss_update(int scroll_x) {
@@ -376,6 +382,7 @@ int boss_on_hit() {
     if (boss.hp <= 0) {
         boss.hp = 0;
         boss.state = BOSS_DEAD;
+        play_sample(dat_file[AAA_WAV].dat, 255, 127, 1000, 0);
         for (int i = 0; i < BOSS_MAX_WAVES; i++) {
             waves[i].active = FALSE;
         }

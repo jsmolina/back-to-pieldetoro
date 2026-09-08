@@ -677,6 +677,7 @@ static void player_move_y_substeps() {
                     int support_offset_y = rear.y - player.pos.y;
                     player.pos.y = tile_top - support_offset_y - rear.h;
                 }
+                
                 player.vy = 0;
                 break;
             }

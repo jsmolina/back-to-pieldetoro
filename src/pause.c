@@ -2,6 +2,8 @@
 #include "allegro/gfx.h"
 #include "allegro/text.h"
 #include "helpers.h"
+#include "dat_manager.h"
+#include "statics.h"
 #include <allegro.h>
 
 #define PAUSE_MENU_X 80
@@ -62,11 +64,13 @@ enum PauseMenuOption show_pause_menu(const char* passcode) {
         int key_code = readkey() >> 8;
 
         if (key_code == KEY_UP) {
+            play_sample(dat_file[CLONK_WAV].dat, 255, 127, 1000, 0);
             selected--;
             if (selected < 0) {
                 selected = PAUSE_MENU_OPTION_COUNT - 1;
             }
         } else if (key_code == KEY_DOWN) {
+            play_sample(dat_file[CLONK_WAV].dat, 255, 127, 1000, 0);
             selected++;
             if (selected >= PAUSE_MENU_OPTION_COUNT) {
                 selected = 0;

@@ -1,4 +1,5 @@
 #include "game.h"
+#include "allegro/digi.h"
 #include "allegro/midi.h"
 #include "book.h"
 #include "boss.h"
@@ -261,7 +262,7 @@ static inline void start_music() {
             play_midi(dat_file[FINAL_MID].dat, TRUE);
         break;
         case 8:
-            play_midi(dat_file[WON_MID].dat, TRUE);
+            
         break;
     }
 }
@@ -278,6 +279,7 @@ void advance_stage() {
     stage_elapsed_seconds = secs;
     if (current_level != 0) {
         char buf[40];
+        play_sample(dat_file[FINISHED_WAV].dat, 255, 127, 1000, 0);
         snprintf(buf, sizeof(buf), "  FINISHED!! %02dm %02ds  ", stage_elapsed_minutes, stage_elapsed_seconds);
         print_at_slow(90, 40, buf, 31, 16);
         wait_for_space();
@@ -689,6 +691,7 @@ inline int update_game() {
         return 1;
         break;
     case GAME_PASSED:
+        stop_midi();
         play_midi(dat_file[WON_MID].dat, TRUE);
         print_at_slow(90, 40, "  YOU WON!  ", 31, 16);
         wait_for_space();
