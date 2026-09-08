@@ -12,7 +12,7 @@ Decidido a salvar a su familia —y, de paso, a la humanidad— Martin viaja al 
 
 Algo ha salido terriblemente mal.
 
-La única solución es viajar a través de distintas épocas y reparar los acontecimientos que han destrozado la línea temporal. Desde los años dorados de la música hasta un futuro que nunca debió existir, Martin tendrá que enfrentarse a enemigos, recuperar sonidos perdidos y alterar la historia antes de que sea demasiado tarde.
+La única solución es viajar a través de distintas épocas y reparar los acontecimientos que han destrozado la línea temporal. Desde los años dorados de la música hasta un futuro que nunca debió existir, Martin tendrá que enfrentarse a enemigos, destruir el autovoice y alterar la historia antes de que sea demasiado tarde.
 
 Porque Martin no quiere cambiar el futuro.
 
@@ -35,7 +35,7 @@ Determined to save his family — and, while he's at it, humanity itself — Mar
 
 Something has gone terribly wrong.
 
-The only way to fix the future is to travel through different eras and repair the events that corrupted the timeline. From the golden age of music to a future that should never have existed, Martin must fight enemies, recover lost sounds, and rewrite history before it's too late.
+The only way to fix the future is to travel through different eras and repair the events that corrupted the timeline. From the golden age of music to a future that should never have existed, Martin must fight enemies, destroy autovoice, and rewrite history before it's too late.
 
 Because Martin doesn't want to change the future.
 
