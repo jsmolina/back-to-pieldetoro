@@ -286,11 +286,13 @@ void player_on_hit() {
     if (player.hurt_cooldown > 0) {
         return;
     }
+    play_sample(dat_file[ONHIT_WAV].dat, 255, 127, 1000, 0);
 
     player.energy--;
 
     if (player.energy <= 0) {
         player_change_state(DEAD);
+        play_sample(dat_file[DIE_WAV].dat, 255, 127, 1000, 0);
         player.vx = 0;
     } else {
         player.hurt_cooldown = PLAYER_HURT_COOLDOWN_FRAMES;
@@ -698,6 +700,7 @@ static void player_update_position(int current_level) {
 
     if (player.pos.y > 130 && player.state != FALL_END && player.state != DEAD && player.state != DEAD_END) {
         player_change_state(FALL_END);
+        play_sample(dat_file[DIE_WAV].dat, 255, 127, 1000, 0);
         player.vx = 0;
         player.vy = 0;
     }

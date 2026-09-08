@@ -51,6 +51,7 @@ int current_level = 0;
 short world_state = 0;
 int megahit_mode = 0;
 int next_x = 0;
+int score = 0;
 // BITMAP* scroller;
 BITMAP* current_background;
 BITMAP* continue_bg;
@@ -128,6 +129,7 @@ static void reset_palette_to_vga_original() {
 void game_on_coin_collected() {
     coins_collected++;
     game_money += COIN_MONEY_VALUE;
+    score += 5;
 }
 
 int game_get_coins_collected() {
@@ -310,6 +312,7 @@ void start_new_game() {
     pal_slowdown_cycle = 0;
     coins_collected = 0;
     game_money = 0;
+    score = 0;
     room_reset_purchased_items();
     advance_stage();
     world_state = START_STAGE;
@@ -456,11 +459,11 @@ void init_per_stages() {
 
 inline void draw_game() {
     // int t1 = get_tile_at_position(player.pos.x + player.width, player.pos.y + player.height);
-    if (key[KEY_F1]) {
+    if (megahit_mode == 1 && key[KEY_F1]) {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
             ; // wait key release
-    } else if (key[KEY_F2]) {
+    } else if (megahit_mode == 1 && key[KEY_F2]) {
         all_collected();
         player.pos.x = almanac_tile_x -1;
     } 
@@ -660,6 +663,7 @@ inline int update_game() {
         draw_game();
         break;
     case STAGE_CLEAR:
+        score += 5;
         advance_stage();
         break;
     case PLAYER_FALL:
@@ -673,6 +677,8 @@ inline int update_game() {
         // draw_game();
         break;
     case CONTINUE:
+        stop_midi();
+        play_midi(dat_file[SAMBA_MID].dat, 1);
         continue_bg = load_shop_bg(CONTINUE_TMX);
         blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
         while (!key[KEY_Y] && !key[KEY_N]) {
@@ -681,6 +687,8 @@ inline int update_game() {
         if (key[KEY_Y]) {
             player_new_game();
             world_state = RESTART_STAGE;
+            // a continue makes loose score
+            score = 0;
         } else if (key[KEY_N]) {
             world_state = GAME_OVER;
         }
@@ -689,9 +697,11 @@ inline int update_game() {
         break;
     case GAME_OVER:
         return 1;
+        stop_midi();
         break;
     case GAME_PASSED:
         stop_midi();
+        score += 100;
         play_midi(dat_file[WON_MID].dat, TRUE);
         print_at_slow(90, 40, "  YOU WON!  ", 31, 16);
         wait_for_space();
@@ -716,7 +726,7 @@ enum PauseMenuResult game_handle_pause(void) {
         current_level,
         player.lives,
         game_money,
-        0,
+        score,
         get_book_count(),
         passcode);
     enum PauseMenuOption pause_choice = show_pause_menu(passcode);

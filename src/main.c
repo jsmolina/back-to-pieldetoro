@@ -195,8 +195,10 @@ int main(int argc, char *argv[]) {
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
+            printf_at_simple(90, 50, 31, 16, "  SCORE: %05d  ", score);
             wait_for_space();
-            set_palette(palette);
+            play_midi(dat_file[MSDOS_MID].dat, 0);
+            set_palette(palette);            
             show_intro_menu();
             game_state = TITLE;
             break;

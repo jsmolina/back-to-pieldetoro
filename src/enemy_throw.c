@@ -24,6 +24,7 @@ int init_enemy_throwable(int x, int y, int flip, int ttype) {
             throwable_objects[i].active = TRUE;
             throwable_objects[i].type = throw_type;
             throw_cooldown = THROW_COOLDOWN_FRAMES;
+            play_sample(dat_file[SHOT_WAV].dat, 255, 127, 1000, 0);
             return TRUE;
         }
     }

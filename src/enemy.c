@@ -1048,6 +1048,7 @@ void enemy_on_hit(int enemy_id) {
         }
     }
     _enemy_apply_death_impulse(enemy_id);
+    play_sample(dat_file[HIT_WAV].dat, 255, 127, 1000, 0);    
     enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
 }
 

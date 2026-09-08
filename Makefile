@@ -7,7 +7,7 @@ VENDOR    = vendor
 CFLAGS    = -DHAVE_STDBOOL_H=1 -fgnu89-inline -Ivendor/allegro-4.2.2-xc/include
 LDFLAGS   = -Lvendor/allegro-4.2.2-xc/lib/djgpp -lalleg
 
-BIN       = main.exe
+BIN       = b2p.exe
 SRCDIR    = src
 OBJDIR    = obj
 DISTDIR   = dist

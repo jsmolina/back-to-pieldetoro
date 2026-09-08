@@ -179,6 +179,7 @@ void tnt_on_collect(int index) {
     if (player.tnt_count >= MAX_TNT_CARRY) {
         return;
     }
+    play_sample(dat_file[TNT_WAV].dat, 255, 127, 1000, 0);
     tnts[index].collected = TRUE;
     tnts[index].active = FALSE; // permanently removed from the level
     player.tnt_count++;
@@ -206,11 +207,14 @@ void tnt_place_on_box(int index) {
     if (index < 0 || index >= box_count || !boxes[index].active) {
         return;
     }
+    if (player.tnt_count > 0) {
+        play_sample(dat_file[TNT2_WAV].dat, 255, 127, 1000, 0);
+    }
     // transfer TNT from inventory to the box until the box is full or empty-handed
     while (player.tnt_count > 0 && boxes[index].tnt_on_box < MAX_TNT_PER_BOX) {
         boxes[index].tnt_on_box++;
         player.tnt_count--;
-        collected_in_box++;
+        collected_in_box++;        
     }
     if (collected_in_box >= 10) {
        player_has_all_tnt();
