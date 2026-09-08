@@ -27,6 +27,7 @@ dat datos.dat -a ./level6.mid -h statics.h -t MIDI
 dat datos.dat -a ./inter.mid -h statics.h -t MIDI
 dat datos.dat -a ./final.mid -h statics.h -t MIDI
 dat datos.dat -a ./won.mid -h statics.h -t MIDI
+dat datos.dat -a ./samba.mid -h statics.h -t MIDI
 #dat datos.dat -a ./stage_enemies.def -h statics.h 
 dat datos.dat -a ./lifebar_bruno.bmp -h statics.h -t BMP
 dat datos.dat -a ./lifebar_martin.bmp -h statics.h -t BMP
@@ -70,6 +71,22 @@ dat datos.dat -a ./pelobrocoli_spritesheet.bmp -h statics.h -t BMP
 dat datos.dat -a ./girl.fli -h statics.h
 dat datos.dat -a ./cars.bmp -h statics.h -t BMP
 dat datos.dat -a ./diario.bmp -h statics.h -t BMP
+
+dat datos.dat -a ./aaa.wav -h statics.h
+dat datos.dat -a ./hit.wav -h statics.h 
+dat datos.dat -a ./electricity.wav -h statics.h 
+dat datos.dat -a ./electricity2.wav -h statics.h 
+dat datos.dat -a ./clonk.wav -h statics.h 
+dat datos.dat -a ./money.wav -h statics.h 
+dat datos.dat -a ./bark.wav -h statics.h 
+dat datos.dat -a ./bird.wav -h statics.h 
+dat datos.dat -a ./bro.wav -h statics.h 
+dat datos.dat -a ./finished.wav -h statics.h 
+dat datos.dat -a ./onhit.wav -h statics.h 
+dat datos.dat -a ./die.wav -h statics.h 
+dat datos.dat -a ./tnt.wav -h statics.h 
+dat datos.dat -a ./tnt2.wav -h statics.h 
+dat datos.dat -a ./shot.wav -h statics.h 
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 

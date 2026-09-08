@@ -959,6 +959,12 @@ static inline void _spawn_from_static(int spawn_index) {
         } else {
             boss_hits = 0;
         }
+    } else if (spawnable_enemies[spawn_index].type == ENEMY_DOG) {
+        play_sample(dat_file[BARK_WAV].dat, 255, 127, 1000, 0);
+    }  else if (spawnable_enemies[spawn_index].type == ENEMY_BIRD) {
+        play_sample(dat_file[BIRD_WAV].dat, 255, 127, 1000, 0);
+    } else if (spawnable_enemies[spawn_index].type == ENEMY_JOVEN) {
+        play_sample(dat_file[BRO_WAV].dat, 255, 127, 1000, 0);
     }
     
     int slot = _find_free_active_slot();
@@ -1014,7 +1020,7 @@ void enemy_get_all_aabb(collisionType* enemies) {
     }
 }
 
-void enemy_on_hit(int enemy_id) {
+void enemy_on_hit(int enemy_id) {    
     if (enemy_id < 0 || enemy_id >= MAX_ACTIVE_ENEMIES) {
         return;
     }
@@ -1022,6 +1028,7 @@ void enemy_on_hit(int enemy_id) {
         if (active_enemies[enemy_id].hurt_cooldown > 0) {
             return;
         }
+        play_sample(dat_file[HIT_WAV].dat, 255, 127, 1000, 0);
         active_enemies[enemy_id].hurt_cooldown = BRUNO_HURT_COOLDOWN_FRAMES;
         boss_hits++;
         if (boss_hits < BOSS_HITS_TO_KILL) {
@@ -1032,6 +1039,7 @@ void enemy_on_hit(int enemy_id) {
         if (active_enemies[enemy_id].hurt_cooldown > 0) {
             return;
         }
+        play_sample(dat_file[HIT_WAV].dat, 255, 127, 1000, 0);
         active_enemies[enemy_id].hurt_cooldown = BIG_HURT_COOLDOWN_FRAMES;
         
         active_enemies[enemy_id].hits++;
@@ -1040,6 +1048,7 @@ void enemy_on_hit(int enemy_id) {
         }
     }
     _enemy_apply_death_impulse(enemy_id);
+    play_sample(dat_file[HIT_WAV].dat, 255, 127, 1000, 0);    
     enemy_change_state(enemy_id, _enemy_dead_state(active_enemies[enemy_id].type));
 }
 

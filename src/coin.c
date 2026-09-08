@@ -1,4 +1,5 @@
 #include "coin.h"
+#include "allegro/digi.h"
 #include "dat_manager.h"
 #include "errors.h"
 #include "game.h"
@@ -158,6 +159,7 @@ void coin_get_all_aabb(collisionType* boxes) {
 }
 
 void coin_on_collect(int index) {
+    play_sample(dat_file[MONEY_WAV].dat, 200, 127, 1000, 0);
     if (index >= 0 && index < coin_count && !coins[index].collected) {
         coins[index].collected = TRUE;
         game_on_coin_collected();

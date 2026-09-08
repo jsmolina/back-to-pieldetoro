@@ -92,12 +92,14 @@ MainMenuResult show_main_menu() {
         int key_code = readkey() >> 8;
 
         if (key_code == KEY_UP) {
+            play_sample(dat_file[CLONK_WAV].dat, 255, 127, 1000, 0);
             if (res.selected == 0) {
                 res.selected = MAIN_MENU_OPTION_COUNT - 1;
             } else {
                 res.selected--;
             }
         } else if (key_code == KEY_DOWN) {
+            play_sample(dat_file[CLONK_WAV].dat, 255, 127, 1000, 0);
             res.selected++;
             if (res.selected >= MAIN_MENU_OPTION_COUNT) {
                 res.selected = 0;

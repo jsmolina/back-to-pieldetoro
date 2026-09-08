@@ -36,6 +36,7 @@ enum PauseMenuResult {
 extern BITMAP* current_background;
 extern int game_pause;
 extern int GROUND_Y;
+extern int score;
 extern int stage_elapsed_minutes;
 extern int stage_elapsed_seconds;
 extern int megahit_mode; // flag to enable megahit mode for testing

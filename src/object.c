@@ -196,6 +196,7 @@ void collision_check_throwable_vs_enemy() {
             if (enemies[enemy_id].meta != ENEMY_DOG && collision(boxes[throw_id], enemies[enemy_id])) {
                 book_on_hit(throw_id);
                 enemy_on_hit(enemy_id);
+                score++;
             }
         }
     }
@@ -262,8 +263,10 @@ void collision_check_enemy_vs_player(int scroll_x) {
 
             if (player.state == THROWING ) {
                 enemy_on_hit(enemy_id);
+                score++;
             } else if (player.state == KICKING ) {
                 enemy_on_hit(enemy_id);
+                score++;
             } else {
                 player_on_hit();
                 continue;
@@ -445,5 +448,5 @@ void tnt_place_on_box_if_over() {
             enemy_pool_init(); // respawns the enemies again
             return; // one box per press
         }
-    }
+    }    
 }
