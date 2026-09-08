@@ -13,6 +13,7 @@
 #define BOSS_DEAD 3
 #define BOSS_ATTACK_LINE 4 // straight horizontal line attack at y=122
 #define BOSS_TIRED 5       // vulnerable rest between attacks (no firing)
+#define BOSS_WALK_OUT 6    // enraged: walk back left to BOSS_START_X, then walk in again
 
 // projectile kinds (share wave_sprite)
 #define WAVE_KIND_WAVE 0 // follows the oscillating wave curve
@@ -22,9 +23,10 @@
 
 // placement and stats
 #define BOSS_START_X 215
+#define BOSS_WALK_X 215
 #define BOSS_START_Y 104
 #define BOSS_STOP_X 240
-#define BOSS_FRAME_COUNT 28 // frames 0..25
+#define BOSS_FRAME_COUNT 29 // frames 0..29
 #define BOSS_MAX_HP 30
 #define BOSS_HURT_COOLDOWN 10 // ticks of invulnerability after a hit
 #define BOSS_WALK_SPEED 1
@@ -32,7 +34,7 @@
 #define BOSS_ATTACK_INTERVAL 6
 
 // phase boundaries and tuning
-#define BOSS_PHASE2_HP 10
+#define BOSS_PHASE2_HP 15
 #define BOSS_ATTACK_DELAY_P1 200
 #define BOSS_ATTACK_DELAY_P2 220
 
@@ -210,6 +212,20 @@ static void boss_anim_walk_in() {
     }
 }
 
+// enraged walk animation: advance frames 13..25, clamp at 25
+static void boss_anim_walk_in_enraged() {
+    if (boss.frame < BOSS_P2_FIRST_FRAME) {
+        boss.frame = BOSS_P2_FIRST_FRAME; // safety: start at 13
+    }
+    boss.anime_count++;
+    if (boss.anime_count >= BOSS_WALK_INTERVAL) {
+        boss.anime_count = 0;
+        if (boss.frame < BOSS_P2_LAST_FRAME) {
+            boss.frame++;
+        }
+    }
+}
+
 // attack animation: phase 1 loops {12..8}, phase 2 loops {13..25}
 static void boss_anim_attack() {
     boss.anime_count++;
@@ -242,10 +258,28 @@ static void boss_enter_tired(int upcoming) {
     boss.attack_timer = 0;
     boss.fired = FALSE;
     if (boss_is_enraged()) {
-        boss.frame = 27;
+        boss.frame = 28;
     } else {
-        boss.frame = 26; 
+        boss.frame = 27; 
     }
+}
+
+// enter the walk-in state fresh: face and move right from the start point
+static void boss_enter_walk_in() {
+    boss.state = BOSS_WALK_IN;
+    boss.flip = FALSE; // face right while walking in
+    boss.frame = boss_is_enraged() ? BOSS_P2_FIRST_FRAME : 0;
+    boss.anime_index = 0;
+    boss.anime_count = 0;
+}
+
+// enraged retreat: face and walk left back toward BOSS_START_X (only when enraged)
+static void boss_enter_walk_out() {
+    boss.state = BOSS_WALK_OUT;
+    boss.flip = TRUE; // face left while walking out
+    boss.frame = boss_is_enraged() ? BOSS_P2_FIRST_FRAME : 0;
+    boss.anime_index = 0;
+    boss.anime_count = 0;
 }
 
 // enter an attack state fresh (ready to fire its burst)
@@ -269,7 +303,11 @@ void boss_update(int scroll_x) {
     switch (boss.state) {
     case BOSS_WALK_IN:
         boss.x += BOSS_WALK_SPEED;
-        boss_anim_walk_in();
+        if (boss_is_enraged()) {
+            boss_anim_walk_in_enraged();
+        } else {
+            boss_anim_walk_in();
+        }
         if (boss.x >= BOSS_STOP_X) {
             boss.x = BOSS_STOP_X;
             boss.flip = TRUE; // face the player (left)
@@ -297,7 +335,26 @@ void boss_update(int scroll_x) {
     case BOSS_TIRED:
         boss.attack_timer++;
         if (boss.attack_timer >= BOSS_TIRED_FRAMES) {
-            boss_enter_attack(boss.next_attack);
+            // the tired right after BOSS_ATTACK_LINE has next_attack == BOSS_ATTACK;
+            // when enraged, retreat (walk out) instead of starting the next attack
+            if (boss.next_attack == BOSS_ATTACK && boss_is_enraged()) {
+                boss_enter_walk_out();
+            } else {
+                boss_enter_attack(boss.next_attack);
+            }
+        }
+        break;
+    case BOSS_WALK_OUT:
+        boss.x -= BOSS_WALK_SPEED;
+        if (boss_is_enraged()) {
+            boss_anim_walk_in_enraged(); 
+        } else {
+            boss_anim_walk_in();
+        }
+
+        if (boss.x <= BOSS_WALK_X) {
+            boss.x = BOSS_WALK_X; // do not move past the start point
+            boss_enter_walk_in();
         }
         break;
     default:
