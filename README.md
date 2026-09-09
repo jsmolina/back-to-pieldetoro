@@ -22,7 +22,7 @@ Viaja por el tiempo.
 Arregla la historia.
 Salva a tus hijos.
 
-**Y, por encima de todo, elimina el reguetón del futuro.**
+**Y, por encima de todo, salva a la música.**
 
 ## EN
 ### MARTIN: BACK TO COWHIDE
@@ -45,7 +45,7 @@ Travel through time.
 Fix history.
 Save your children.
 
-**And, above all, get rid of reggaeton once and for all.**
+**And, above all, fix the music once and for all.**
 
 # Compiling
 use Docker, it includes all the toolchain necessary to build the project.
