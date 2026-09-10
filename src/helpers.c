@@ -11,7 +11,7 @@
 
 
 #if !defined(LANG_EN) && !defined(LANG_ES)
-#define LANG_ES 1
+#define LANG_EN 1
 #endif
 
 #define PRINT_SLOW_DELAY_MS 10
@@ -36,7 +36,7 @@ static const char* const game_texts[TXT_COUNT] = {
     "ARE YOU IN OR WHAT, BRO?",
     "NAH, BASED",
     "HELL YEAH, BASED, FOR HIM!",
-    "WE LIVED IN POVERTY AND HE CAME, IN 1954,"
+    "WE LIVED IN POVERTY AND HE CAME, IN 1954",
     "HOW DO YOU THINK OF BUYING THIS?",
     "WIN SOME BETS, DUDE",
     "HE ROBBED IT AND CRASHED",

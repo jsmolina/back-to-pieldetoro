@@ -46,7 +46,7 @@ void gfx_init_timer() {
     LOCK_VARIABLE(fps);
     LOCK_FUNCTION(gfx_timer_proc);
     LOCK_FUNCTION(gfx_fps_proc);
-    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(70));
+    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(60));
     install_int_ex(gfx_fps_proc, BPS_TO_TIMER(1));
 }
 
@@ -191,7 +191,9 @@ int main(int argc, char *argv[]) {
         case GAME:
             if (update_game() == 1) {
                 game_state = GAME_OVER;
-            } 
+            }
+            
+            // textprintf_ex(screen, font, 2, 2, 31, -1, "FPS:%d", fps);
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);

@@ -142,9 +142,14 @@ static inline int boss_is_enraged() {
 static int wave_y(int x) {
     int span = WAVE_Y_BOTTOM - WAVE_Y_TOP; // 54
     int period = span << 1;                // 108
-    int p = x % period;
-    if (p < 0) {
+    // reduce x into [0, period) without modulo; wave x is small/bounded so this
+    // loops at most a couple of times (avoids division on the 486)
+    int p = x;
+    while (p < 0) {
         p += period;
+    }
+    while (p >= period) {
+        p -= period;
     }
     int off = (p < span) ? p : (period - p);
     return WAVE_Y_TOP + off;
