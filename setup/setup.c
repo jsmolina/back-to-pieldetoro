@@ -39,7 +39,7 @@
 
 /* these can be customised to suit your program... */
 #ifndef SETUP_TITLE
-   #define SETUP_TITLE           "Rio Inmaculado Setup "
+   #define SETUP_TITLE           "Back to pieldetoro Setup "
 #endif
 
 #ifndef SETUP_CFG_FILE
