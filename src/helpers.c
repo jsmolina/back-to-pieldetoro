@@ -11,7 +11,7 @@
 
 
 #if !defined(LANG_EN) && !defined(LANG_ES)
-#define LANG_EN 1
+#define LANG_ES 1
 #endif
 
 #define PRINT_SLOW_DELAY_MS 10
@@ -46,7 +46,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "GO AND DESTROY SERVER ROOM WITH TNT",
     "YOU KILLED AUTOVOICE, PREPARE TO DIE",
     "BETSY GOES BACK, JENNY WAITS",
-    "COME HERE HANDSOME"
+    "COME HERE HANDSOME",
+    "I NEED THE 3 PIECES TO CONTINUE"
 };
 #else
 static const char* game_name = "Back to cowhide";
@@ -78,7 +79,8 @@ static const char* const game_texts[TXT_COUNT] = {
     "VE Y DESTRUYE LA SALA DE SERVIDORES CON TNT",
     "MATASTE A MI AUTOVOICE, PREPARATE A MORIR",
     "TOMAS TU LOCA, JENNY TE ESPERA",
-    "GUAPO VEN AQUI"
+    "GUAPO VEN AQUI",
+    "NECESITO LAS 3 PIEZAS ANTES"
 };
 #endif
 
