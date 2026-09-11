@@ -30,6 +30,9 @@
 #define ALMANAC_DIALOG_X 64
 #define ALMANAC_DIALOG_Y 84
 #define ALMANAC_DIALOG_W 192
+#define PIECES_DIALOG_X 44
+#define PIECES_DIALOG_W 240
+#define PIECES_DIALOG_TEXT_X 52
 #define ALMANAC_DIALOG_H 32
 #define ALMANAC_DIALOG_TEXT_X 72
 #define ALMANAC_DIALOG_TEXT_Y 96
@@ -53,6 +56,7 @@ PlayerData martin = { 0, 0, 0, { NULL } }; // static data for martin player type
 
 FlowEventType pending_flow_event = { PLAYER_FLOW_NONE, 0 }; // struct version with optional data field for extra info when needed (e.g., tmx_id for room to enter)
 static int almanac_tile_trigger_available = TRUE;
+static int pieces_dialog_available = TRUE; // edge-trigger for the level-4 pieces wall dialog
 
 static animeItem car_animations[23] = {
     { 0, { 0 }, 0, -1 },     // NONE
@@ -207,6 +211,35 @@ static void player_show_almanac_dialog() {
         ALMANAC_DIALOG_TEXT_X,
         ALMANAC_DIALOG_TEXT_Y,
         game_text(TXT_ROOM_05),
+        makecol(0, 0, 0),
+        makecol(255, 255, 255));
+
+    clear_keybuf();
+    do {
+    } while (!key[KEY_SPACE]);
+    do {
+    } while (key[KEY_SPACE]);
+}
+
+static void player_show_pieces_dialog() {
+    rectfill(
+        screen,
+        PIECES_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        PIECES_DIALOG_X + PIECES_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(255, 255, 255));
+    rect(
+        screen,
+        PIECES_DIALOG_X,
+        ALMANAC_DIALOG_Y,
+        PIECES_DIALOG_X + PIECES_DIALOG_W,
+        ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
+        makecol(0, 0, 0));
+    print_at(
+        PIECES_DIALOG_TEXT_X,
+        ALMANAC_DIALOG_TEXT_Y,
+        game_text(TXT_PIECES),
         makecol(0, 0, 0),
         makecol(255, 255, 255));
 
@@ -478,14 +511,21 @@ static inline void player_in_level4() {
             }
         }
     } else {
-        if (almanac_tile_x >= 0 && piece_get_remaining() == 0) {
-            if (player.pos.x >= almanac_tile_x) {
-                player.pos.x = almanac_tile_x - 1;
-                if (player.vx > 0) {
-                    player.vx = 0;
+        // the almanac tile is a wall: block it while any piece is missing;
+        // only when all pieces are collected does crossing it engage boss mode
+        if (almanac_tile_x >= 0 && player.pos.x >= almanac_tile_x) {
+            player.pos.x = almanac_tile_x - 1;
+            if (player.vx > 0) {
+                player.vx = 0;
+                if (piece_get_remaining() == 0) {
                     player.boss_mode = TRUE;
+                } else if (pieces_dialog_available) {
+                    pieces_dialog_available = FALSE; // show once until the player backs off
+                    player_show_pieces_dialog();
                 }
             }
+        } else if (player.pos.x < almanac_tile_x - 16) {
+            pieces_dialog_available = TRUE; // re-arm only after the player walks away
         }
     }
 }
