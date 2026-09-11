@@ -1,0 +1,32 @@
+CC = i686-w64-mingw32-gcc
+
+VENDOR = vendor
+DISTDIR = dist-windows
+
+CFLAGS = -DHAVE_STDBOOL_H=1 -fgnu89-inline \
+         -I$(VENDOR)/allegro-mingw/include
+
+LDFLAGS = -L$(VENDOR)/allegro-mingw/lib \
+          -lalleg
+
+CFLAGS += -O3
+
+BIN = b2p.exe
+
+SRCS = $(wildcard src/*.c)
+OBJS = $(SRCS:src/%.c=build/windows/%.o)
+
+.PHONY: all clean
+
+all: $(DISTDIR)/$(BIN)
+
+$(DISTDIR)/$(BIN): $(OBJS)
+	@mkdir -p $(DISTDIR)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+build/windows/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf build/windows $(DISTDIR)

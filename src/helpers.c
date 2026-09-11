@@ -11,7 +11,7 @@
 
 
 #if !defined(LANG_EN) && !defined(LANG_ES)
-#define LANG_ES 1
+#define LANG_EN 1
 #endif
 
 #define PRINT_SLOW_DELAY_MS 10
