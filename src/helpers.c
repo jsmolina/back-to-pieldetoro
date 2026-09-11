@@ -210,13 +210,18 @@ void screen_shake() {
     for (i = 0; i < 6; i++) {
         // pel panning: 0x3C0 index 0x13, value 0-7
         int pel = offsets[i] < 0 ? 0 : offsets[i];
-        outportb(0x3C0, 0x13);
+        inportb(0x3DA);          // reset AC index/data flip-flop
+        outportb(0x3C0, 0x13);   // select pel-pan register (PAS=0 blanks video)
         outportb(0x3C0, pel & 0x07);
+        outportb(0x3C0, 0x20);   // PAS=1: re-enable video for this frame
         rest(16); // ~1 frame at 60fps
     }
-    // reset
+    // reset pan to 0 and leave video enabled (PAS=1), otherwise the screen
+    // stays blanked (black) after the shake
+    inportb(0x3DA);
     outportb(0x3C0, 0x13);
     outportb(0x3C0, 0);
+    outportb(0x3C0, 0x20);
 }
 
 void beep(int frequency, int duration) {
