@@ -1,5 +1,6 @@
 
 #include "helpers.h"
+#include "allegro/draw.h"
 #include "dat_manager.h"
 #include "statics.h"
 
@@ -118,7 +119,14 @@ const char* game_text(gameTextId id) {
 
 void wait_for_space() {
     // stretch_blit
-    do {
+    #ifdef _WIN32
+        stretch_blit(current_screen, screen, 
+                    0, 170, 320, 30,
+                    0, WIN32_HUD_START, WIN32_WIDTH, WIN32_HUD_HEIGHT);   
+    #else 
+        blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
+    #endif 
+     do {
     } while (!key[KEY_SPACE]);
     rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
     do {

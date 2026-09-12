@@ -194,60 +194,54 @@ void player_took_almanac() {
  */
 static void player_show_almanac_dialog() {
     rectfill(
-        screen,
+        current_screen,
         ALMANAC_DIALOG_X,
         ALMANAC_DIALOG_Y,
         ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
         ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
         makecol(255, 255, 255));
     rect(
-        screen,
+        current_screen,
         ALMANAC_DIALOG_X,
         ALMANAC_DIALOG_Y,
         ALMANAC_DIALOG_X + ALMANAC_DIALOG_W,
         ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
         makecol(0, 0, 0));
     print_at(
+        current_screen,
         ALMANAC_DIALOG_TEXT_X,
         ALMANAC_DIALOG_TEXT_Y,
         game_text(TXT_ROOM_05),
         makecol(0, 0, 0),
         makecol(255, 255, 255));
 
-    clear_keybuf();
-    do {
-    } while (!key[KEY_SPACE]);
-    do {
-    } while (key[KEY_SPACE]);
+    wait_for_space();
 }
 
 static void player_show_pieces_dialog() {
     rectfill(
-        screen,
+        current_screen,
         PIECES_DIALOG_X,
         ALMANAC_DIALOG_Y,
         PIECES_DIALOG_X + PIECES_DIALOG_W,
         ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
         makecol(255, 255, 255));
     rect(
-        screen,
+        current_screen,
         PIECES_DIALOG_X,
         ALMANAC_DIALOG_Y,
         PIECES_DIALOG_X + PIECES_DIALOG_W,
         ALMANAC_DIALOG_Y + ALMANAC_DIALOG_H,
         makecol(0, 0, 0));
     print_at(
+        current_screen,
         PIECES_DIALOG_TEXT_X,
         ALMANAC_DIALOG_TEXT_Y,
         game_text(TXT_PIECES),
         makecol(0, 0, 0),
         makecol(255, 255, 255));
 
-    clear_keybuf();
-    do {
-    } while (!key[KEY_SPACE]);
-    do {
-    } while (key[KEY_SPACE]);
+    wait_for_space();
 }
 
 void load_coche_spritesheet() {
