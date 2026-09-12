@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
     if (allegro_init() != 0)
         return 1;
     install_keyboard();
+    set_color_depth(8);
 
 #ifdef _WIN32
     if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
@@ -100,7 +101,6 @@ int main(int argc, char *argv[]) {
         allegro_message("Unable to set a 320x240 mode \n");
         return 1;
     }
-    set_color_depth(8);
     set_color_conversion(COLORCONV_NONE);
     current_screen = create_bitmap(320, 200);
     /* the scrolling area is twice the width of the screen (640x240) */
