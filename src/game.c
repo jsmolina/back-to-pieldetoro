@@ -155,12 +155,12 @@ int game_try_spend_money(int amount) {
 
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
-
+     BITMAP *hud_screen;
     #ifdef _WIN32
         // ancha es castilla
         hud_screen = create_bitmap(320, 200);
     #else
-        BITMAP *hud_screen = screen;
+        hud_screen = screen;
     #endif
 
     if (force_full_redraw) {
