@@ -1,12 +1,15 @@
 
 #include "helpers.h"
+#include "allegro/draw.h"
 #include "dat_manager.h"
 #include "statics.h"
 
 #include <allegro.h>
 
+#ifndef _WIN32
 #include <dos.h>
 #include <pc.h>
+#endif
 #include <stdio.h>
 
 
@@ -85,6 +88,27 @@ static const char* const game_texts[TXT_COUNT] = {
 #endif
 
 BITMAP* current_screen;
+static int (*fli_callback)(void);
+
+static int present_fli_frame() {
+#ifdef _WIN32
+    stretch_blit(current_screen, screen,
+                 0, 0, 320, 200,
+                 0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#endif
+    return fli_callback ? fli_callback() : 0;
+}
+
+int play_upscaled_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void)) {
+#ifdef _WIN32
+    fli_callback = callback;
+    int result = play_memory_fli(fli_data, current_screen, loop, present_fli_frame);
+    fli_callback = NULL;
+    return result;
+#else
+    return play_memory_fli(fli_data, bmp, loop, callback);
+#endif
+}
 
 const char* game_text(gameTextId id) {
     if (id < 0 || id >= TXT_COUNT) {
@@ -94,14 +118,24 @@ const char* game_text(gameTextId id) {
 }
 
 void wait_for_space() {
-    do {
+    // stretch_blit
+    #ifdef _WIN32
+        stretch_blit(current_screen, screen, 
+                    0, 0, 
+                    320, 200,
+                    0, 0, 
+                    WIN32_WIDTH, WIN32_HEIGHT);   
+    #else 
+        blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
+    #endif 
+     do {
     } while (!key[KEY_SPACE]);
-    rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
+    rectfill(current_screen, 0, 160, 320, 200, makecol(1, 1, 1));
     do {
     } while (key[KEY_SPACE]);
 }
 
-void print_at(int x, int y, const char* texto, int col, int bg) {
+void print_at(BITMAP *scr, int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int i = 0;
     int longitud = strlen(texto);
@@ -139,7 +173,7 @@ void print_at(int x, int y, const char* texto, int col, int bg) {
 
         strncpy(trozo, texto + i, end - i);
         trozo[end - i] = '\0';
-        textprintf_ex(screen, myfont, x, y, col, bg, "%s", trozo);
+        textprintf_ex(scr, myfont, x, y, col, bg, "%s", trozo);
         i = end;
 
         while (i < longitud && texto[i] == ' ') {
@@ -153,7 +187,8 @@ void print_at(int x, int y, const char* texto, int col, int bg) {
     }
 }
 
-void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
+void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* format, ...) {
+
     FONT* myfont = dat_file[FONT_FNT].dat;
     char buffer[256];
 
@@ -167,7 +202,7 @@ void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
     va_end(args);
 
     buffer[sizeof(buffer) - 1] = '\0';
-    textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
+    textprintf_ex(scr, myfont, x, y, col, bg, "%s", buffer);
 }
 
 void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
@@ -207,6 +242,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 }
 
 void screen_shake() {
+#ifndef _WIN32
     int offsets[] = { 3, -3, 2, -2, 1, 0 };  // logical, map to pel values
     int i;
     for (i = 0; i < 6; i++) {
@@ -224,9 +260,11 @@ void screen_shake() {
     outportb(0x3C0, 0x13);
     outportb(0x3C0, 0);
     outportb(0x3C0, 0x20);
+#endif
 }
 
 void beep(int frequency, int duration) {
+#ifndef _WIN32
     int div = 1193180 / frequency;
 
     outportb(0x43, 0xb6);
@@ -238,6 +276,9 @@ void beep(int frequency, int duration) {
     // Do not auto-replace with rest() in this function.
     delay(duration);
     outportb(0x61, inportb(0x61) & 0xfc);
+#else
+    (void)frequency; (void)duration;
+#endif
 }
 
 int level_to_dat_id(int level) {

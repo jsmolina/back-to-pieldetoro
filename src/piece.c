@@ -120,7 +120,7 @@ inline void draw_pieces(int scroll_x) {
                 continue;
             }
             int screen_x = pieces[i].x - scroll_x;
-            if (screen_x > -sprite->w && screen_x < SCREEN_W) {
+            if (screen_x > -sprite->w && screen_x < 320) {
                 draw_sprite(current_screen, sprite, screen_x, pieces[i].y);
             }
         }

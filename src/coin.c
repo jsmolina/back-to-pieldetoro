@@ -94,7 +94,7 @@ inline void draw_coins(int scroll_x) {
         if (coins[i].active && !coins[i].collected) {
             int screen_x = coins[i].x - scroll_x;
             // only draw if visible on screen
-            if (screen_x > -coin_sprite->w && screen_x < SCREEN_W) {
+            if (screen_x > -coin_sprite->w && screen_x < 320) {
                 draw_sprite(current_screen, coin_sprite, screen_x, coins[i].y);
             }
         }
@@ -103,7 +103,7 @@ inline void draw_coins(int scroll_x) {
     for (int i = 0; i < MAX_ENEMY_COINS; i++) {
         if (enemy_drop_coins[i].active && !enemy_drop_coins[i].collected) {
             int screen_x = enemy_drop_coins[i].x - scroll_x;
-            if (screen_x <= -coin_sprite->w || screen_x >= SCREEN_W) {
+            if (screen_x <= -coin_sprite->w || screen_x >= 320) {
                 enemy_drop_coins[i].active = FALSE;
                 continue;
             }

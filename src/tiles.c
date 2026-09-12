@@ -183,7 +183,7 @@ BITMAP* load_background(int id) {
         die("invalid tiles width: %d", curr_tiles_width);
     }
 
-    map_width = (curr_tiles_width << 3) - SCREEN_W;
+    map_width = (curr_tiles_width << 3) - 320;
     map_pixel_width = curr_tiles_width << 3;
     if (map_pixel_width <= 0) {
         die("invalid map pixel width: %d", map_pixel_width);

@@ -67,9 +67,9 @@ static void draw_room_static_text(int room_id, int txt_id) {
 
 static void draw_money_panel() {
     rectfill(screen, ROOM_MONEY_PANEL_X1, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
+    printf_at_simple(screen, ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
     rectfill(screen, ROOM_MONEY_PANEL_X2 + 10, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2 + 110, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
+    printf_at_simple(screen, ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
 }
 
 static void draw_selector_at(const RoomOption* options, int index, int room_index) {
@@ -100,8 +100,8 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
         *owns_bitmap = TRUE;
     } else {
         // default room background if room_id is not recognized
-        room_bg = create_bitmap(SCREEN_W, SCREEN_H);
-        rectfill(room_bg, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 0, 0));
+        room_bg = create_bitmap(320, 200);
+        rectfill(room_bg, 0, 0, 320, 200, makecol(255, 0, 0));
         *owns_bitmap = TRUE;
     }
     return room_bg;
@@ -109,7 +109,7 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
 
 int enter_room(int room_id, int level) {
     // draw room placeholder: black background
-    rectfill(screen, 0, 0, SCREEN_W, SCREEN_H, makecol(0, 0, 0));
+    rectfill(screen, 0, 0, 320, 200, makecol(0, 0, 0));
 
     int owns_bitmap;
     int selected = 0;
@@ -120,10 +120,10 @@ int enter_room(int room_id, int level) {
 
     clear_keybuf();
 
-    blit(bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+    blit(bg, screen, 0, 0, 0, 0, 320, SCREEN_H);
     draw_room_static_text(room_id, TXT_ROOM_01);
     if (room_id ==1) {
-        printf_at_simple(55, 16, 15, 16, game_text(TXT_ROOM_05));
+        printf_at_simple(screen, 55, 16, 15, 16, game_text(TXT_ROOM_05));
     } 
     // Room has a reserved UI area with bricks for future HUD-like info:
     // X=[40..280], Y=[180..200].

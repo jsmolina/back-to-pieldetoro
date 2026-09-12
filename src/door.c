@@ -94,7 +94,7 @@ void draw_door_getin(int scroll_x) {
             continue;
         }
         int screen_x = doors[i].x - scroll_x;
-        if (screen_x < SCREEN_W) {
+        if (screen_x < 320) {
             draw_sprite(current_screen, dat_file[ARROW_GETIN_BMP].dat, screen_x, 100);
         }
     }

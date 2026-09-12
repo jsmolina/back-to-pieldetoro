@@ -93,7 +93,7 @@ void screen_shake();
 void wait_for_space();
 
 /** @brief Prints text at a specific position on screen. */
-void print_at(int x, int y, const char* texto, int col, int bg);
+void print_at(BITMAP *scr, int x, int y, const char* texto, int col, int bg);
 
 /** @brief Prints text character by character using current game font. */
 void print_at_slow(int x, int y, const char* texto, int col, int bg);
@@ -104,8 +104,9 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg);
  * long texts. It is intended for short messages or debug output where the caller
  * ensures the text fits within the screen width.
  */
-void printf_at_simple(int x, int y, int col, int bg, const char* format, ...);
+void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* format, ...);
 void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...);
+int play_upscaled_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void));
 
 /** @brief Gets game text by ID for the selected compile-time language. */
 const char* game_text(gameTextId id);
