@@ -37,13 +37,7 @@ END_OF_FUNCTION(rotar_paleta)
 
 DATAFILE * extract_data() {
     intro_dat_file = load_datafile("intro.dat");
-    #ifdef _WIN32
-        stretch_blit(intro_dat_file[CARS2_BMP].dat, screen,
-             0, 0, 320, 200,
-             0, 0, WIN32_WIDTH, WIN32_HEIGHT);
-    #else 
-        blit(intro_dat_file[CARS2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
-    #endif
+    blit(intro_dat_file[CARS2_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
     //install_int(rotar_paleta, 100);
     textprintf_ex(current_screen, font, 105, 184, 2, 15, "LOADING...");
     stretch_blit(current_screen, screen,
