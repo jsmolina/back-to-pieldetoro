@@ -46,7 +46,7 @@ jobs:
 
       - name: Build
         run: |
-          make -f Makefile.windows
+          mingw32-make -f Makefile.windows
 
       - name: Check executable
         run: |
