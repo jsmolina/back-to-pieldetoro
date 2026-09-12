@@ -91,7 +91,11 @@ int main(int argc, char *argv[]) {
         return 1;
     install_keyboard();
 
+#ifdef _WIN32
+    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+#else
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
+#endif
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("Unable to set a 320x240 mode \n");
         return 1;
