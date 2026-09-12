@@ -67,9 +67,9 @@ static void draw_room_static_text(int room_id, int txt_id) {
 
 static void draw_money_panel() {
     rectfill(screen, ROOM_MONEY_PANEL_X1, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
+    printf_at_simple(screen, ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
     rectfill(screen, ROOM_MONEY_PANEL_X2 + 10, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2 + 110, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
+    printf_at_simple(screen, ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
 }
 
 static void draw_selector_at(const RoomOption* options, int index, int room_index) {
@@ -123,7 +123,7 @@ int enter_room(int room_id, int level) {
     blit(bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     draw_room_static_text(room_id, TXT_ROOM_01);
     if (room_id ==1) {
-        printf_at_simple(55, 16, 15, 16, game_text(TXT_ROOM_05));
+        printf_at_simple(screen, 55, 16, 15, 16, game_text(TXT_ROOM_05));
     } 
     // Room has a reserved UI area with bricks for future HUD-like info:
     // X=[40..280], Y=[180..200].
