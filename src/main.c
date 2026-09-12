@@ -9,6 +9,7 @@
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
+#include "helpers.h"
 #include "piece.h"
 #include "platform.h"
 #include "player.h"
@@ -73,7 +74,7 @@ inline void show_intro_menu() {
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     for (int i = 0; i < 40; i++) {
-        blit(menu, screen, 0, i, 0, 0, 320, 200);
+        blit(menu, current_screen, 0, i, 0, 0, 320, 200);
         vsync();
     }
 }
@@ -90,13 +91,17 @@ int main(int argc, char *argv[]) {
     if (allegro_init() != 0)
         return 1;
     install_keyboard();
+    set_color_depth(8);
 
+#ifdef _WIN32
+    if (set_gfx_mode(GFX_GDI, WIN32_WIDTH, WIN32_HEIGHT, 0, 0) != 0) {
+#else
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
+#endif
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("Unable to set a 320x240 mode \n");
         return 1;
     }
-    set_color_depth(8);
     set_color_conversion(COLORCONV_NONE);
     current_screen = create_bitmap(320, 200);
     /* the scrolling area is twice the width of the screen (640x240) */
@@ -121,7 +126,7 @@ int main(int argc, char *argv[]) {
     play_midi(dat_file[INTRO_MID].dat, 0);
 
     set_palette((RGB*)dat_file[PALETE_JORDI_LOGO_BMP].dat);
-    blit(dat_file[JORDI_LOGO_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    blit(dat_file[JORDI_LOGO_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
     wait_a_bit(700);
     stop_midi();
     play_midi(dat_file[MSDOS_MID].dat, 0);
@@ -197,12 +202,20 @@ int main(int argc, char *argv[]) {
             break;
         case GAME_OVER:
             print_at_slow(90, 40, "  GAME OVER  ", 31, 16);
-            printf_at_simple(90, 50, 31, 16, "  SCORE: %05d  ", score);
+            printf_at_simple(current_screen, 90, 50, 31, 16, "  SCORE: %05d  ", score);
             wait_for_space();
             play_midi(dat_file[MSDOS_MID].dat, 0);
             set_palette(palette);            
             show_intro_menu();
             game_state = TITLE;
+            #ifdef _WIN32
+                stretch_blit(current_screen, screen,
+                    0, 0, 320, 170,
+                    0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+            #else
+                blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
+            #endif  
+            
             break;
         }
 

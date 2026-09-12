@@ -5,8 +5,10 @@
 
 #include <allegro.h>
 
+#ifndef _WIN32
 #include <dos.h>
 #include <pc.h>
+#endif
 #include <stdio.h>
 
 
@@ -153,7 +155,8 @@ void print_at(int x, int y, const char* texto, int col, int bg) {
     }
 }
 
-void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
+void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* format, ...) {
+
     FONT* myfont = dat_file[FONT_FNT].dat;
     char buffer[256];
 
@@ -167,7 +170,7 @@ void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
     va_end(args);
 
     buffer[sizeof(buffer) - 1] = '\0';
-    textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
+    textprintf_ex(scr, myfont, x, y, col, bg, "%s", buffer);
 }
 
 void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
@@ -207,6 +210,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 }
 
 void screen_shake() {
+#ifndef _WIN32
     int offsets[] = { 3, -3, 2, -2, 1, 0 };  // logical, map to pel values
     int i;
     for (i = 0; i < 6; i++) {
@@ -224,9 +228,11 @@ void screen_shake() {
     outportb(0x3C0, 0x13);
     outportb(0x3C0, 0);
     outportb(0x3C0, 0x20);
+#endif
 }
 
 void beep(int frequency, int duration) {
+#ifndef _WIN32
     int div = 1193180 / frequency;
 
     outportb(0x43, 0xb6);
@@ -238,6 +244,9 @@ void beep(int frequency, int duration) {
     // Do not auto-replace with rest() in this function.
     delay(duration);
     outportb(0x61, inportb(0x61) & 0xfc);
+#else
+    (void)frequency; (void)duration;
+#endif
 }
 
 int level_to_dat_id(int level) {

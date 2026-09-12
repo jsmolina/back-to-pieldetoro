@@ -4,9 +4,9 @@ VENDOR = vendor
 DISTDIR = dist-windows
 
 CFLAGS = -DHAVE_STDBOOL_H=1 -fgnu89-inline \
-         -I$(VENDOR)/allegro-mingw/include
+         -I$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/include
 
-LDFLAGS = -L$(VENDOR)/allegro-mingw/lib \
+LDFLAGS = -L$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/lib \
           -lalleg
 
 CFLAGS += -O3
@@ -20,9 +20,12 @@ OBJS = $(SRCS:src/%.c=build/windows/%.o)
 
 all: $(DISTDIR)/$(BIN)
 
+ALLEGRO_BIN = $(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/bin
+
 $(DISTDIR)/$(BIN): $(OBJS)
 	@mkdir -p $(DISTDIR)
 	$(CC) -o $@ $^ $(LDFLAGS)
+	cp $(ALLEGRO_BIN)/*.dll $(DISTDIR)/
 
 build/windows/%.o: src/%.c
 	@mkdir -p $(dir $@)
@@ -30,3 +33,4 @@ build/windows/%.o: src/%.c
 
 clean:
 	rm -rf build/windows $(DISTDIR)
+
