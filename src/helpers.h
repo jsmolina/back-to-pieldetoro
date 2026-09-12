@@ -96,7 +96,7 @@ void wait_for_space();
 void print_at(int x, int y, const char* texto, int col, int bg);
 
 /** @brief Prints text character by character using current game font. */
-void print_at_slow(BITMAP *scr, int x, int y, const char* texto, int col, int bg);
+void print_at_slow(int x, int y, const char* texto, int col, int bg);
 
 /**
  * @brief Prints text at a specific position on screen using current game font.
