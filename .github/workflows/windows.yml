@@ -1,0 +1,59 @@
+name: Build Windows
+
+on:
+  push:
+    branches:
+      - windows
+  pull_request:
+ 
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW32
+          update: true
+          install: >-
+            mingw-w64-i686-gcc
+            mingw-w64-i686-make
+            unzip
+            wget
+
+      - name: Download Allegro 4.2.2
+        run: |
+          mkdir -p vendor/allegro-mingw
+          cd vendor/allegro-mingw
+
+          wget \
+            https://sourceforge.net/projects/alleg/files/allegro-bin/4.2.2/allegro-mingw-4.2.2.zip/download \
+            -O allegro.zip
+
+          unzip -q allegro.zip
+
+      - name: Show Allegro files
+        run: |
+          find vendor/allegro-mingw -maxdepth 3 -type f | sort
+
+      - name: Build
+        run: |
+          make -f Makefile.windows
+
+      - name: Check executable
+        run: |
+          file dist-windows/*.exe
+
+      - name: Upload Windows build
+        uses: actions/upload-artifact@v4
+        with:
+          name: martin-back-to-cowhide-windows
+          path: dist-windows/
