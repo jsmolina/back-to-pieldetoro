@@ -121,8 +121,10 @@ void wait_for_space() {
     // stretch_blit
     #ifdef _WIN32
         stretch_blit(current_screen, screen, 
-                    0, 170, 320, 30,
-                    0, WIN32_HUD_START, WIN32_WIDTH, WIN32_HUD_HEIGHT);   
+                    0, 0, 
+                    320, 200,
+                    0, 0, 
+                    WIN32_WIDTH, WIN32_HEIGHT);   
     #else 
         blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
     #endif 

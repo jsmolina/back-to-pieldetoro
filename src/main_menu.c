@@ -9,7 +9,7 @@
 #include <allegro.h>
 
 #define MAIN_MENU_W 90
-#define MAIN_MENU_X ((SCREEN_W - MAIN_MENU_W) >> 1)   /* centered, no division */
+#define MAIN_MENU_X ((320 - MAIN_MENU_W) >> 1)   /* centered, no division */
 #define MAIN_MENU_Y 30
 #define MAIN_MENU_HEIGHT 87
 #define MAIN_MENU_OPTION_COUNT 3
@@ -26,9 +26,11 @@ static int show_menu = 1;
 
 static inline void present_menu() {
 #ifdef _WIN32
-    stretch_blit(current_screen, screen,
-        0, 0, 320, 200,
-        0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+    stretch_blit(current_screen, screen, 
+                    0, 0, 
+                    320, 200,
+                    0, 0, 
+                    WIN32_WIDTH, WIN32_HEIGHT);   
 #else
     blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
 #endif
