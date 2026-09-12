@@ -159,6 +159,7 @@ void lifebar() {
     #ifdef _WIN32
         // ancha es castilla
         hud_screen = create_bitmap(320, 200);
+        force_full_redraw = TRUE;
     #else
         hud_screen = screen;
     #endif
