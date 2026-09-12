@@ -132,7 +132,7 @@ void tnt_draw(int scroll_x) {
     for (int i = 0; i < tnt_count; i++) {
         if (tnts[i].active && !tnts[i].collected) {
             int screen_x = tnts[i].x - scroll_x;
-            if (screen_x > -tnt_sprite->w && screen_x < SCREEN_W) {
+            if (screen_x > -tnt_sprite->w && screen_x < 320) {
                 draw_sprite(current_screen, tnt_sprite, screen_x, tnts[i].y);
             }
         }

@@ -382,8 +382,8 @@ void update_game_run() {
     if (scroll_x < 0)
         scroll_x = 0;
 
-    if (player.boss_mode == TRUE || scroll_x > map_pixel_width - SCREEN_W) {
-        scroll_x = map_pixel_width - SCREEN_W;
+    if (player.boss_mode == TRUE || scroll_x > map_pixel_width - 320) {
+        scroll_x = map_pixel_width - 320;
     }
 
     switch (current_level) {
@@ -516,7 +516,7 @@ inline void draw_game() {
 
     case 1:
         sea_sparkle();
-        blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
+        blit(current_background, current_screen, scroll_x, 0, 0, 0, 320, 170);
 
         player_draw(scroll_x);
         lifebar();
@@ -526,7 +526,7 @@ inline void draw_game() {
                 0, 0, 320, 170,
                 0, 0, WIN32_WIDTH, WIN32_HUD_START);
         #else 
-            blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+            blit(current_screen, screen, 0, 0, 0, 0, 320, 170);
         #endif
         break;
 
@@ -538,7 +538,7 @@ inline void draw_game() {
         }
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
-        blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
+        blit(current_background, current_screen, scroll_x, 0, 0, 0, 320, 170);
         draw_door_getin(scroll_x);
         if (current_level == LEVEL_CITY) {
             sinking_draw(scroll_x);
@@ -733,7 +733,7 @@ inline int update_game() {
         stop_midi();
         play_midi(dat_file[SAMBA_MID].dat, 1);
         continue_bg = load_shop_bg(CONTINUE_TMX);
-        blit(continue_bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+        blit(continue_bg, screen, 0, 0, 0, 0, 320, 200);
         while (!key[KEY_Y] && !key[KEY_N]) {
             vsync();
         }

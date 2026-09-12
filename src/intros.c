@@ -16,7 +16,7 @@ void level1_intro() {
     set_palette((RGB*)dat_file[PALETE_INTRO_BMP].dat);
 
     blit(dat_file[PIELDETORO_INTRO3_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
-    rectfill(current_screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
+    rectfill(current_screen, 0, 160, 320, 200, makecol(1, 1, 1));
     print_at(current_screen, 10, START_Y, game_text(TXT_STAGE1_01), makecol(255, 255, 255), 16);
     print_at(current_screen, 10, START_Y + OFFSET, game_text(TXT_STAGE1_02), makecol(255, 205, 205), 16);
 
@@ -34,7 +34,7 @@ void level1_intro() {
 
 void level2_intro() {
     blit(dat_file[LEVEL2_INTRO_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
-    rectfill(current_screen, 0, 180, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
+    rectfill(current_screen, 0, 180, 320, 200, makecol(1, 1, 1));
     print_at(current_screen, 10, 180, game_text(TXT_STAGE2_01), makecol(255, 205, 205), 16);
     print_at(current_screen, 10, 190, game_text(TXT_STAGE2_02), makecol(255, 255, 255), 16);
 
@@ -43,7 +43,7 @@ void level2_intro() {
 
 void level3_intro() {
     blit(dat_file[LEVEL3_INTRO3_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
-    rectfill(current_screen, 0, 180, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
+    rectfill(current_screen, 0, 180, 320, 200, makecol(1, 1, 1));
     print_at(current_screen, 10, START_Y, game_text(TXT_STAGE3_01), 43, 16);
     print_at(current_screen, 10, START_Y + OFFSET, game_text(TXT_STAGE3_02), makecol(255, 255, 255), 16);
     wait_for_space();

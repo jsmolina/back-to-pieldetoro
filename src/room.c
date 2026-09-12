@@ -100,8 +100,8 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
         *owns_bitmap = TRUE;
     } else {
         // default room background if room_id is not recognized
-        room_bg = create_bitmap(SCREEN_W, SCREEN_H);
-        rectfill(room_bg, 0, 0, SCREEN_W, SCREEN_H, makecol(255, 0, 0));
+        room_bg = create_bitmap(320, 200);
+        rectfill(room_bg, 0, 0, 320, 200, makecol(255, 0, 0));
         *owns_bitmap = TRUE;
     }
     return room_bg;
@@ -109,7 +109,7 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
 
 int enter_room(int room_id, int level) {
     // draw room placeholder: black background
-    rectfill(screen, 0, 0, SCREEN_W, SCREEN_H, makecol(0, 0, 0));
+    rectfill(screen, 0, 0, 320, 200, makecol(0, 0, 0));
 
     int owns_bitmap;
     int selected = 0;
@@ -120,7 +120,7 @@ int enter_room(int room_id, int level) {
 
     clear_keybuf();
 
-    blit(bg, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+    blit(bg, screen, 0, 0, 0, 0, 320, SCREEN_H);
     draw_room_static_text(room_id, TXT_ROOM_01);
     if (room_id ==1) {
         printf_at_simple(screen, 55, 16, 15, 16, game_text(TXT_ROOM_05));

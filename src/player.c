@@ -495,7 +495,7 @@ inline collisionType player_aabb() {
  *     and cannot return left to the normal map to fight the boss
  */
 static inline void player_in_level4() {
-    int leftside = map_pixel_width - SCREEN_W;
+    int leftside = map_pixel_width - 320;
     if (player.boss_mode == TRUE) {
         if (player.pos.x < leftside) {
             player.pos.x += 1;

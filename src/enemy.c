@@ -275,7 +275,7 @@ void load_level_enemies_v2(int level_id) {
 
             if ((strcmp(object_type, "EL") == 0 || strcmp(object_type, "ER") == 0) && enemy_type != -1) {
                 int enemy_spawn_x = (strcmp(object_type, "ER") == 0)
-                    ? x - SCREEN_W
+                    ? x - 320
                     : x;
                 // if x is smaller than screen size, we can end in a negative spawn point, so we clamp it to 0
                 if (enemy_spawn_x < 0) {
@@ -619,7 +619,7 @@ static inline void flip_left(int index) {
 static inline void enemy_check_vx(int index, int scroll_x) {
     if (active_enemies[index].pos.x < (scroll_x - 50)) {
         flip_right(index);
-    } else if (active_enemies[index].pos.x > (scroll_x + SCREEN_W + 50)) {
+    } else if (active_enemies[index].pos.x > (scroll_x + 320 + 50)) {
         flip_left(index);
     }
 }
@@ -747,7 +747,7 @@ void bruno_action_stop(int index) {
 }
 
 void bruno_action_move_left(int index) {
-    int leftside = map_pixel_width - SCREEN_W;
+    int leftside = map_pixel_width - 320;
     int left_tree_x = leftside + BRUNO_TREE_MARGIN;
 
     if (active_enemies[index].pos.x <= left_tree_x) {

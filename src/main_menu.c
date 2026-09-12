@@ -32,7 +32,7 @@ static inline void present_menu() {
                     0, 0, 
                     WIN32_WIDTH, WIN32_HEIGHT);   
 #else
-    blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
+    blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
 #endif
 }
 
@@ -78,7 +78,7 @@ static void draw_main_menu(int selected) {
     /* restore background over the whole menu strip so the car cursor does not ghost */
     
     blit(bg, current_screen, 0, 40, 0, 0,
-         SCREEN_W, SCREEN_H);
+         320, 200);
     if (show_menu == 1) {
         // maybe 70
         draw_sprite(current_screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
