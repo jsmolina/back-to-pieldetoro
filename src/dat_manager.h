@@ -1,5 +1,9 @@
 #ifndef DAT_MANAGER
 #define DAT_MANAGER
+
+#define WIN32_WIDTH 960
+#define WIN32_HEIGHT 600
+#define WIN32_HUD_START 30 * (WIN32_HEIGHT / 300)
 /**
  * @file dat_manager.h
  * @brief Header for data file management using Allegro's DATAFILE.

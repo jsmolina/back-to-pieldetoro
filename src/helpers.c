@@ -155,7 +155,8 @@ void print_at(int x, int y, const char* texto, int col, int bg) {
     }
 }
 
-void printf_at_simple(int x, int y, int col, int bg, const char* format, ...) {
+void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* format, ...) {
+
     FONT* myfont = dat_file[FONT_FNT].dat;
     char buffer[256];
 
@@ -189,7 +190,7 @@ void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
     textprintf_ex(current_screen, myfont, x, y, col, bg, "%s", buffer);
 }
 
-void print_at_slow(int x, int y, const char* texto, int col, int bg) {
+void print_at_slow(BITMAP *scr, int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int cursor_x = x;
 

@@ -155,21 +155,33 @@ int game_try_spend_money(int amount) {
 
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
+
+    #ifdef _WIN32
+        // ancha es castilla
+        hud_screen = create_bitmap(320, 200);
+    #else
+        BITMAP *hud_screen = screen;
+    #endif
+
     if (force_full_redraw) {
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
+        blit(dat_file[LIFEBAR_BMP].dat, hud_screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
+
         int year = 0001;
         if (current_level == 1) {
             year = 2026;
         } else if (current_level == 2) {
             year = 2039;
-        } else if (current_level == 3){
+        } else if (current_level == 3) {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
-        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE || current_level == 7) {
+        } else if (current_level == LEVEL_CITY ||
+                   current_level == LEVEL_AUTOVOICE ||
+                   current_level == 7) {
             year = 1997;
         }
-        printf_at_simple(26, 185, 46, -1, "%d", year);
+
+        printf_at_simple(hud_screen, 26, 185, 46, -1, "%d", year);
     }
 
     int e = player.energy;
@@ -180,49 +192,83 @@ void lifebar() {
 
     if (force_full_redraw || hud_last_energy != e) {
         // restore energy slot background before redrawing current energy state
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 145, 0, 145, 170, 29, 30);
-        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, 30);
-        int bruno_h = ((HUD_MAX_ENERGY - e) << 2) + (HUD_MAX_ENERGY - e);
+        blit(dat_file[LIFEBAR_BMP].dat, hud_screen,
+             145, 0, 145, 170, 29, 30);
+
+        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, hud_screen,
+             0, 0, 145, 170, 29, 30);
+
+        int bruno_h = ((HUD_MAX_ENERGY - e) << 2) +
+                      (HUD_MAX_ENERGY - e);
+
         if (bruno_h > 0) {
-            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
+            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, hud_screen,
+                 0, 0, 145, 170, 29, bruno_h);
         }
+
         hud_last_energy = e;
     }
 
     if (force_full_redraw || hud_last_lives != player.lives) {
         // clear lives area with HUD background, then draw current amount
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 190, 0, 190, 170, 130, 30);
+        blit(dat_file[LIFEBAR_BMP].dat, hud_screen,
+             190, 0, 190, 170, 130, 30);
+
         int x = 182;
         for (int i = 0; i < player.lives; i++) {
-            draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
+            draw_sprite(hud_screen, dat_file[HEAD_BMP].dat, x, 185);
             x += 15;
         }
+
         hud_last_lives = player.lives;
     }
 
     int money = game_get_money();
+
     if (force_full_redraw || hud_last_coins != money) {
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
-        printf_at_simple(255, 185, 41, -1, "%6d", money);
+        blit(dat_file[LIFEBAR_BMP].dat, hud_screen,
+             255, 5, 255, 175, 65, 15);
+
+        printf_at_simple(hud_screen, 255, 185, 41, -1, "%6d", money);
+
         hud_last_coins = money;
     }
 
     int books = get_book_count();
+
     if (force_full_redraw || hud_last_books != books) {
-        /*rect(screen, 83, 185, 132, 190, 19);
-        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, 65, 5);
+        /*
+        rect(hud_screen, 83, 185, 132, 190, 19);
+        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat,
+             hud_screen, 0, 0, 83, 185, 65, 5);
         */
+
         int width = 65;
+
         for (int i = books; i < DEFAULT_STOCK; i++)
             width -= 5;
+
         if (width >= 0) {
-            rectfill(screen, 83, 185, 132, 190, 19);
-            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, width, 5);
+            rectfill(hud_screen, 83, 185, 132, 190, 19);
+
+            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat,
+                 hud_screen, 0, 0, 83, 185, width, 5);
         }
+
         hud_last_books = books;
     }
 
     hud_last_level = current_level;
+
+    #ifdef _WIN32
+        /*
+        * The HUD is rendered in the logical 320x200 framebuffer.
+        * Present only the 320x30 HUD area in the scaled Windows window.
+        */
+        stretch_blit(current_screen, screen,
+                    0, 170, 320, 30,
+                    0, 510, 960, 90);
+    #endif
 }
 
 /**
@@ -481,7 +527,13 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
-        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        #ifdef _WIN32
+            stretch_blit(current_screen, screen,
+                0, 0, 320, 170,
+                0, 0, WIN32_WIDTH, WIN32_HEIGHT - WIN32_HUD_START);
+        #else 
+            blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        #endif
         break;
 
     default:
@@ -541,8 +593,13 @@ inline void draw_game() {
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         //textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
-
-        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        #ifdef _WIN32
+            stretch_blit(current_screen, screen,
+                0, 0, 320, 170,
+                0, 0, WIN32_WIDTH, WIN32_HEIGHT - WIN32_HUD_START);
+        #else 
+             blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        #endif
 
         break;
     }
