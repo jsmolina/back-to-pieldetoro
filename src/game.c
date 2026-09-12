@@ -765,7 +765,7 @@ inline int update_game() {
         wait_for_space();
         print_at_slow(2, 30, game_text(TXT_WON2), 31, 16);
         wait_for_space();
-        play_memory_fli(dat_file[GIRL_FLI].dat, screen, 1, skip_fli_on_space2);
+        play_upscaled_memory_fli(dat_file[GIRL_FLI].dat, screen, 1, skip_fli_on_space2);
         return 1;
         break;
     }

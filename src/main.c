@@ -70,11 +70,22 @@ static void wait_a_bit(int amount) {
     }
 }
 
+static void present_full_frame() {
+#ifdef _WIN32
+    stretch_blit(current_screen, screen,
+        0, 0, 320, 200,
+        0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#else
+    blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
+#endif
+}
+
 inline void show_intro_menu() {
     BITMAP* menu = dat_file[MENU2_BMP].dat;
 
     for (int i = 0; i < 40; i++) {
         blit(menu, current_screen, 0, i, 0, 0, 320, 200);
+        present_full_frame();
         vsync();
     }
 }
@@ -127,11 +138,13 @@ int main(int argc, char *argv[]) {
 
     set_palette((RGB*)dat_file[PALETE_JORDI_LOGO_BMP].dat);
     blit(dat_file[JORDI_LOGO_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
+    present_full_frame();
     wait_a_bit(700);
     stop_midi();
     play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
-    blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
+    blit(dat_file[MSDOSCLUB_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
+    present_full_frame();
     DATAFILE *video_data1 = obtain_videodata("INTRO2_FLI");
     DATAFILE *video_data2 = obtain_videodata("INTRO_FLI");
     wait_a_bit(200);
@@ -139,9 +152,9 @@ int main(int argc, char *argv[]) {
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
     //DATAFILE *video_obj = load_datafile_object("intro.dat", "INTRO_VIDEO");
-    play_memory_fli(video_data1->dat, screen, 0, skip_fli_on_space);
+    play_upscaled_memory_fli(video_data1->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
-    play_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);    
+    play_upscaled_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
     unload_datafile_object(video_data1);
     unload_datafile_object(video_data2);
@@ -208,13 +221,7 @@ int main(int argc, char *argv[]) {
             set_palette(palette);            
             show_intro_menu();
             game_state = TITLE;
-            #ifdef _WIN32
-                stretch_blit(current_screen, screen,
-                    0, 0, 320, 170,
-                    0, 0, WIN32_WIDTH, WIN32_HEIGHT);
-            #else
-                blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
-            #endif  
+            present_full_frame();
             
             break;
         }

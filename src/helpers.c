@@ -87,6 +87,27 @@ static const char* const game_texts[TXT_COUNT] = {
 #endif
 
 BITMAP* current_screen;
+static int (*fli_callback)(void);
+
+static int present_fli_frame() {
+#ifdef _WIN32
+    stretch_blit(current_screen, screen,
+                 0, 0, 320, 200,
+                 0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#endif
+    return fli_callback ? fli_callback() : 0;
+}
+
+int play_upscaled_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void)) {
+#ifdef _WIN32
+    fli_callback = callback;
+    int result = play_memory_fli(fli_data, current_screen, loop, present_fli_frame);
+    fli_callback = NULL;
+    return result;
+#else
+    return play_memory_fli(fli_data, bmp, loop, callback);
+#endif
+}
 
 const char* game_text(gameTextId id) {
     if (id < 0 || id >= TXT_COUNT) {

@@ -23,11 +23,22 @@
 
 
 static int show_menu = 1;
+
+static void present_menu() {
+#ifdef _WIN32
+    stretch_blit(current_screen, screen,
+        0, 0, 320, 200,
+        0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#else
+    blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
+#endif
+}
+
 static int read_passcode(char* buf) {
     int len = 0;
     buf[0] = '\0';
     rectfill(current_screen, MAIN_MENU_X, PASSCODE_Y - 8, MAIN_MENU_X + 155, PASSCODE_Y + 16, 21);
-    textprintf_ex(screen, font, 
+    textprintf_ex(current_screen, font,
         MAIN_MENU_X + 20, 
         PASSCODE_Y, 
         MENU_MENU_TEXT_COLOR, 
@@ -44,15 +55,15 @@ static int read_passcode(char* buf) {
         else if (len < PASSCODE_LENGTH && ascii >= 32 && ascii < 127)
             buf[len++] = (ascii >= 'a' && ascii <= 'z') ? ascii - 32 : ascii;
         buf[len] = '\0';
-        rectfill(screen, MAIN_MENU_X, PASSCODE_Y - 8, MAIN_MENU_X + MAIN_MENU_W, PASSCODE_Y + 16, 21);
-        textprintf_ex(screen, font, 
+        rectfill(current_screen, MAIN_MENU_X, PASSCODE_Y - 8, MAIN_MENU_X + MAIN_MENU_W, PASSCODE_Y + 16, 21);
+        textprintf_ex(current_screen, font,
             MAIN_MENU_X + 20, 
             PASSCODE_Y, 
             MENU_MENU_TEXT_COLOR, 
             -1, 
             "PASS: %s", buf
         );
-      
+        present_menu();
         vsync();
     }
 }
@@ -64,20 +75,19 @@ static void draw_main_menu(int selected) {
     int car_x = MAIN_MENU_X - minicar->w - 2;
     /* restore background over the whole menu strip so the car cursor does not ghost */
     
-    blit(bg, screen, 0, 40, 0, 0,
+    blit(bg, current_screen, 0, 40, 0, 0,
          SCREEN_W, SCREEN_H);
     if (show_menu == 1) {
         // maybe 70
-        draw_sprite(screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
+        draw_sprite(current_screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
         int offset_y = MAIN_MENU_Y + 4;
         // TODO offset_y should increase +19 based on selected item        
         for (int i = 0; i < selected; i++) {
             offset_y += 19;
         }
-        draw_sprite(screen, minicar, car_x, offset_y - 4);
+        draw_sprite(current_screen, minicar, car_x, offset_y - 4);
     }
-    
-    
+    present_menu();
 }
 
 MainMenuResult show_main_menu() {

@@ -106,6 +106,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg);
  */
 void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* format, ...);
 void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...);
+int play_upscaled_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void));
 
 /** @brief Gets game text by ID for the selected compile-time language. */
 const char* game_text(gameTextId id);

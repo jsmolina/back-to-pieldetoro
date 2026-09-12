@@ -66,7 +66,7 @@ void level4_intro() {
     print_at(10, START_Y, game_text(TXT_STAGE4_01), makecol(255, 255, 255), 16);
     print_at(10, START_Y + OFFSET, game_text(TXT_STAGE4_02), makecol(255, 205, 205), 16);
     wait_for_space();
-    play_memory_fli(video_data->dat, screen, 0, skip_intro_on_space);
+    play_upscaled_memory_fli(video_data->dat, screen, 0, skip_intro_on_space);
     set_palette(palette);
     unload_datafile_object(video_data);
     blit(dat_file[LEVEL4_CRASH_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
