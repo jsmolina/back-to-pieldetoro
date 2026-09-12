@@ -59,7 +59,7 @@ void level4_intro() {
     print_at(current_screen,10, START_Y + OFFSET, "OK OK!", makecol(255, 255, 255), 16);
     wait_for_space();
     blit(dat_file[LEVEL3_INTRO2_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
-    print_at(10, START_Y + OFFSET, game_text(TXT_STAGE3_04), makecol(255, 255, 255), 16);
+    print_at(current_screen,10, START_Y + OFFSET, game_text(TXT_STAGE3_04), makecol(255, 255, 255), 16);
     wait_for_space();
     DATAFILE *video_data = obtain_videodata("INTRO_LEVEL41_FLI");
     blit(dat_file[LEVEL4_INTRO_BMP].dat, current_screen, 0, 0, 0, 0, 320, 200);
