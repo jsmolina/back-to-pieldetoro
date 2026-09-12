@@ -45,12 +45,15 @@ DATAFILE * extract_data() {
         blit(intro_dat_file[CARS2_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
     #endif
     //install_int(rotar_paleta, 100);
-    textprintf_ex(screen, font, 105, 184, 2, 15, "LOADING...");
+    textprintf_ex(current_screen, font, 105, 184, 2, 15, "LOADING...");
+    stretch_blit(current_screen, screen,
+             0, 0, 320, 200,
+             0, 0, WIN32_WIDTH, WIN32_HEIGHT);
     install_int_ex(rotar_paleta, BPS_TO_TIMER(40));
     dat_file = load_datafile("datos.dat");
  
     remove_int(rotar_paleta);
-    textprintf_ex(screen, font, 105, 184, 40, 15, "PRESS SPACE");
+    textprintf_ex(current_screen, font, 105, 184, 40, 15, "PRESS SPACE");
     wait_for_space();
     return dat_file;
     //fclose(input);

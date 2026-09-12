@@ -173,7 +173,7 @@ void print_at(BITMAP *scr, int x, int y, const char* texto, int col, int bg) {
 
         strncpy(trozo, texto + i, end - i);
         trozo[end - i] = '\0';
-        textprintf_ex(screen, myfont, x, y, col, bg, "%s", trozo);
+        textprintf_ex(scr, myfont, x, y, col, bg, "%s", trozo);
         i = end;
 
         while (i < longitud && texto[i] == ' ') {
