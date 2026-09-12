@@ -170,7 +170,7 @@ void printf_at_simple(BITMAP *scr, int x, int y, int col, int bg, const char* fo
     va_end(args);
 
     buffer[sizeof(buffer) - 1] = '\0';
-    textprintf_ex(screen, myfont, x, y, col, bg, "%s", buffer);
+    textprintf_ex(scr, myfont, x, y, col, bg, "%s", buffer);
 }
 
 void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {

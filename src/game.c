@@ -155,13 +155,10 @@ int game_try_spend_money(int amount) {
 
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
-     BITMAP *hud_screen;
+    BITMAP* hud_screen = screen;
     #ifdef _WIN32
-        // ancha es castilla
-        hud_screen = create_bitmap(320, 200);
+        hud_screen = current_screen;
         force_full_redraw = TRUE;
-    #else
-        hud_screen = screen;
     #endif
 
     if (force_full_redraw) {
@@ -262,13 +259,9 @@ void lifebar() {
     hud_last_level = current_level;
 
     #ifdef _WIN32
-        /*
-        * The HUD is rendered in the logical 320x200 framebuffer.
-        * Present only the 320x30 HUD area in the scaled Windows window.
-        */
-        stretch_blit(current_screen, screen,
-                    0, 170, 320, 30,
-                    0, 510, 960, 90);
+        int hud_height = screen->h * 30 / 200;
+        stretch_blit(current_screen, screen, 0, 170, 320, 30,
+                    0, screen->h - hud_height, screen->w, hud_height);
     #endif
 }
 
