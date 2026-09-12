@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     set_color_depth(8);
 
 #ifdef _WIN32
-    if (set_gfx_mode(GFX_AUTODETECT, 320, 200, 0, 0) != 0) {
+    if (set_gfx_mode(GFX_GDI, 320, 200, 0, 0) != 0) {
 #else
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
 #endif
