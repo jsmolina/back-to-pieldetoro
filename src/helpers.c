@@ -130,7 +130,7 @@ void wait_for_space() {
     #endif 
      do {
     } while (!key[KEY_SPACE]);
-    rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
+    rectfill(current_screen, 0, 160, 320, 200, makecol(1, 1, 1));
     do {
     } while (key[KEY_SPACE]);
 }
