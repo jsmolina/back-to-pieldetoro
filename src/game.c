@@ -259,9 +259,9 @@ void lifebar() {
     hud_last_level = current_level;
 
     #ifdef _WIN32
-        int hud_height = screen->h * 30 / 200;
-        stretch_blit(current_screen, screen, 0, 170, 320, 30,
-                    0, screen->h - hud_height, screen->w, hud_height);
+        stretch_blit(current_screen, screen, 
+                    0, 170, 320, 30,
+                    0, WIN32_HUD_START, WIN32_WIDTH, WIN32_HUD_HEIGHT);
     #endif
 }
 
@@ -524,7 +524,7 @@ inline void draw_game() {
         #ifdef _WIN32
             stretch_blit(current_screen, screen,
                 0, 0, 320, 170,
-                0, 0, WIN32_WIDTH, WIN32_HEIGHT - WIN32_HUD_START);
+                0, 0, WIN32_WIDTH, WIN32_HUD_START);
         #else 
             blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
         #endif
@@ -573,7 +573,6 @@ inline void draw_game() {
         if (current_level == LEVEL_BOSS) {
             collision_check_player_vs_boss();
         }
-        lifebar();
         if (player.boss_mode == TRUE) {
             // TODO reduce 50, based on bruno enemy life
             int width = 50;  
@@ -582,6 +581,7 @@ inline void draw_game() {
             }
             blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120, 2, width, 5);
         }
+        lifebar();
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
@@ -590,7 +590,7 @@ inline void draw_game() {
         #ifdef _WIN32
             stretch_blit(current_screen, screen,
                 0, 0, 320, 170,
-                0, 0, WIN32_WIDTH, WIN32_HEIGHT - WIN32_HUD_START);
+                0, 0, WIN32_WIDTH, WIN32_HUD_START);
         #else 
              blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
         #endif

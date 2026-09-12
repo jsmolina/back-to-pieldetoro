@@ -117,6 +117,7 @@ const char* game_text(gameTextId id) {
 }
 
 void wait_for_space() {
+    // stretch_blit
     do {
     } while (!key[KEY_SPACE]);
     rectfill(screen, 0, 160, SCREEN_W, SCREEN_H, makecol(1, 1, 1));
@@ -124,7 +125,7 @@ void wait_for_space() {
     } while (key[KEY_SPACE]);
 }
 
-void print_at(int x, int y, const char* texto, int col, int bg) {
+void print_at(BITMAP *scr, int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int i = 0;
     int longitud = strlen(texto);

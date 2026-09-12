@@ -24,7 +24,7 @@
 
 static int show_menu = 1;
 
-static void present_menu() {
+static inline void present_menu() {
 #ifdef _WIN32
     stretch_blit(current_screen, screen,
         0, 0, 320, 200,
