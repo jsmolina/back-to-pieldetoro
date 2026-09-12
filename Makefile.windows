@@ -4,9 +4,9 @@ VENDOR = vendor
 DISTDIR = dist-windows
 
 CFLAGS = -DHAVE_STDBOOL_H=1 -fgnu89-inline \
-         -I$(VENDOR)/allegro-mingw/include
+         -I$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/include
 
-LDFLAGS = -L$(VENDOR)/allegro-mingw/lib \
+LDFLAGS = -L$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/lib \
           -lalleg
 
 CFLAGS += -O3
