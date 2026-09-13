@@ -57,31 +57,31 @@ void room_reset_purchased_items() {
 static void draw_room_static_text(int room_id, int txt_id) {
 
     if (room_id == 1 || room_id == 3) {
-        rectfill(screen, 83, 130, 180, 140, 29);
+        rectfill(current_screen, 83, 130, 180, 140, 29);
         print_at_slow(85, 130, game_text(txt_id), makecol(16, 16, 16), 29);
     } else if (room_id == 2) {
-        rectfill(screen, 83, 148, 180, 156, 29);
+        rectfill(current_screen, 83, 148, 180, 156, 29);
         print_at_slow(85, 150, game_text(txt_id), makecol(16, 16, 16), 29);
     }
 }
 
 static void draw_money_panel() {
-    rectfill(screen, ROOM_MONEY_PANEL_X1, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(screen, ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
-    rectfill(screen, ROOM_MONEY_PANEL_X2 + 10, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2 + 110, ROOM_MONEY_PANEL_Y2, 16);
-    printf_at_simple(screen, ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
+    rectfill(current_screen, ROOM_MONEY_PANEL_X1, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2, ROOM_MONEY_PANEL_Y2, 16);
+    printf_at_simple(current_screen, ROOM_MONEY_PANEL_X1 + 2, 190, 15, -1, "EUR %6d", game_get_money());
+    rectfill(current_screen, ROOM_MONEY_PANEL_X2 + 10, ROOM_MONEY_PANEL_Y1, ROOM_MONEY_PANEL_X2 + 110, ROOM_MONEY_PANEL_Y2, 16);
+    printf_at_simple(current_screen, ROOM_MONEY_PANEL_X2 + 12, 190, 15, -1, "ESC to exit");
 }
 
 static void draw_selector_at(const RoomOption* options, int index, int room_index) {
     if (purchased_items[room_index][index] == TRUE) {
-        textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 0, 0), -1, "X");
+        textprintf_ex(current_screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 0, 0), -1, "X");
     } else {
-        textprintf_ex(screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 255, 0), -1, "^");
+        textprintf_ex(current_screen, font, options[index].x, ROOM_ARROW_Y, makecol(255, 255, 0), -1, "^");
     }
 }
 
 static void clear_arrow_at(BITMAP* bg, const RoomOption* options, int index) {
-    blit(bg, screen, options[index].x, ROOM_ARROW_Y, options[index].x, ROOM_ARROW_Y, ROOM_ARROW_W, ROOM_ARROW_H);
+    blit(bg, current_screen, options[index].x, ROOM_ARROW_Y, options[index].x, ROOM_ARROW_Y, ROOM_ARROW_W, ROOM_ARROW_H);
 }
 
 /** @brief Get the background bitmap for a room based on its ID and level */
@@ -109,7 +109,7 @@ static inline BITMAP* get_room_bg(int id, int level, int* owns_bitmap) {
 
 int enter_room(int room_id, int level) {
     // draw room placeholder: black background
-    rectfill(screen, 0, 0, 320, 200, makecol(0, 0, 0));
+    rectfill(current_screen, 0, 0, 320, 200, makecol(0, 0, 0));
 
     int owns_bitmap;
     int selected = 0;
@@ -120,10 +120,10 @@ int enter_room(int room_id, int level) {
 
     clear_keybuf();
 
-    blit(bg, screen, 0, 0, 0, 0, 320, SCREEN_H);
+    blit(bg, current_screen, 0, 0, 0, 0, 320, 200);
     draw_room_static_text(room_id, TXT_ROOM_01);
     if (room_id ==1) {
-        printf_at_simple(screen, 55, 16, 15, 16, game_text(TXT_ROOM_05));
+        printf_at_simple(current_screen, 55, 16, 15, 16, game_text(TXT_ROOM_05));
     } 
     // Room has a reserved UI area with bricks for future HUD-like info:
     // X=[40..280], Y=[180..200].
@@ -131,6 +131,13 @@ int enter_room(int room_id, int level) {
     draw_selector_at(options, selected, room_index);
 
     while (1) {
+        #ifdef _WIN32
+            stretch_blit(current_screen, screen,
+                0, 0, 320, 200,
+                0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+        #else
+            blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
+        #endif
         int key_code = readkey() >> 8;
 
         if (key_code == KEY_LEFT) {

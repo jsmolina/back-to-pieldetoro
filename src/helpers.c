@@ -225,6 +225,10 @@ void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int cursor_x = x;
+    BITMAP * scr = screen;
+    #ifdef _WIN32
+        scr = current_screen;
+    #endif
 
     if (!texto || !myfont) {
         return;
@@ -235,8 +239,14 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
         ch[0] = texto[i];
         ch[1] = '\0';
 
-        textprintf_ex(screen, myfont, cursor_x, y, col, bg, "%s", ch);
+        textprintf_ex(scr, myfont, cursor_x, y, col, bg, "%s", ch);
         cursor_x += text_length(myfont, ch);
+        #ifdef _WIN32
+            stretch_blit(scr, screen,
+                    0, 0, 320, 200,
+                    0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+        #endif
+
         rest(PRINT_SLOW_DELAY_MS);
     }
 }
