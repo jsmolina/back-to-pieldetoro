@@ -6,6 +6,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // inventory display (screen space, not scrolled)
@@ -70,6 +71,7 @@ void reset_tnt() {
 
 void load_level_tnt(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
+    char* tmx_text;
     const char* cursor;
     int tidx = 0;
     int bidx = 0;
@@ -81,8 +83,17 @@ void load_level_tnt(int level_id) {
     if (dat_file[tmx_id].dat == NULL) {
         die("cannot load TMX data for level %d (tnt)", level_id);
     }
+    if (dat_file[tmx_id].size <= 0) {
+        die("empty TMX data for level %d (tnt)", level_id);
+    }
 
-    cursor = (const char*)dat_file[tmx_id].dat;
+    tmx_text = malloc((size_t)dat_file[tmx_id].size + 1);
+    if (tmx_text == NULL) {
+        die("cannot allocate TMX data for level %d (tnt)", level_id);
+    }
+    memcpy(tmx_text, dat_file[tmx_id].dat, (size_t)dat_file[tmx_id].size);
+    tmx_text[dat_file[tmx_id].size] = '\0';
+    cursor = tmx_text;
 
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
@@ -95,7 +106,7 @@ void load_level_tnt(int level_id) {
 
         if (matched >= 5 && strcmp(name, "TNT") == 0 && tidx < MAX_TNT) {
             tnts[tidx].x = x;
-            tnts[tidx].y = y-14;
+            tnts[tidx].y = y - 14;
             tnts[tidx].active = TRUE;
             tnts[tidx].collected = FALSE;
             tidx++;
@@ -111,6 +122,7 @@ void load_level_tnt(int level_id) {
 
         cursor++; // advance past current '<' to find next tag
     }
+    free(tmx_text);
     tnt_count = tidx;
     box_count = bidx;
 }
@@ -214,9 +226,9 @@ void tnt_place_on_box(int index) {
     while (player.tnt_count > 0 && boxes[index].tnt_on_box < MAX_TNT_PER_BOX) {
         boxes[index].tnt_on_box++;
         player.tnt_count--;
-        collected_in_box++;        
+        collected_in_box++;
     }
     if (collected_in_box >= 10) {
-       player_has_all_tnt();
+        player_has_all_tnt();
     }
 }

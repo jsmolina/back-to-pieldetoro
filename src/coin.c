@@ -7,6 +7,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct {
@@ -47,6 +48,7 @@ void reset_coins() {
 
 void load_level_coins(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
+    char* tmx_text;
     const char* cursor;
     int idx = 0;
 
@@ -57,8 +59,17 @@ void load_level_coins(int level_id) {
     if (dat_file[tmx_id].dat == NULL) {
         die("cannot load TMX data for level %d (coins)", level_id);
     }
+    if (dat_file[tmx_id].size <= 0) {
+        die("empty TMX data for level %d (coins)", level_id);
+    }
 
-    cursor = (const char*)dat_file[tmx_id].dat;
+    tmx_text = malloc((size_t)dat_file[tmx_id].size + 1);
+    if (tmx_text == NULL) {
+        die("cannot allocate TMX data for level %d (coins)", level_id);
+    }
+    memcpy(tmx_text, dat_file[tmx_id].dat, (size_t)dat_file[tmx_id].size);
+    tmx_text[dat_file[tmx_id].size] = '\0';
+    cursor = tmx_text;
 
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
@@ -82,6 +93,7 @@ void load_level_coins(int level_id) {
 
         cursor++; // advance past current '<' to find next tag
     }
+    free(tmx_text);
     coin_count = idx;
 }
 

@@ -47,12 +47,20 @@ inline void load_tiles() {
     }
 }
 
-
 BITMAP* load_shop_bg(int id) {
-    char* in_file = dat_file[id].dat;
-    if (in_file == NULL) {
+    char* in_file;
+    if (dat_file[id].dat == NULL) {
         die("cannot load shop background %d", id);
     }
+    if (dat_file[id].size <= 0) {
+        die("empty shop background %d", id);
+    }
+    in_file = malloc((size_t)dat_file[id].size + 1);
+    if (in_file == NULL) {
+        die("cannot allocate shop background %d", id);
+    }
+    memcpy(in_file, dat_file[id].dat, (size_t)dat_file[id].size);
+    in_file[dat_file[id].size] = '\0';
 
     unsigned char current;
     int start_csv = 0;
@@ -128,14 +136,24 @@ BITMAP* load_shop_bg(int id) {
         }
     } while (current != '\0' && start_csv != -1);
 
+    free(in_file);
     return background;
 }
 
 BITMAP* load_background(int id) {
-    char* in_file = dat_file[id].dat;
-    if (in_file == NULL) {
+    char* in_file;
+    if (dat_file[id].dat == NULL) {
         die("cannot load %s", id);
     }
+    if (dat_file[id].size <= 0) {
+        die("empty background %d", id);
+    }
+    in_file = malloc((size_t)dat_file[id].size + 1);
+    if (in_file == NULL) {
+        die("cannot allocate background %d", id);
+    }
+    memcpy(in_file, dat_file[id].dat, (size_t)dat_file[id].size);
+    in_file[dat_file[id].size] = '\0';
     // BITMAP * background = create_bitmap(screen_w, SCREEN_H);
     // rectfill(background, 0, 0, SCREEN_W, SCREEN_H, makecol(16, 16, 16));
     unsigned char current;
@@ -244,6 +262,7 @@ BITMAP* load_background(int id) {
         // if (iterations == 200) start_csv = -1; // Uncomment if needed
     } while (current != '\0' && start_csv != -1);
 
+    free(in_file);
     return background;
 }
 /*

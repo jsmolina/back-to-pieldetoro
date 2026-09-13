@@ -733,7 +733,16 @@ inline int update_game() {
         stop_midi();
         play_midi(dat_file[SAMBA_MID].dat, 1);
         continue_bg = load_shop_bg(CONTINUE_TMX);
-        blit(continue_bg, screen, 0, 0, 0, 0, 320, 200);
+        blit(continue_bg, current_screen, 0, 0, 0, 0, 320, 200);
+        #ifdef _WIN32
+            stretch_blit(current_screen, screen, 
+                    0, 0, 
+                    320, 200,
+                    0, 0, 
+                    WIN32_WIDTH, WIN32_HEIGHT);   
+        #else
+            blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
+        #endif
         while (!key[KEY_Y] && !key[KEY_N]) {
             vsync();
         }

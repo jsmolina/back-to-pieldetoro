@@ -5,6 +5,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MOVING_PLATFORM_W 24
@@ -25,13 +26,12 @@ typedef struct {
     int dir;
     int active;
     int move_tick;
-    BITMAP * sp;
+    BITMAP* sp;
 } Platform;
 
 static Platform platforms[MAX_PLATFORMS];
 
 static int platform_count = 0;
-
 
 void reset_platforms() {
     for (int i = 0; i < MAX_PLATFORMS; i++) {
@@ -51,6 +51,7 @@ void reset_platforms() {
 
 void load_level_platforms(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
+    char* tmx_text;
     const char* cursor;
     int idx = 0;
 
@@ -61,8 +62,17 @@ void load_level_platforms(int level_id) {
     if (dat_file[tmx_id].dat == NULL) {
         die("cannot load TMX data for level %d (platforms)", level_id);
     }
+    if (dat_file[tmx_id].size <= 0) {
+        die("empty TMX data for level %d (platforms)", level_id);
+    }
 
-    cursor = (const char*)dat_file[tmx_id].dat;
+    tmx_text = malloc((size_t)dat_file[tmx_id].size + 1);
+    if (tmx_text == NULL) {
+        die("cannot allocate TMX data for level %d (platforms)", level_id);
+    }
+    memcpy(tmx_text, dat_file[tmx_id].dat, (size_t)dat_file[tmx_id].size);
+    tmx_text[dat_file[tmx_id].size] = '\0';
+    cursor = tmx_text;
 
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
@@ -75,7 +85,7 @@ void load_level_platforms(int level_id) {
 
         if (matched >= 6 && strcmp(name, "PLATFORM") == 0) {
             int yy = (object_type[0] == 'L') ? y : (y + height); // for vertical platforms, adjust y to bottom edge
-            platforms[idx].sp = level_id == 5? dat_file[PLATAFORMA2_BMP].dat : dat_file[PLATAFORMA_BMP].dat;
+            platforms[idx].sp = level_id == 5 ? dat_file[PLATAFORMA2_BMP].dat : dat_file[PLATAFORMA_BMP].dat;
             platforms[idx].x = x;
             platforms[idx].y = y;
             platforms[idx].pos.x = x;
@@ -97,6 +107,7 @@ void load_level_platforms(int level_id) {
 
         cursor++; // advance past current '<' to find next tag
     }
+    free(tmx_text);
     platform_count = idx;
 }
 
