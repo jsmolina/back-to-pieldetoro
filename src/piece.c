@@ -63,8 +63,10 @@ void reset_pieces() {
     remaining_pieces = 0;
 }
 
+
 void load_level_pieces(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
+    char* tmx_text;
     const char* cursor;
     int idx = 0;
     int type_cycle = 0; // cycles 0,1,2 across pieces (no modulo)
@@ -76,8 +78,17 @@ void load_level_pieces(int level_id) {
     if (dat_file[tmx_id].dat == NULL) {
         die("cannot load TMX data for level %d (pieces)", level_id);
     }
+    if (dat_file[tmx_id].size <= 0) {
+        die("empty TMX data for level %d (pieces)", level_id);
+    }
 
-    cursor = (const char*)dat_file[tmx_id].dat;
+    tmx_text = malloc((size_t)dat_file[tmx_id].size + 1);
+    if (tmx_text == NULL) {
+        die("cannot allocate TMX data for level %d (pieces)", level_id);
+    }
+    memcpy(tmx_text, dat_file[tmx_id].dat, (size_t)dat_file[tmx_id].size);
+    tmx_text[dat_file[tmx_id].size] = '\0';
+    cursor = tmx_text;
 
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
@@ -106,6 +117,7 @@ void load_level_pieces(int level_id) {
 
         cursor++;
     }
+    free(tmx_text);
     piece_count = idx;
     remaining_pieces = piece_count;
 }

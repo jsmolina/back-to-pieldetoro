@@ -243,6 +243,7 @@ static enum EnemyType parse_enemy_type(const char* name) {
 
 void load_level_enemies_v2(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
+    char* tmx_text;
     const char* cursor;
     int enemy_index = 0;
 
@@ -258,8 +259,17 @@ void load_level_enemies_v2(int level_id) {
     if (dat_file[tmx_id].dat == NULL) {
         die("cannot load TMX data for level %d", level_id);
     }
+    if (dat_file[tmx_id].size <= 0) {
+        die("empty TMX data for level %d", level_id);
+    }
 
-    cursor = (const char*)dat_file[tmx_id].dat;
+    tmx_text = malloc((size_t)dat_file[tmx_id].size + 1);
+    if (tmx_text == NULL) {
+        die("cannot allocate TMX data for level %d", level_id);
+    }
+    memcpy(tmx_text, dat_file[tmx_id].dat, (size_t)dat_file[tmx_id].size);
+    tmx_text[dat_file[tmx_id].size] = '\0';
+    cursor = tmx_text;
 
     while ((cursor = strstr(cursor, "<object ")) != NULL) {
         int id;
@@ -271,11 +281,12 @@ void load_level_enemies_v2(int level_id) {
             &id, name, object_type, &x, &y);
 
         if (matched == 5) {
-            enum EnemyType enemy_type = parse_enemy_type(name);
+            int parsed_type = parse_enemy_type(name);
 
-            if ((strcmp(object_type, "EL") == 0 || strcmp(object_type, "ER") == 0) && enemy_type != -1) {
+            if ((strcmp(object_type, "EL") == 0 || strcmp(object_type, "ER") == 0) && parsed_type >= 0 && parsed_type < TOTAL_ENEMY_DATA) {
+                enum EnemyType enemy_type = (enum EnemyType)parsed_type;
                 int enemy_spawn_x = (strcmp(object_type, "ER") == 0)
-                    ? x - SCREEN_W
+                    ? x - 320
                     : x;
                 // if x is smaller than screen size, we can end in a negative spawn point, so we clamp it to 0
                 if (enemy_spawn_x < 0) {
@@ -286,10 +297,10 @@ void load_level_enemies_v2(int level_id) {
                     vy = 1;
                 } else if (enemy_type == ENEMY_LAMP || enemy_type == ENEMY_SYRINGE) {
                     vx = 4;
-                } else if (enemy_type == ENEMY_JOVEN 
-                    || enemy_type == ENEMY_DOG 
-                    || enemy_type == ENEMY_BRUNO 
-                    || enemy_type == ENEMY_BIG 
+                } else if (enemy_type == ENEMY_JOVEN
+                    || enemy_type == ENEMY_DOG
+                    || enemy_type == ENEMY_BRUNO
+                    || enemy_type == ENEMY_BIG
                     || enemy_type == ENEMY_GUARD) {
                     y = y - enemy_data[enemy_type].height; // adjust for sprite height
                 }
@@ -303,6 +314,7 @@ void load_level_enemies_v2(int level_id) {
 
         cursor++; /* advance past current '<' to find next tag */
     }
+    free(tmx_text);
     enemy_pool_init();
 }
 
