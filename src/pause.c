@@ -40,7 +40,7 @@ static void draw_pause_menu(int selected, const char* passcode) {
         }
 
         // textprintf_ex(screen, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
-        printf_at_simple(PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
+        printf_at_simple(screen, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
         offset_y += PAUSE_OPTION_HEIGHT;
     }
     /* Draw passcode at the top of the menu */

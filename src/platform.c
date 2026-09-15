@@ -5,6 +5,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define MOVING_PLATFORM_W 24
@@ -25,13 +26,12 @@ typedef struct {
     int dir;
     int active;
     int move_tick;
-    BITMAP * sp;
+    BITMAP* sp;
 } Platform;
 
 static Platform platforms[MAX_PLATFORMS];
 
 static int platform_count = 0;
-
 
 void reset_platforms() {
     for (int i = 0; i < MAX_PLATFORMS; i++) {

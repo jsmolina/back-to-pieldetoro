@@ -47,7 +47,6 @@ inline void load_tiles() {
     }
 }
 
-
 BITMAP* load_shop_bg(int id) {
     char* in_file;
     if (dat_file[id].dat == NULL) {
