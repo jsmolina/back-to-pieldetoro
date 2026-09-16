@@ -52,3 +52,21 @@ use Docker, it includes all the toolchain necessary to build the project.
 
 * `docker-compose build`
 * `docker-compose up`
+
+# "AI Slop"
+How much of AI has this game?
+
+Let me explain with all my respect and education. You can hate AI, it's your opinion.
+
+Whatever you do nowadays apparently has to be `vibecoded`. Well, no — this is a MS-DOS game, a personal side-project with no profit expectations.
+
+Obviously, people (me) ask nowadays AI for advice on how to do things better. People don’t really use Stack Overflow as much anymore. That’s just how things are. 
+I also experimented on how speckit would fit into a project before including it in my day to day (payed) job, because side projects are for... experimenting. So yes, this repo has a CLAUDE.md.
+
+But in my case, I spent a whole damn year drawing and programming this game, taking photos of doors on the streets of Barcelona and the Mapfre Tower. Recording myself with the phone hitting a frying pan with a fork. Recording my own voice just for the hell of it. I reused a lot of graphics from my six previous games, and took a few things from retro games too.
+
+And even if it *was* “vibecoded” — do you have fun playing it? *Then just enjoy it. It’s free.* You either play it or you don’t.
+
+Sorry to put it so bluntly, but I’m honestly getting a bit fed up with the idea that using AI somehow makes all the work behind a project irrelevant.
+
+Is the description in english vibe written? My english is non-native, so I asked for advice and corrections.  https://www.youtube.com/watch?v=IWloi5FKpDA
