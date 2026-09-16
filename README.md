@@ -69,4 +69,6 @@ And even if it *was* “vibecoded” — do you have fun playing it? *Then just 
 
 Sorry to put it so bluntly, but I’m honestly getting a bit fed up with the idea that using AI somehow makes all the work behind a project irrelevant.
 
-Is the description in english vibe written? My english is non-native, so I asked for advice and corrections.  https://www.youtube.com/watch?v=IWloi5FKpDA
+Is the description in english vibe written? My english is non-native, so I asked for advice and corrections.  
+
+Muchachada NUI though it first: https://www.youtube.com/watch?v=IWloi5FKpDA
