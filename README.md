@@ -72,3 +72,5 @@ Sorry to put it so bluntly, but I’m honestly getting a bit fed up with the ide
 Is the description in english vibe written? My english is non-native, so I asked for advice and corrections.  
 
 Muchachada NUI though it first: https://www.youtube.com/watch?v=IWloi5FKpDA
+
+I based the FSM on the (great) idea from this repository: https://github.com/yenshan/goggle_jumper_chronicles
