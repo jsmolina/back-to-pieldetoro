@@ -113,6 +113,8 @@ const char* game_text(gameTextId id);
 /** @brief Converts a level number to its corresponding data ID. */
 int level_to_dat_id(int level);
 
+void lang_load(int lang_id);
+
 extern BITMAP* current_screen;
 
 

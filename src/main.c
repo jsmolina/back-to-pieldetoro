@@ -1,22 +1,24 @@
-#include <stdio.h>
-
 #include "allegro/fli.h"
 #include "allegro/gfx.h"
 #include "allegro/keyboard.h"
 #include "allegro/midi.h"
 #include "allegro/timer.h"
+#include "boss.h"
 #include "coin.h"
 #include "dat_manager.h"
 #include "enemy.h"
 #include "game.h"
+#include "helpers.h"
+#include "langs.h"
+#include "main_menu.h"
 #include "piece.h"
-#include "platform.h"
 #include "player.h"
-#include "boss.h"
 #include "sinking.h"
 #include "tiles.h"
 #include "tnt.h"
-#include "main_menu.h"
+#include <conio.h>
+#include <stdio.h>
+#include <string.h>
 
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -78,9 +80,58 @@ inline void show_intro_menu() {
     }
 }
 
-int main(int argc, char *argv[]) {
-    if (argc > 1 && strcmp(argv[1], "megahit") == 0) {
-        megahit_mode = 1;
+void lang_select(int lang) {
+    if (lang > 0) {
+        lang_load(lang);
+    }
+    clear_keybuf();
+    clrscr();
+    gotoxy(0, 5);
+    printf("\t\t\t\t\tBACK TO PIELDETORO - LANG\n");
+    printf("\t\t\t\t-------------------------\n");
+    printf("\t\t\t\t1-English\n");
+    printf("\t\t\t\t2-Spanish\n");
+    printf("\t\t\t\t3-Catalan\n");
+    printf("\t\t\t\t0-EXIT\n");
+    clear_keybuf();
+
+    while (1) {
+        int key_code = readkey() >> 8;
+
+        switch (key_code) {
+        case KEY_0_PAD:
+        case KEY_0:
+            exit(0);            
+            break;
+        case KEY_1_PAD:
+        case KEY_1:
+            lang_load(LANG_EN_TXT);
+            return;
+            break;
+        case KEY_2_PAD:
+        case KEY_2:
+            lang_load(LANG_ES_TXT);
+            return;
+            break;
+        case KEY_3_PAD:
+        case KEY_3:
+            lang_load(LANG_CAT_TXT);
+            return;
+            break;
+        }
+    }
+}
+
+int main(int argc, char* argv[]) {
+    int lang = 0;
+    int argument_index;
+
+    for (argument_index = 1; argument_index < argc; argument_index++) {
+        if (strcmp(argv[argument_index], "megahit") == 0) {
+            megahit_mode = 1;
+        } else if (strcmp(argv[argument_index], "lang_en") == 0) {
+            lang = LANG_EN_TXT;
+        }
     }
     MainMenuResult res;
     int update_res;
@@ -90,13 +141,15 @@ int main(int argc, char *argv[]) {
     if (allegro_init() != 0)
         return 1;
     install_keyboard();
+    set_color_depth(8);
+    lang_select(lang);
 
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("Unable to set a 320x240 mode \n");
         return 1;
     }
-    set_color_depth(8);
+
     set_color_conversion(COLORCONV_NONE);
     current_screen = create_bitmap(320, 200);
     /* the scrolling area is twice the width of the screen (640x240) */
@@ -127,16 +180,16 @@ int main(int argc, char *argv[]) {
     play_midi(dat_file[MSDOS_MID].dat, 0);
     set_palette(palette);
     blit(dat_file[MSDOSCLUB_BMP].dat, screen, 0, 0, 0, 0, 320, 200);
-    DATAFILE *video_data1 = obtain_videodata("INTRO2_FLI");
-    DATAFILE *video_data2 = obtain_videodata("INTRO_FLI");
+    DATAFILE* video_data1 = obtain_videodata("INTRO2_FLI");
+    DATAFILE* video_data2 = obtain_videodata("INTRO_FLI");
     wait_a_bit(200);
     // BITMAP* bm1 = load_background(BG0_TMX, SCREEN_VIRTUAL);
     // rectfill(scroller, 0, 0, SCREEN_W, 100, 6);
     // rectfill(scroller, 0, 100, SCREEN_W, SCREEN_H, 2);
-    //DATAFILE *video_obj = load_datafile_object("intro.dat", "INTRO_VIDEO");
+    // DATAFILE *video_obj = load_datafile_object("intro.dat", "INTRO_VIDEO");
     play_memory_fli(video_data1->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
-    play_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);    
+    play_memory_fli(video_data2->dat, screen, 0, skip_fli_on_space);
     wait_for_space_release();
     unload_datafile_object(video_data1);
     unload_datafile_object(video_data2);
@@ -166,11 +219,11 @@ int main(int argc, char *argv[]) {
         frame_count++;
 
         switch (game_state) {
-        case TITLE:            
+        case TITLE:
             res = show_main_menu();
             if (res.selected == EXIT_TO_DOS) {
                 exit_game = 1;
-            } else if(res.selected == PASSWORD) {
+            } else if (res.selected == PASSWORD) {
                 game_state = GAME;
                 stop_midi();
                 start_new_game();
@@ -180,8 +233,7 @@ int main(int argc, char *argv[]) {
                     res.lives,
                     res.money,
                     res.score,
-                    res.books
-                );
+                    res.books);
             } else {
                 game_state = GAME;
                 stop_midi();
@@ -192,7 +244,7 @@ int main(int argc, char *argv[]) {
             if (update_game() == 1) {
                 game_state = GAME_OVER;
             }
-            
+
             // textprintf_ex(screen, font, 2, 2, 31, -1, "FPS:%d", fps);
             break;
         case GAME_OVER:
@@ -200,7 +252,7 @@ int main(int argc, char *argv[]) {
             printf_at_simple(90, 50, 31, 16, "  SCORE: %05d  ", score);
             wait_for_space();
             play_midi(dat_file[MSDOS_MID].dat, 0);
-            set_palette(palette);            
+            set_palette(palette);
             show_intro_menu();
             game_state = TITLE;
             break;

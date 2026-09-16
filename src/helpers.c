@@ -1,5 +1,6 @@
 
 #include "helpers.h"
+#include "allegro/datafile.h"
 #include "dat_manager.h"
 #include "statics.h"
 
@@ -10,48 +11,9 @@
 #include <stdio.h>
 
 
-#if !defined(LANG_EN) && !defined(LANG_ES)
-#define LANG_EN 1
-#endif
-
 #define PRINT_SLOW_DELAY_MS 10
 
-#if defined(LANG_EN)
-static const char * game_name = "Back to cowhide";
-static const char* const game_texts[TXT_COUNT] = {
-    "YOU BUILT A TIME MACHINE IN A BETSY?",
-    "IF YOU BUILD A TIME MACHINE, MAKE IT COOL, DUDE!",
-    "I NEED YOU TO COME TO THE FUTURE",
-    "ARE WE GOING DORK OR WHAT?",
-    "YOUR KIDS LISTEN TO REGGAETON AND SAY BRO",
-    "DAMN, START THE BETSY, I PUSH IT TO 140 KM/H",
-    "WATCH OUT, THE ROAD IS A SHAMBLES",
-    "DUDE, NOW BRUNO TANEZ IS IN CHARGE",
-    "NO WAY, ARE YOU FUCKING ME?",
-    "BRO, BUY",
-    "UR BROKE",
-    "BOUGHT BRO",
-    "NO STOCK BRO",
-    "I NEED THAT ALMANAC",
-    "ARE YOU IN OR WHAT, BRO?",
-    "NAH, BASED",
-    "HELL YEAH, BASED, FOR HIM!",
-    "WE LIVED IN POVERTY AND HE CAME, IN 1954",
-    "HOW DO YOU THINK OF BUYING THIS?",
-    "WIN SOME BETS, DUDE",
-    "HE ROBBED IT AND CRASHED",
-    "NOW WE HAVE TO RECOVER THE PIECES",
-    "BRUNO'S DOWN, BUT THE MUSIC AIN'T DEAD",
-    "THE AUTOVOICE, DESTROY IT",
-    "GO AND DESTROY SERVER ROOM WITH TNT",
-    "YOU KILLED AUTOVOICE, PREPARE TO DIE",
-    "BETSY GOES BACK, JENNY WAITS",
-    "COME HERE HANDSOME",
-    "I NEED THE 3 PIECES TO CONTINUE"
-};
-#else
-static const char* game_name = "Back to cowhide";
-static const char* const game_texts[TXT_COUNT] = {
+static char* game_texts[TXT_COUNT] = {
     "HAS MONTAO UNA MAQUINA DEL TIEMPO EN UNA LOCA?",
     "SI VAS A MONTAR UNA MAQUINA DEL TIEMPO,QUE MOLE,TRON!",
     "NECESITO QUE VENGAS AL FUTURO",
@@ -82,9 +44,21 @@ static const char* const game_texts[TXT_COUNT] = {
     "GUAPO VEN AQUI",
     "NECESITO LAS 3 PIEZAS ANTES"
 };
-#endif
 
 BITMAP* current_screen;
+
+void lang_load(int lang_id) {
+    DATAFILE * lang_dat_file = load_datafile("lang.dat");
+    char *text = malloc(lang_dat_file[lang_id].size + 1);
+    int count;
+    memcpy(text, lang_dat_file[lang_id].dat, lang_dat_file[lang_id].size);
+    text[lang_dat_file[lang_id].size] = '\0';
+
+    for (char *p = strtok(text, "\n"); p && count < TXT_COUNT; p = strtok(NULL, "\n")) {
+        game_texts[count++] = p;
+    }
+    unload_datafile(lang_dat_file);
+}
 
 const char* game_text(gameTextId id) {
     if (id < 0 || id >= TXT_COUNT) {

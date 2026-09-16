@@ -90,6 +90,8 @@ dat datos.dat -a ./shot.wav -h statics.h
 
 dat intro.dat -a ./cars2.bmp -h intro_statics.h -t BMP
 
+dat lang.dat -a ./lang_*.txt -h langs.h -t TXT
+
 dat video.dat -a ./intro.fli -h video_statics.h 
 dat video.dat -a ./intro2.fli -h video_statics.h 
 dat video.dat -a ./intro_level41.fli -h video_statics.h 
@@ -98,3 +100,4 @@ dat -l datos.dat
 cp statics.h /src
 cp intro_statics.h /src
 cp video_statics.h /src
+cp langs.h /src
