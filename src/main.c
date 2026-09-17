@@ -80,27 +80,56 @@ inline void show_intro_menu() {
     }
 }
 
+inline void menu_lang_print(unsigned int selected, unsigned int val, char * str) {
+    gotoxy(38, 8 + (val-28));
+    textbackground(selected == val? 1: 0);
+    cprintf("%s", str);
+}
+
 void lang_select(int lang) {
     if (lang > 0) {
         lang_load(lang);
     }
     clear_keybuf();
     clrscr();
-    gotoxy(0, 5);
-    printf("\t\t\t\t\tBACK TO PIELDETORO - LANG\n");
-    printf("\t\t\t\t-------------------------\n");
-    printf("\t\t\t\t1-English\n");
-    printf("\t\t\t\t2-Spanish\n");
-    printf("\t\t\t\t3-Catalan\n");
-    printf("\t\t\t\t0-EXIT\n");
-    clear_keybuf();
-
+    unsigned int selected = KEY_1;
     while (1) {
+        gotoxy(0, 5);
+        printf("\t\t\t\t\tBACK TO PIELDETORO - LANG\n");
+        printf("\t\t\t\t-------------------------\n");        
+        menu_lang_print(selected, KEY_1, "1-English");
+        menu_lang_print(selected, KEY_2, "2-Spanish");
+        menu_lang_print(selected, KEY_3, "3-Catalan");
+        menu_lang_print(selected, KEY_4, "4-Galego");
+        menu_lang_print(selected, KEY_0, "0-EXIT   ");
+        clear_keybuf();
         int key_code = readkey() >> 8;
+
+        switch (key_code) {
+        case KEY_UP:
+            if (selected == KEY_0) {
+                selected = KEY_4;
+                break;
+            }
+            selected--;             
+            break;
+        case KEY_DOWN:
+            if (selected == KEY_4) {
+                selected = KEY_0;
+                break;
+            }
+            selected++;             
+            break;
+        case KEY_ENTER:
+            key_code = selected;
+            break;
+        }
 
         switch (key_code) {
         case KEY_0_PAD:
         case KEY_0:
+            textbackground(0); cprintf(" ");
+            clrscr();
             exit(0);            
             break;
         case KEY_1_PAD:
@@ -116,6 +145,11 @@ void lang_select(int lang) {
         case KEY_3_PAD:
         case KEY_3:
             lang_load(LANG_CAT_TXT);
+            return;
+            break;
+        case KEY_4_PAD:
+        case KEY_4:
+            lang_load(LANG_GAL_TXT);
             return;
             break;
         }
