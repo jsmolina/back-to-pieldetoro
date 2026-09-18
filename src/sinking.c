@@ -53,6 +53,7 @@ void reset_sinking() {
     sinking_count = 0;
 }
 
+
 void load_level_sinking(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
     char* tmx_text;

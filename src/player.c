@@ -473,7 +473,7 @@ inline collisionType player_aabb() {
         };
     } else if (player.state == THROWING) {
         return (collisionType){
-            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x +5,
+            .x = player.flip == TRUE ? player.pos.x - 10 : player.pos.x + 5,
             .y = player.pos.y + 20,
             .w = player.flip == FALSE ? 24 : 18,
             .h = 15
@@ -710,7 +710,7 @@ static void player_move_y_substeps() {
                     int support_offset_y = rear.y - player.pos.y;
                     player.pos.y = tile_top - support_offset_y - rear.h;
                 }
-                
+
                 player.vy = 0;
                 break;
             }
@@ -973,6 +973,14 @@ static void player_action_move_left() {
     }
 
     if (player_count_move(-1, 0) == NOT_FINISHED) {
+        // accelerate up to -MAX_PLAYER_VX
+        if (player.vx > -player.max_vx) {
+            player.vx -= PLAYER_ACCEL;
+            if (player.vx < -player.max_vx)
+                player.vx = -player.max_vx;
+        } else {
+            player.vx = -player.max_vx;
+        }
         return;
     }
 

@@ -47,8 +47,7 @@ ${STATICDEST}:
 	cp $(subst $(DISTDIR),$(STATICDIR),$@) $@
 	cp static/cwsdpmi.exe ${DISTDIR}
 	cp static/setup.* ${DISTDIR}
-	cp static/intro.dat ${DISTDIR}
-	cp static/video.dat ${DISTDIR}
+	cp static/*.dat ${DISTDIR}
 
 all: ${DISTDIR} ${DISTDIR}/${BIN} ${STATICDEST}
 
