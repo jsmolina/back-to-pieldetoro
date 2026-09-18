@@ -6,6 +6,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // inventory display (screen space, not scrolled)
@@ -143,7 +144,7 @@ void tnt_draw(int scroll_x) {
     for (int i = 0; i < tnt_count; i++) {
         if (tnts[i].active && !tnts[i].collected) {
             int screen_x = tnts[i].x - scroll_x;
-            if (screen_x > -tnt_sprite->w && screen_x < SCREEN_W) {
+            if (screen_x > -tnt_sprite->w && screen_x < 320) {
                 draw_sprite(current_screen, tnt_sprite, screen_x, tnts[i].y);
             }
         }
@@ -225,9 +226,9 @@ void tnt_place_on_box(int index) {
     while (player.tnt_count > 0 && boxes[index].tnt_on_box < MAX_TNT_PER_BOX) {
         boxes[index].tnt_on_box++;
         player.tnt_count--;
-        collected_in_box++;        
+        collected_in_box++;
     }
     if (collected_in_box >= 10) {
-       player_has_all_tnt();
+        player_has_all_tnt();
     }
 }

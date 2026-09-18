@@ -4,8 +4,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <pc.h>
-#include <dos.h>
 
 void die(const char *format, ...) {
     va_list args;

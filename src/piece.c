@@ -5,6 +5,7 @@
 #include "statics.h"
 #include <allegro.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef struct {
@@ -124,7 +125,7 @@ void load_level_pieces(int level_id) {
 
 inline void draw_pieces(int scroll_x) {
     printf_at_ingame(10, 10, 71, 1, "PIECES: %d", remaining_pieces);
-    
+
     for (int i = 0; i < piece_count; i++) {
         if (pieces[i].active && !pieces[i].collected) {
             BITMAP* sprite = _get_piece_sprite(pieces[i].type);
@@ -132,7 +133,7 @@ inline void draw_pieces(int scroll_x) {
                 continue;
             }
             int screen_x = pieces[i].x - scroll_x;
-            if (screen_x > -sprite->w && screen_x < SCREEN_W) {
+            if (screen_x > -sprite->w && screen_x < 320) {
                 draw_sprite(current_screen, sprite, screen_x, pieces[i].y);
             }
         }
