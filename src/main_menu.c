@@ -104,7 +104,7 @@ MainMenuResult show_main_menu() {
             if (res.selected >= MAIN_MENU_OPTION_COUNT) {
                 res.selected = 0;
             }
-        } else if (show_menu == 1 && key_code == KEY_ENTER ) {
+        } else if (show_menu == 1 && (key_code == KEY_ENTER || key_code == KEY_SPACE) ) {
             clear_keybuf();
             if (res.selected == PASSWORD) {
                 /* Draw passcode write */
