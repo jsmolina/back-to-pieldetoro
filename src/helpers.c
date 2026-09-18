@@ -82,7 +82,8 @@ void lang_select(int lang) {
         menu_lang_print(selected, KEY_3, 82, "3-Catala", fnt);
         menu_lang_print(selected, KEY_4, 94, "4-Galego", fnt);
         menu_lang_print(selected, KEY_0, 112, "0-EXIT", fnt);
-        
+        textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.6");
+
         blit(current_screen, screen, 125, 55, 125, 55, 195, 145);
 
         clear_keybuf();
