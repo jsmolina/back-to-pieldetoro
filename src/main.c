@@ -16,8 +16,6 @@
 #include "sinking.h"
 #include "tiles.h"
 #include "tnt.h"
-#include <conio.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <allegro.h>
@@ -80,82 +78,6 @@ inline void show_intro_menu() {
     }
 }
 
-inline void menu_lang_print(unsigned int selected, unsigned int val, char * str) {
-    gotoxy(38, 8 + (val-28));
-    textbackground(selected == val? 1: 0);
-    cprintf("%s", str);
-}
-
-void lang_select(int lang) {
-    if (lang > 0) {
-        lang_load(lang);
-    }
-    clear_keybuf();
-    clrscr();
-    unsigned int selected = KEY_1;
-    while (1) {
-        gotoxy(0, 5);
-        printf("\t\t\t\t\tBACK TO PIELDETORO - LANG\n");
-        printf("\t\t\t\t-------------------------\n");        
-        menu_lang_print(selected, KEY_1, "1-English");
-        menu_lang_print(selected, KEY_2, "2-Spanish");
-        menu_lang_print(selected, KEY_3, "3-Catalan");
-        menu_lang_print(selected, KEY_4, "4-Galego");
-        menu_lang_print(selected, KEY_0, "0-EXIT   ");
-        clear_keybuf();
-        int key_code = readkey() >> 8;
-
-        switch (key_code) {
-        case KEY_UP:
-            if (selected == KEY_0) {
-                selected = KEY_4;
-                break;
-            }
-            selected--;             
-            break;
-        case KEY_DOWN:
-            if (selected == KEY_4) {
-                selected = KEY_0;
-                break;
-            }
-            selected++;             
-            break;
-        case KEY_ENTER:
-            key_code = selected;
-            break;
-        }
-
-        switch (key_code) {
-        case KEY_0_PAD:
-        case KEY_0:
-            textbackground(0); cprintf(" ");
-            clrscr();
-            exit(0);            
-            break;
-        case KEY_1_PAD:
-        case KEY_1:
-            lang_load(LANG_EN_TXT);
-            return;
-            break;
-        case KEY_2_PAD:
-        case KEY_2:
-            lang_load(LANG_ES_TXT);
-            return;
-            break;
-        case KEY_3_PAD:
-        case KEY_3:
-            lang_load(LANG_CAT_TXT);
-            return;
-            break;
-        case KEY_4_PAD:
-        case KEY_4:
-            lang_load(LANG_GAL_TXT);
-            return;
-            break;
-        }
-    }
-}
-
 int main(int argc, char* argv[]) {
     int lang = 0;
     int argument_index;
@@ -165,6 +87,10 @@ int main(int argc, char* argv[]) {
             megahit_mode = 1;
         } else if (strcmp(argv[argument_index], "lang_en") == 0) {
             lang = LANG_EN_TXT;
+        } else if (strcmp(argv[argument_index], "lang_cat") == 0) {
+            lang = LANG_CAT_TXT;
+        } else if (strcmp(argv[argument_index], "lang_es") == 0) {
+            lang = LANG_ES_TXT;
         }
     }
     MainMenuResult res;
@@ -176,16 +102,17 @@ int main(int argc, char* argv[]) {
         return 1;
     install_keyboard();
     set_color_depth(8);
-    lang_select(lang);
+
 
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
         allegro_message("Unable to set a 320x240 mode \n");
         return 1;
     }
+    current_screen = create_bitmap(320, 200);
+    lang_select(lang);
 
     set_color_conversion(COLORCONV_NONE);
-    current_screen = create_bitmap(320, 200);
     /* the scrolling area is twice the width of the screen (640x240) */
     // scroller = create_sub_bitmap(screen, 0, 0, SCREEN_W, SCREEN_H);
     // scroller = create_video_bitmap(SCREEN_W, SCREEN_H);
