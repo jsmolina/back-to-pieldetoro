@@ -506,16 +506,22 @@ inline void draw_game() {
         player_draw(scroll_x);
         draw_enemies(scroll_x);
         draw_throwable(scroll_x);
-        draw_enemy_throwable(scroll_x);
+        if (current_level == LEVEL_MOUNTAIN || current_level == LEVEL_AUTOVOICE) {
+            draw_enemy_throwable(scroll_x);
+        }
         draw_coins(scroll_x);
-        draw_platforms(scroll_x);
+        if (current_level >= LEVEL_MOUNTAIN) {
+            draw_platforms(scroll_x);
+        }
 
         if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
    
         collision_check_throwable_vs_enemy();
-        collision_check_enemy_throwable_vs_player();
+        if (current_level == LEVEL_MOUNTAIN || current_level == LEVEL_AUTOVOICE) {
+            collision_check_enemy_throwable_vs_player();
+        }
         collision_check_enemy_vs_player(scroll_x);
         collision_check_player_vs_coins();
         if (current_level == LEVEL_MOUNTAIN) {

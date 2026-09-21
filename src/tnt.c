@@ -161,7 +161,8 @@ void tnt_draw(int scroll_x) {
     _draw_tnt_row(TNT_HUD_X, TNT_HUD_Y, player.tnt_count, TNT_HUD_STEP);
 }
 
-void tnt_get_all_aabb(collisionType* boxes_out) {
+int tnt_get_all_aabb(collisionType* boxes_out) {
+    int res = FALSE;
     for (int i = 0; i < MAX_TNT; i++) {
         if (i < tnt_count && tnts[i].active && !tnts[i].collected) {
             boxes_out[i].x = tnts[i].x;
@@ -169,6 +170,7 @@ void tnt_get_all_aabb(collisionType* boxes_out) {
             boxes_out[i].w = tnt_sprite ? tnt_sprite->w : 16;
             boxes_out[i].h = tnt_sprite ? tnt_sprite->h : 16;
             boxes_out[i].meta = 0;
+            res = TRUE;
         } else {
             boxes_out[i].x = 0;
             boxes_out[i].y = 0;
@@ -177,6 +179,7 @@ void tnt_get_all_aabb(collisionType* boxes_out) {
             boxes_out[i].meta = 0;
         }
     }
+    return res;
 }
 
 void tnt_on_collect(int index) {

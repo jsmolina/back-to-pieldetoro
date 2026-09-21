@@ -183,7 +183,11 @@ int checkHitObj() {
 void collision_check_throwable_vs_enemy() {
     collisionType boxes[MAX_THROWABLE_OBJECTS];
     collisionType enemies[MAX_ACTIVE_ENEMIES];
-    book_get_all_aabb(boxes);
+    int t = book_get_all_aabb(boxes);
+    // optimisation: no active, no check
+    if (t == FALSE) {
+        return;
+    }
     enemy_get_all_aabb(enemies);
     for (int throw_id = 0; throw_id < MAX_THROWABLE_OBJECTS; throw_id++) {
         if (boxes[throw_id].w == 0)
@@ -205,7 +209,10 @@ void collision_check_throwable_vs_enemy() {
 void collision_check_enemy_throwable_vs_player() {
     collisionType boxes[MAX_ENEMY_THROWABLE_OBJECTS];
     collisionType player_area = player_aabb();
-    enemy_throwable_get_all_aabb(boxes);
+    int res = enemy_throwable_get_all_aabb(boxes);
+    if (res == FALSE) {
+        return;
+    }
     for (int throw_id = 0; throw_id < MAX_ENEMY_THROWABLE_OBJECTS; throw_id++) {
         if (boxes[throw_id].w == 0)
             continue;
@@ -344,7 +351,10 @@ int martin_is_over_door() {
 void collision_check_player_vs_coins() {
     collisionType player_area = player_aabb();
     collisionType coin_boxes[MAX_TOTAL_COINS];
-    coin_get_all_aabb(coin_boxes);
+    int res = coin_get_all_aabb(coin_boxes);
+    if (res == FALSE) {
+        return;
+    }
 
     for (int i = 0; i < MAX_TOTAL_COINS; i++) {
         if (coin_boxes[i].w == 0)
@@ -359,7 +369,10 @@ void collision_check_player_vs_coins() {
 void collision_check_player_vs_pieces() {
     collisionType player_area = player_aabb();
     collisionType piece_boxes[MAX_PIECES];
-    piece_get_all_aabb(piece_boxes);
+    int res = piece_get_all_aabb(piece_boxes);
+    if (res == FALSE) {
+        return;
+    }
 
     for (int i = 0; i < MAX_PIECES; i++) {
         if (piece_boxes[i].w == 0)
@@ -374,7 +387,10 @@ void collision_check_player_vs_pieces() {
 void collision_check_player_vs_tnt() {
     collisionType player_area = player_aabb();
     collisionType tnt_boxes[MAX_TNT];
-    tnt_get_all_aabb(tnt_boxes);
+    int res = tnt_get_all_aabb(tnt_boxes);
+    if (res == FALSE) {
+        return;
+    }
 
     for (int i = 0; i < MAX_TNT; i++) {
         if (tnt_boxes[i].w == 0)

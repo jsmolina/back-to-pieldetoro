@@ -27,7 +27,7 @@ void load_level_pieces(int level_id);
 void draw_pieces(int scroll_x);
 
 /** @brief Gets AABB boxes for all active and not-collected pieces. */
-void piece_get_all_aabb(collisionType* boxes);
+int piece_get_all_aabb(collisionType* boxes);
 
 /** @brief Marks one piece as collected by index. */
 void piece_on_collect(int index);
