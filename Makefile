@@ -1,10 +1,9 @@
 # Allegro 4.2.2 for DOS example
 # MIT license
-# -mno-80387 -mno-fp-ret-in-387 
 
 CC        = $(DJGPP_CC)
 VENDOR    = vendor
-CFLAGS    = -DHAVE_STDBOOL_H=1 -fgnu89-inline -Ivendor/allegro-4.2.2-xc/include
+CFLAGS    = -DHAVE_STDBOOL_H=1 -fgnu89-inline -march=i486 -mno-80387 -mno-fp-ret-in-387 -Ivendor/allegro-4.2.2-xc/include
 LDFLAGS   = -Lvendor/allegro-4.2.2-xc/lib/djgpp -lalleg
 
 BIN       = b2p.exe

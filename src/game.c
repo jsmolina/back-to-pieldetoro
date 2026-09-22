@@ -162,7 +162,7 @@ void lifebar() {
             year = 2026;
         } else if (current_level == 2) {
             year = 2039;
-        } else if (current_level == 3){
+        } else if (current_level == 3) {
             year = 2039;
         } else if (current_level == LEVEL_MOUNTAIN) {
             year = 1954;
@@ -226,11 +226,15 @@ void lifebar() {
 }
 
 /**
-* Loads current background
-*/
+ * Loads current background
+ */
 static void load_by_stage() {
     int dat_id = level_to_dat_id(current_level);
     if (current_level > 0) {
+        if (current_background != NULL) {
+            destroy_bitmap(current_background);
+            current_background = NULL;
+        }
         current_background = load_background(dat_id);
         world_state = START_STAGE;
     } else {
@@ -241,30 +245,30 @@ static void load_by_stage() {
 static inline void start_music() {
     stop_midi();
 
-    switch(current_level) {
-        case 1:
-            play_midi(dat_file[LEVEL1_FUNKY_MID].dat, TRUE);
+    switch (current_level) {
+    case 1:
+        play_midi(dat_file[LEVEL1_FUNKY_MID].dat, TRUE);
         break;
-        case 2:
-            play_midi(dat_file[LEVEL2_POLICIACO_MID].dat, TRUE);
+    case 2:
+        play_midi(dat_file[LEVEL2_POLICIACO_MID].dat, TRUE);
         break;
-        case 3:
-            play_midi(dat_file[LEVEL3_MID].dat, TRUE);
+    case 3:
+        play_midi(dat_file[LEVEL3_MID].dat, TRUE);
         break;
-        case 4:
-            play_midi(dat_file[LEVEL4_DETECTIVE_MID].dat, TRUE);
+    case 4:
+        play_midi(dat_file[LEVEL4_DETECTIVE_MID].dat, TRUE);
         break;
-        case 5:
-            play_midi(dat_file[LEVEL5_MID].dat, TRUE);
+    case 5:
+        play_midi(dat_file[LEVEL5_MID].dat, TRUE);
         break;
-        case 6:
-            play_midi(dat_file[LEVEL6_MID].dat, TRUE);
+    case 6:
+        play_midi(dat_file[LEVEL6_MID].dat, TRUE);
         break;
-        case 7:
-            play_midi(dat_file[FINAL_MID].dat, TRUE);
+    case 7:
+        play_midi(dat_file[FINAL_MID].dat, TRUE);
         break;
-        case 8:
-            
+    case 8:
+
         break;
     }
 }
@@ -291,8 +295,6 @@ void advance_stage() {
     load_by_stage();
     reset_palette_to_vga_original();
 }
-
-
 
 void continue_game(int cl, int liv, int mon, int sco, int books) {
     current_level = cl;
@@ -409,7 +411,7 @@ void update_game_run() {
             world_state = GAME_PASSED;
             return;
         }
-        
+
         if (current_level == LEVEL_MOUNTAIN && player.boss_mode == TRUE && boss_hits >= BOSS_HITS_TO_KILL) {
             world_state = STAGE_CLEAR;
         }
@@ -421,7 +423,7 @@ void update_game_run() {
         enemy_pool_update(scroll_x);
         enemy_update(scroll_x);
         throwable_update(scroll_x);
-        enemy_throwable_update(scroll_x);        
+        enemy_throwable_update(scroll_x);
 
         break;
     }
@@ -465,10 +467,10 @@ inline void draw_game() {
             ; // wait key release
     } else if (megahit_mode == 1 && key[KEY_F2]) {
         all_collected();
-        player.pos.x = almanac_tile_x -1;
+        player.pos.x = almanac_tile_x - 1;
     } else if (megahit_mode == 1 && key[KEY_F3]) {
         player.energy = 6;
-    } 
+    }
     collisionType f2;
     int current_door_id;
 
@@ -517,7 +519,7 @@ inline void draw_game() {
         if (current_level == LEVEL_MOUNTAIN) {
             draw_pieces(scroll_x);
         }
-   
+
         collision_check_throwable_vs_enemy();
         if (current_level == LEVEL_MOUNTAIN || current_level == LEVEL_AUTOVOICE) {
             collision_check_enemy_throwable_vs_player();
@@ -536,7 +538,7 @@ inline void draw_game() {
         lifebar();
         if (player.boss_mode == TRUE) {
             // TODO reduce 50, based on bruno enemy life
-            int width = 50;  
+            int width = 50;
             for (int i = 0; i < boss_hits; i++) {
                 width -= 5;
             }
@@ -546,7 +548,7 @@ inline void draw_game() {
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
-        //textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
+        // textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
 
         blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
 
@@ -753,6 +755,10 @@ enum PauseMenuResult game_handle_pause(void) {
 }
 
 void unload_game_memory() {
+    if (current_background != NULL) {
+        destroy_bitmap(current_background);
+        current_background = NULL;
+    }
     /*destroy_coche_spritesheet();
     destroy_enemy_spritesheets();*/
 }

@@ -25,13 +25,12 @@ typedef struct {
     int dir;
     int active;
     int move_tick;
-    BITMAP * sp;
+    BITMAP* sp;
 } Platform;
 
 static Platform platforms[MAX_PLATFORMS];
 
 static int platform_count = 0;
-
 
 void reset_platforms() {
     for (int i = 0; i < MAX_PLATFORMS; i++) {
@@ -149,6 +148,9 @@ void draw_platforms(int scroll_x) {
     for (int i = 0; i < platform_count; i++) {
         if (platforms[i].active) {
             int screen_x = platforms[i].pos.x - scroll_x;
+            if (screen_x <= -platforms[i].sp->w || screen_x >= SCREEN_W) {
+                continue;
+            }
             draw_sprite(current_screen, platforms[i].sp, screen_x, platforms[i].pos.y);
         }
     }
