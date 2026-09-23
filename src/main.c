@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
 
     // 336 wide: two pages stacked vertically, with a 16px margin so screen_shake can pan sideways
     if (set_gfx_mode(GFX_MODEX, 320, 200, 336, 0) != 0) {
-        /* ponytail: fall back to chained VGA if Mode X isn't available */
+        /* fall back to chained VGA if Mode X isn't available */
         if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
             set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
             allegro_message("Unable to set a 320x240 mode \n");
