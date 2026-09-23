@@ -45,6 +45,34 @@ static char* game_texts[TXT_COUNT] = {
 };
 
 BITMAP* current_screen;
+static BITMAP* video_page[2];
+static BITMAP* displayed_page;
+
+void present_frame(void) {
+    request_video_bitmap(current_screen);
+    displayed_page = current_screen;
+    current_screen = (current_screen == video_page[0]) ? video_page[1] : video_page[0];
+    while (poll_scroll())
+        ; // wait for the flip to actually land before drawing resumes on the freed page
+}
+
+void init_video_pages(int width, int height) {
+    // first allocation lands at VRAM row 0, sharing memory with screen; second one is at row 200
+    video_page[0] = create_video_bitmap(width, height);
+    video_page[1] = create_video_bitmap(width, height);
+    displayed_page = video_page[0];
+    current_screen = video_page[1];
+}
+
+void show_screen_page(void) {
+    if (displayed_page == video_page[0])
+        return;
+    // keep the last game frame visible under overlays like pause or dialogs
+    blit(video_page[1], video_page[0], 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+    show_video_bitmap(video_page[0]);
+    displayed_page = video_page[0];
+    current_screen = video_page[1];
+}
 
 void lang_load(int lang_id, DATAFILE* lang_dat_file) {
     char* text = malloc(lang_dat_file[lang_id].size + 1);

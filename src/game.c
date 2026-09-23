@@ -58,11 +58,6 @@ BITMAP* continue_bg;
 PALETTE pal_flash;
 // int levels_bg[] = {BG0_TMX, BG1_TMX};
 
-static int hud_last_level = -1;
-static int hud_last_energy = -1;
-static int hud_last_lives = -1;
-static int hud_last_coins = -1;
-static int hud_last_books = -1;
 static int hud_last_pieces_collected = -1;
 static int hud_last_pieces_total = -1;
 static int coins_collected = 0;
@@ -154,23 +149,20 @@ int game_try_spend_money(int amount) {
 }
 
 void lifebar() {
-    int force_full_redraw = (hud_last_level != current_level);
-    if (force_full_redraw) {
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
-        int year = 0001;
-        if (current_level == 1) {
-            year = 2026;
-        } else if (current_level == 2) {
-            year = 2039;
-        } else if (current_level == 3) {
-            year = 2039;
-        } else if (current_level == LEVEL_MOUNTAIN) {
-            year = 1954;
-        } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE || current_level == 7) {
-            year = 1997;
-        }
-        printf_at_simple(26, 185, 46, -1, "%d", year);
+    blit(dat_file[LIFEBAR_BMP].dat, current_screen, 0, 0, 0, 170, 320, 30); // draw full HUD background
+    int year = 0001;
+    if (current_level == 1) {
+        year = 2026;
+    } else if (current_level == 2) {
+        year = 2039;
+    } else if (current_level == 3) {
+        year = 2039;
+    } else if (current_level == LEVEL_MOUNTAIN) {
+        year = 1954;
+    } else if (current_level == LEVEL_CITY || current_level == LEVEL_AUTOVOICE || current_level == 7) {
+        year = 1997;
     }
+    printf_at_ingame(26, 185, 46, -1, "%d", year);
 
     int e = player.energy;
     if (e < 0)
@@ -178,51 +170,32 @@ void lifebar() {
     if (e > HUD_MAX_ENERGY)
         e = HUD_MAX_ENERGY;
 
-    if (force_full_redraw || hud_last_energy != e) {
-        // restore energy slot background before redrawing current energy state
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 145, 0, 145, 170, 29, 30);
-        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, screen, 0, 0, 145, 170, 29, 30);
-        int bruno_h = ((HUD_MAX_ENERGY - e) << 2) + (HUD_MAX_ENERGY - e);
-        if (bruno_h > 0) {
-            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, screen, 0, 0, 145, 170, 29, bruno_h);
-        }
-        hud_last_energy = e;
+    blit(dat_file[LIFEBAR_BMP].dat, current_screen, 145, 0, 145, 170, 29, 30);
+    blit(dat_file[LIFEBAR_MARTIN_BMP].dat, current_screen, 0, 0, 145, 170, 29, 30);
+    int bruno_h = ((HUD_MAX_ENERGY - e) << 2) + (HUD_MAX_ENERGY - e);
+    if (bruno_h > 0) {
+        blit(dat_file[LIFEBAR_BRUNO_BMP].dat, current_screen, 0, 0, 145, 170, 29, bruno_h);
     }
 
-    if (force_full_redraw || hud_last_lives != player.lives) {
-        // clear lives area with HUD background, then draw current amount
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 190, 0, 190, 170, 130, 30);
-        int x = 182;
-        for (int i = 0; i < player.lives; i++) {
-            draw_sprite(screen, dat_file[HEAD_BMP].dat, x, 185);
-            x += 15;
-        }
-        hud_last_lives = player.lives;
+    blit(dat_file[LIFEBAR_BMP].dat, current_screen, 190, 0, 190, 170, 130, 30);
+    int x = 182;
+    for (int i = 0; i < player.lives; i++) {
+        draw_sprite(current_screen, dat_file[HEAD_BMP].dat, x, 185);
+        x += 15;
     }
 
     int money = game_get_money();
-    if (force_full_redraw || hud_last_coins != money) {
-        blit(dat_file[LIFEBAR_BMP].dat, screen, 255, 5, 255, 175, 65, 15);
-        printf_at_simple(255, 185, 41, -1, "%6d", money);
-        hud_last_coins = money;
-    }
+    blit(dat_file[LIFEBAR_BMP].dat, current_screen, 255, 5, 255, 175, 65, 15);
+    printf_at_ingame(255, 185, 41, -1, "%6d", money);
 
     int books = get_book_count();
-    if (force_full_redraw || hud_last_books != books) {
-        /*rect(screen, 83, 185, 132, 190, 19);
-        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, 65, 5);
-        */
-        int width = 65;
-        for (int i = books; i < DEFAULT_STOCK; i++)
-            width -= 5;
-        if (width >= 0) {
-            rectfill(screen, 83, 185, 132, 190, 19);
-            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, screen, 0, 0, 83, 185, width, 5);
-        }
-        hud_last_books = books;
+    int width = 65;
+    for (int i = books; i < DEFAULT_STOCK; i++)
+        width -= 5;
+    if (width >= 0) {
+        rectfill(current_screen, 83, 185, 132, 190, 19);
+        blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, current_screen, 0, 0, 83, 185, width, 5);
     }
-
-    hud_last_level = current_level;
 }
 
 /**
@@ -292,6 +265,9 @@ void advance_stage() {
     }
 
     current_level++;
+    if (current_level > 7) {
+        current_level = 7;
+    }
     load_by_stage();
     reset_palette_to_vga_original();
 }
@@ -403,9 +379,9 @@ void update_game_run() {
         } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
             } while (key[KEY_SPACE]);
+            show_screen_page();
             int room_choice = enter_room(flow_event.data, current_level);
             (void)room_choice;
-            hud_last_level = -1; // force HUD redraw on room exit
             return;
         } else if (flow_event.type == PLAYER_ADVANCE_STAGE) {
             world_state = STAGE_CLEAR;
@@ -486,7 +462,7 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
-        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        present_frame();
         break;
 
     default:
@@ -553,7 +529,7 @@ inline void draw_game() {
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         // textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
 
-        blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
+        present_frame();
 
         break;
     }
@@ -634,6 +610,9 @@ static inline int skip_fli_on_space2(void) {
 }
 
 inline int update_game() {
+    if (world_state != GAME_RUN && world_state != WBACK_IN_TIME) {
+        show_screen_page();
+    }
     switch (world_state) {
     case START_STAGE:
         // start title
@@ -663,7 +642,6 @@ inline int update_game() {
             spawn_boss();
         }
         // blit(current_background, scroller, 0, 0, 0, 0, SCREEN_VIRTUAL, 201);
-        hud_last_level = -1; // force HUD redraw on stage restart
         world_state = GAME_RUN;
         break;
     case GAME_RUN:
@@ -733,6 +711,7 @@ inline int update_game() {
 }
 
 enum PauseMenuResult game_handle_pause(void) {
+    show_screen_page();
     game_pause = TRUE;
     char passcode[15];
     generate_pass(

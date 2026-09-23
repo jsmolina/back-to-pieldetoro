@@ -117,5 +117,14 @@ void lang_select(int lang);
 
 extern BITMAP* current_screen;
 
+/** @brief Shows the just-drawn current_screen and flips current_screen to the other back buffer for the next frame. */
+void present_frame(void);
+
+/** @brief Allocates the two back-buffer pages and sets current_screen to the first one. Falls back to a single system-RAM bitmap if video bitmaps can't be allocated (e.g. GFX_VGA without page-flip support). */
+void init_video_pages(int width, int height);
+
+/** @brief Puts page 0 (the one sharing memory with screen) on display, so code drawing to screen is visible. Call before any direct screen drawing. */
+void show_screen_page(void);
+
 
 #endif

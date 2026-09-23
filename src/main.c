@@ -46,7 +46,7 @@ void gfx_init_timer() {
     LOCK_VARIABLE(fps);
     LOCK_FUNCTION(gfx_timer_proc);
     LOCK_FUNCTION(gfx_fps_proc);
-    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(60));
+    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(70));
     install_int_ex(gfx_fps_proc, BPS_TO_TIMER(1));
 }
 
@@ -104,12 +104,15 @@ int main(int argc, char* argv[]) {
     set_color_depth(8);
 
 
-    if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
-        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("Unable to set a 320x240 mode \n");
-        return 1;
+    if (set_gfx_mode(GFX_MODEX, 320, 200, 0, 0) != 0) {
+        /* ponytail: fall back to chained VGA if Mode X isn't available */
+        if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
+            set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+            allegro_message("Unable to set a 320x240 mode \n");
+            return 1;
+        }
     }
-    current_screen = create_bitmap(320, 200);
+    init_video_pages(320, 200);
     lang_select(lang);
 
     set_color_conversion(COLORCONV_NONE);
@@ -218,9 +221,6 @@ int main(int argc, char* argv[]) {
             game_state = TITLE;
             break;
         }
-
-        // blit(scroller, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-        vsync();
 
         if (key[KEY_ESC]) {
             if (game_state == GAME) {

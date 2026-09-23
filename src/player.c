@@ -192,6 +192,7 @@ void player_took_almanac() {
 @brief shows the reminder of buying the almanac when stepping on the almanac tile without having it,
  */
 static void player_show_almanac_dialog() {
+    show_screen_page();
     rectfill(
         screen,
         ALMANAC_DIALOG_X,
@@ -221,6 +222,7 @@ static void player_show_almanac_dialog() {
 }
 
 static void player_show_pieces_dialog() {
+    show_screen_page();
     rectfill(
         screen,
         PIECES_DIALOG_X,
