@@ -41,7 +41,7 @@ void coin_spawn_enemy_drop(int x, int y);
  *        Inactive or collected coins get a zero-sized box.
  * @param boxes Array of at least MAX_TOTAL_COINS collisionType elements.
  */
-void coin_get_all_aabb(collisionType* boxes);
+int coin_get_all_aabb(collisionType* boxes);
 
 /**
  * @brief Marks the coin at the given index as collected.

@@ -138,13 +138,15 @@ void coin_spawn_enemy_drop(int x, int y) {
     }
 }
 
-void coin_get_all_aabb(collisionType* boxes) {
+int coin_get_all_aabb(collisionType* boxes) {
+    int res = FALSE;
     for (int i = 0; i < MAX_COINS; i++) {
         if (i < coin_count && coins[i].active && !coins[i].collected) {
             boxes[i].x = coins[i].x;
             boxes[i].y = coins[i].y;
             boxes[i].w = coin_sprite ? coin_sprite->w : 16;
             boxes[i].h = coin_sprite ? coin_sprite->h : 16;
+            res = TRUE;
         } else {
             boxes[i].x = 0;
             boxes[i].y = 0;
@@ -160,6 +162,7 @@ void coin_get_all_aabb(collisionType* boxes) {
             boxes[box_index].y = enemy_drop_coins[i].y;
             boxes[box_index].w = coin_sprite ? coin_sprite->w : 16;
             boxes[box_index].h = coin_sprite ? coin_sprite->h : 16;
+            res = TRUE;
         } else {
             boxes[box_index].x = 0;
             boxes[box_index].y = 0;
@@ -167,6 +170,7 @@ void coin_get_all_aabb(collisionType* boxes) {
             boxes[box_index].h = 0;
         }
     }
+    return res;
 }
 
 void coin_on_collect(int index) {

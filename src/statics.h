@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by dat v4.4.3, Unix */
 /* Datafile: datos.dat */
-/* Date: Fri Sep 18 06:14:16 2026 */
+/* Date: Wed Sep 23 09:25:19 2026 */
 /* Do not hand edit! */
 
 #define AAA_WAV                          0        /* SAMP */

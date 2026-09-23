@@ -117,5 +117,20 @@ void lang_select(int lang);
 
 extern BITMAP* current_screen;
 
+/** @brief Bumped whenever non-game code may have drawn over the pages; cached page content (HUD) must be redrawn. */
+extern int page_generation;
+
+/** @brief 0 or 1: which page current_screen is. */
+int current_page_index(void);
+
+/** @brief Shows the just-drawn current_screen on the next retrace and flips current_screen to the other page. */
+void present_frame(void);
+
+/** @brief Allocates the two Mode X pages in VRAM, stacked vertically. Needs a 336-wide virtual screen. */
+void init_video_pages(void);
+
+/** @brief Puts page 0 (the one sharing memory with screen) on display, so code drawing to screen is visible. Call before any direct screen drawing. */
+void show_screen_page(void);
+
 
 #endif

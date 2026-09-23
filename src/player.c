@@ -15,7 +15,6 @@
 #include "statics.h"
 #include "tiles.h"
 #include <allegro.h>
-#include <math.h>
 #include <stdio.h>
 
 #define CAR_WIDTH 105
@@ -193,6 +192,7 @@ void player_took_almanac() {
 @brief shows the reminder of buying the almanac when stepping on the almanac tile without having it,
  */
 static void player_show_almanac_dialog() {
+    show_screen_page();
     rectfill(
         screen,
         ALMANAC_DIALOG_X,
@@ -222,6 +222,7 @@ static void player_show_almanac_dialog() {
 }
 
 static void player_show_pieces_dialog() {
+    show_screen_page();
     rectfill(
         screen,
         PIECES_DIALOG_X,
@@ -729,7 +730,7 @@ static void player_update_position(int current_level) {
 
     player_check_vx(current_level);
     player_check_vy();
-    player.pos.x = round(player.pos.x + player.vx);
+    player.pos.x += player.vx;
 
     player_clamp_to_map_bounds(current_level);
 

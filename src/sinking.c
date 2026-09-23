@@ -52,7 +52,6 @@ void reset_sinking() {
     sinking_count = 0;
 }
 
-
 void load_level_sinking(int level_id) {
     int tmx_id = level_to_dat_id(level_id);
     char* tmx_text;
@@ -142,11 +141,13 @@ void sinking_draw(int scroll_x) {
             continue;
         }
         int screen_x = sinking[i].x - scroll_x;
-        if (sinking[i].state == SINKING_SOLID) {
-            draw_sprite(current_screen, sinking_solid_sprite, screen_x, sinking[i].y);
-        } else {
-            draw_sprite(current_screen, sinking_crumble_sprite, screen_x, sinking[i].y);
+        BITMAP* sprite = sinking[i].state == SINKING_SOLID
+            ? sinking_solid_sprite
+            : sinking_crumble_sprite;
+        if (screen_x <= -sprite->w || screen_x >= SCREEN_W) {
+            continue;
         }
+        draw_sprite(current_screen, sprite, screen_x, sinking[i].y);
     }
 }
 

@@ -75,13 +75,15 @@ void enemy_throwable_update(int scroll_x) {
 }
 
 
-void enemy_throwable_get_all_aabb(collisionType* boxes) {
+int enemy_throwable_get_all_aabb(collisionType* boxes) {
+    int res = FALSE;
     for (int i = 0; i < MAX_ENEMY_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
             boxes[i].x = throwable_objects[i].x;
             boxes[i].y = throwable_objects[i].y;
             boxes[i].w = 17;
             boxes[i].h = 20;
+            res = TRUE;
         } else {
             boxes[i].x = 0;
             boxes[i].y = 0;
@@ -89,6 +91,7 @@ void enemy_throwable_get_all_aabb(collisionType* boxes) {
             boxes[i].h = 0;
         }
     }
+    return res;
 }
 
 void enemy_throwable_on_hit(int index) {

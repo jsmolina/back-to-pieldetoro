@@ -17,6 +17,7 @@
 #include "tiles.h"
 #include "tnt.h"
 #include <string.h>
+#include <stdio.h>
 
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -46,7 +47,7 @@ void gfx_init_timer() {
     LOCK_VARIABLE(fps);
     LOCK_FUNCTION(gfx_timer_proc);
     LOCK_FUNCTION(gfx_fps_proc);
-    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(60));
+    install_int_ex(gfx_timer_proc, BPS_TO_TIMER(70));
     install_int_ex(gfx_fps_proc, BPS_TO_TIMER(1));
 }
 
@@ -85,12 +86,17 @@ int main(int argc, char* argv[]) {
     for (argument_index = 1; argument_index < argc; argument_index++) {
         if (strcmp(argv[argument_index], "megahit") == 0) {
             megahit_mode = 1;
+        } else if (strcmp(argv[argument_index], "pentium") == 0) {
+            render_mask = 0; // fast (PCI/VLB) video: draw every tick
         } else if (strcmp(argv[argument_index], "lang_en") == 0) {
             lang = LANG_EN_TXT;
         } else if (strcmp(argv[argument_index], "lang_cat") == 0) {
             lang = LANG_CAT_TXT;
         } else if (strcmp(argv[argument_index], "lang_es") == 0) {
             lang = LANG_ES_TXT;
+        } else if (strcmp(argv[argument_index], "help") == 0) {
+            printf("\nB2p\n * Accepted args:\n * b2p [pentium] [lang_xx]\n\n  -pentium: uncapped 70fps\n  -lang_[es|en|cat] allows to choose language");
+            exit(0);
         }
     }
     MainMenuResult res;
@@ -104,12 +110,16 @@ int main(int argc, char* argv[]) {
     set_color_depth(8);
 
 
-    if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
-        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("Unable to set a 320x240 mode \n");
-        return 1;
+    // 336 wide: two pages stacked vertically, with a 16px margin so screen_shake can pan sideways
+    if (set_gfx_mode(GFX_MODEX, 320, 200, 336, 0) != 0) {
+        /* ponytail: fall back to chained VGA if Mode X isn't available */
+        if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
+            set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
+            allegro_message("Unable to set a 320x240 mode \n");
+            return 1;
+        }
     }
-    current_screen = create_bitmap(320, 200);
+    init_video_pages();
     lang_select(lang);
 
     set_color_conversion(COLORCONV_NONE);
@@ -218,9 +228,6 @@ int main(int argc, char* argv[]) {
             game_state = TITLE;
             break;
         }
-
-        // blit(scroller, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-        vsync();
 
         if (key[KEY_ESC]) {
             if (game_state == GAME) {

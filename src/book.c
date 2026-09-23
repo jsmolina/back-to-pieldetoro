@@ -76,13 +76,15 @@ void throwable_update(int scroll_x) {
 }
 
 
-void book_get_all_aabb(collisionType* boxes) {
+int book_get_all_aabb(collisionType* boxes) {
+    int has_active_throwables = FALSE;
     for (int i = 0; i < MAX_THROWABLE_OBJECTS; i++) {
         if (throwable_objects[i].active == TRUE) {
             boxes[i].x = throwable_objects[i].x;
             boxes[i].y = throwable_objects[i].y;
             boxes[i].w = 17;
             boxes[i].h = 20;
+            has_active_throwables = TRUE;
         } else {
             boxes[i].x = 0;
             boxes[i].y = 0;
@@ -90,6 +92,7 @@ void book_get_all_aabb(collisionType* boxes) {
             boxes[i].h = 0;
         }
     }
+    return has_active_throwables;
 }
 
 void book_on_hit(int index) {

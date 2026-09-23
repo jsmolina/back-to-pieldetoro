@@ -139,7 +139,8 @@ inline void draw_pieces(int scroll_x) {
     }
 }
 
-void piece_get_all_aabb(collisionType* boxes) {
+int piece_get_all_aabb(collisionType* boxes) {
+    int res = FALSE;
     for (int i = 0; i < MAX_PIECES; i++) {
         if (i < piece_count && pieces[i].active && !pieces[i].collected) {
             BITMAP* sprite = _get_piece_sprite(pieces[i].type);
@@ -148,6 +149,7 @@ void piece_get_all_aabb(collisionType* boxes) {
             boxes[i].w = sprite ? sprite->w : 16;
             boxes[i].h = sprite ? sprite->h : 16;
             boxes[i].meta = 0;
+            res = TRUE;
         } else {
             boxes[i].x = 0;
             boxes[i].y = 0;
@@ -156,6 +158,7 @@ void piece_get_all_aabb(collisionType* boxes) {
             boxes[i].meta = 0;
         }
     }
+    return res;
 }
 
 void piece_on_collect(int index) {

@@ -45,6 +45,42 @@ static char* game_texts[TXT_COUNT] = {
 };
 
 BITMAP* current_screen;
+int page_generation = 1;
+static BITMAP* video_page[2];
+static BITMAP* displayed_page;
+
+void present_frame(void) {
+    // scroll_screen waits for vertical blank before switching the display to the finished page
+    scroll_screen(current_screen->x_ofs, current_screen->y_ofs);
+    displayed_page = current_screen;
+    current_screen = (current_screen == video_page[0]) ? video_page[1] : video_page[0];
+}
+
+void init_video_pages(void) {
+    // full virtual width (336) so screen_shake can pan a few px into a cleared margin;
+    // page 0 lands at VRAM origin (same memory as screen), page 1 below it at y=200
+    video_page[0] = create_video_bitmap(VIRTUAL_W, SCREEN_H);
+    video_page[1] = create_video_bitmap(VIRTUAL_W, SCREEN_H);
+    clear_bitmap(video_page[0]);
+    clear_bitmap(video_page[1]);
+    displayed_page = video_page[0];
+    current_screen = video_page[1];
+}
+
+int current_page_index(void) {
+    return current_screen == video_page[1];
+}
+
+void show_screen_page(void) {
+    page_generation++;
+    if (displayed_page == video_page[0])
+        return;
+    // keep the last game frame visible under overlays like pause or dialogs
+    blit(video_page[1], video_page[0], 0, 0, 0, 0, SCREEN_W, SCREEN_H);
+    scroll_screen(0, 0);
+    displayed_page = video_page[0];
+    current_screen = video_page[1];
+}
 
 void lang_load(int lang_id, DATAFILE* lang_dat_file) {
     char* text = malloc(lang_dat_file[lang_id].size + 1);
@@ -82,7 +118,7 @@ void lang_select(int lang) {
         menu_lang_print(selected, KEY_3, 82, "3-Catala", fnt);
         menu_lang_print(selected, KEY_4, 94, "4-Galego", fnt);
         menu_lang_print(selected, KEY_0, 112, "0-EXIT", fnt);
-        textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.6");
+        textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.8");
 
         blit(current_screen, screen, 125, 55, 125, 55, 195, 145);
 
@@ -261,23 +297,11 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 }
 
 void screen_shake() {
-    int offsets[] = { 3, -3, 2, -2, 1, 0 }; // logical, map to pel values
-    int i;
-    for (i = 0; i < 6; i++) {
-        // pel panning: 0x3C0 index 0x13, value 0-7
-        int pel = offsets[i] < 0 ? 0 : offsets[i];
-        inportb(0x3DA);        // reset AC index/data flip-flop
-        outportb(0x3C0, 0x13); // select pel-pan register (PAS=0 blanks video)
-        outportb(0x3C0, pel & 0x07);
-        outportb(0x3C0, 0x20); // PAS=1: re-enable video for this frame
-        rest(16);              // ~1 frame at 60fps
-    }
-    // reset pan to 0 and leave video enabled (PAS=1), otherwise the screen
-    // stays blanked (black) after the shake
-    inportb(0x3DA);
-    outportb(0x3C0, 0x13);
-    outportb(0x3C0, 0);
-    outportb(0x3C0, 0x20);
+    // shift the displayed page via scroll_screen: it keeps video enabled, uses valid pan values,
+    // and waits for retrace, so each step lasts exactly one frame
+    static const int offsets[] = { 3, 0, 2, 0, 1, 0 };
+    for (int i = 0; i < 6; i++)
+        scroll_screen(displayed_page->x_ofs + offsets[i], displayed_page->y_ofs);
 }
 
 void beep(int frequency, int duration) {

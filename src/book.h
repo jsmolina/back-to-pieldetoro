@@ -36,7 +36,7 @@ void throwable_update(int scroll_x);
  *
  * @param boxes An array of collisionType to be filled with the bounding boxes of three active throwable objects.
  */
-void book_get_all_aabb(collisionType* boxes);
+int book_get_all_aabb(collisionType* boxes);
 
 /**
  * @brief Marks the throwable object at the given index as hit (inactive) and resets its position.

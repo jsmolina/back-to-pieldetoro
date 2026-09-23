@@ -31,7 +31,7 @@ void load_level_tnt(int level_id);
 void tnt_draw(int scroll_x);
 
 /** @brief Fills AABB boxes for uncollected world TNT (for player collision). */
-void tnt_get_all_aabb(collisionType* boxes);
+int tnt_get_all_aabb(collisionType* boxes);
 
 /** @brief Collects world TNT at index if the player has room to carry it. */
 void tnt_on_collect(int index);
