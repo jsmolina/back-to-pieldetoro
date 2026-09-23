@@ -310,7 +310,7 @@ void start_new_game() {
     pal_flash[44].b = 0;
 }
 
-void update_game_run() {
+static void update_camera() {
     // https://github.com/yenshan/goggle_jumper_chronicles/blob/main/World.js#L171
     // https://gist.github.com/pofi-gist/6e193e06fe9d53b996aa01013b4b9524#file-2d-mario-style-platformer-L612
     if (current_level != 1) {
@@ -324,6 +324,10 @@ void update_game_run() {
     if (player.boss_mode == TRUE || scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
+}
+
+void update_game_run() {
+    update_camera();
 
     switch (current_level) {
     case 1:
@@ -647,6 +651,7 @@ inline int update_game() {
         break;
     case GAME_RUN:
         update_game_run();
+        update_camera(); // follow the position the player just moved to, or platform rides wobble 1px
         draw_game();
         break;
     case WBACK_IN_TIME:
