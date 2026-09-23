@@ -323,9 +323,6 @@ void update_game_run() {
     if (player.boss_mode == TRUE || scroll_x > map_pixel_width - SCREEN_W) {
         scroll_x = map_pixel_width - SCREEN_W;
     }
-    /* quantize to 4px so the background blit's rep movsl stays
-       dword-aligned on the 486. Drop to &= ~1 if 4px scroll steps look steppy. */
-    scroll_x &= ~1;
 
     switch (current_level) {
     case 1:
