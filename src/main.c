@@ -85,6 +85,8 @@ int main(int argc, char* argv[]) {
     for (argument_index = 1; argument_index < argc; argument_index++) {
         if (strcmp(argv[argument_index], "megahit") == 0) {
             megahit_mode = 1;
+        } else if (strcmp(argv[argument_index], "fps70") == 0) {
+            render_mask = 0; // fast (PCI/VLB) video: draw every tick
         } else if (strcmp(argv[argument_index], "lang_en") == 0) {
             lang = LANG_EN_TXT;
         } else if (strcmp(argv[argument_index], "lang_cat") == 0) {

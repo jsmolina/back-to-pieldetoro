@@ -45,9 +45,11 @@ static char* game_texts[TXT_COUNT] = {
 };
 
 #define BG_H 170
+#define RING_W 512 // power of two so wrapping is a mask, not a divide
 
 BITMAP* current_screen;
 int fine_x;
+int page_generation = 1;
 static BITMAP* video_page[2];
 static BITMAP* displayed_page;
 static int displayed_fine;
@@ -67,7 +69,7 @@ void init_video_pages(void) {
     // page 0 lands at VRAM origin (same memory as screen), page 1 at x=336, ring below at y=200
     video_page[0] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
     video_page[1] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
-    bg_ring = create_video_bitmap(VIRTUAL_W, BG_H);
+    bg_ring = create_video_bitmap(RING_W, BG_H);
     displayed_page = video_page[0];
     displayed_fine = 0;
     current_screen = video_page[1];
@@ -75,8 +77,8 @@ void init_video_pages(void) {
 
 static void ring_fill(BITMAP* bg, int x0, int x1) {
     while (x0 < x1) {
-        int rx = x0 % bg_ring->w;
-        int w = MIN(x1 - x0, bg_ring->w - rx);
+        int rx = x0 & (RING_W - 1);
+        int w = MIN(x1 - x0, RING_W - rx);
         blit(bg, bg_ring, x0, 0, rx, 0, w, BG_H);
         x0 += w;
     }
@@ -86,7 +88,7 @@ void draw_background(BITMAP* bg, int coarse_x) {
     int page_w = current_screen->w;
     int lo = coarse_x, hi = coarse_x + page_w;
 
-    // upload only the columns entering view; the ring keeps world column x at x % ring width
+    // upload only the columns entering view; the ring keeps world column x at x & (RING_W - 1)
     if (!ring_valid || hi <= ring_lo || lo >= ring_hi) {
         ring_fill(bg, lo, hi);
         ring_lo = lo;
@@ -96,25 +98,30 @@ void draw_background(BITMAP* bg, int coarse_x) {
         if (lo < ring_lo) {
             ring_fill(bg, lo, ring_lo);
             ring_lo = lo;
-            ring_hi = MIN(ring_hi, ring_lo + bg_ring->w);
+            ring_hi = MIN(ring_hi, ring_lo + RING_W);
         }
         if (hi > ring_hi) {
             ring_fill(bg, ring_hi, hi);
             ring_hi = hi;
-            ring_lo = MAX(ring_lo, ring_hi - bg_ring->w);
+            ring_lo = MAX(ring_lo, ring_hi - RING_W);
         }
     }
 
     // coarse_x, page and ring offsets are all multiples of 4, so these hit the VGA latch copy
-    int rx = lo % bg_ring->w;
-    int w = MIN(page_w, bg_ring->w - rx);
+    int rx = lo & (RING_W - 1);
+    int w = MIN(page_w, RING_W - rx);
     blit(bg_ring, current_screen, rx, 0, 0, 0, w, BG_H);
     if (w < page_w)
         blit(bg_ring, current_screen, 0, 0, w, 0, page_w - w, BG_H);
 }
 
+int current_page_index(void) {
+    return current_screen == video_page[1];
+}
+
 void show_screen_page(void) {
     ring_valid = FALSE; // menus and intros draw to screen; refill rather than trust the ring afterwards
+    page_generation++;
     // keep the last game frame visible, unshifted, under overlays like pause or dialogs
     if (displayed_page == video_page[0]) {
         if (displayed_fine == 0)
@@ -166,7 +173,7 @@ void lang_select(int lang) {
         menu_lang_print(selected, KEY_3, 82, "3-Catala", fnt);
         menu_lang_print(selected, KEY_4, 94, "4-Galego", fnt);
         menu_lang_print(selected, KEY_0, 112, "0-EXIT", fnt);
-        textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.6");
+        textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.8");
 
         blit(current_screen, screen, 125, 55, 125, 55, 195, 145);
 
@@ -345,23 +352,11 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 }
 
 void screen_shake() {
-    int offsets[] = { 3, -3, 2, -2, 1, 0 }; // logical, map to pel values
-    int i;
-    for (i = 0; i < 6; i++) {
-        // pel panning: 0x3C0 index 0x13, value 0-7
-        int pel = offsets[i] < 0 ? 0 : offsets[i];
-        inportb(0x3DA);        // reset AC index/data flip-flop
-        outportb(0x3C0, 0x13); // select pel-pan register (PAS=0 blanks video)
-        outportb(0x3C0, pel & 0x07);
-        outportb(0x3C0, 0x20); // PAS=1: re-enable video for this frame
-        rest(16);              // ~1 frame at 60fps
-    }
-    // reset pan to 0 and leave video enabled (PAS=1), otherwise the screen
-    // stays blanked (black) after the shake
-    inportb(0x3DA);
-    outportb(0x3C0, 0x13);
-    outportb(0x3C0, 0);
-    outportb(0x3C0, 0x20);
+    // shift the displayed page via scroll_screen: it keeps video enabled, uses valid pan values,
+    // and waits for retrace, so each step lasts exactly one frame
+    static const int offsets[] = { 3, 0, 2, 0, 1, 0 };
+    for (int i = 0; i < 6; i++)
+        scroll_screen(displayed_page->x_ofs + displayed_fine + offsets[i], displayed_page->y_ofs);
 }
 
 void beep(int frequency, int duration) {

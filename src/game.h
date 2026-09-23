@@ -83,7 +83,10 @@ inline int update_game();
  *
  * @note This is an inline function for performance optimization
  */
-inline void draw_game();
+inline void draw_game(int render);
+
+/** @brief Draw on logic ticks where (tick & mask) == 0: 1 = 35fps (ISA default), 0 = 70fps. */
+extern int render_mask;
 
 /**
  * @brief Releases all allocated game memory

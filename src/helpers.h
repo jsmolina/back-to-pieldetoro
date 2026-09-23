@@ -120,6 +120,12 @@ extern BITMAP* current_screen;
 /** @brief 0-3px sub-scroll applied by hardware panning; fixed-position overlays (HUD) add it to their x. */
 extern int fine_x;
 
+/** @brief Bumped whenever non-game code may have drawn over the pages; cached page content (HUD) must be redrawn. */
+extern int page_generation;
+
+/** @brief 0 or 1: which page current_screen is. */
+int current_page_index(void);
+
 /** @brief Shows the just-drawn current_screen (panned by fine_x) on the next retrace and flips current_screen to the other page. */
 void present_frame(void);
 
