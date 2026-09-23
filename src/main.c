@@ -17,6 +17,7 @@
 #include "tiles.h"
 #include "tnt.h"
 #include <string.h>
+#include <stdio.h>
 
 #include <allegro.h>
 // https://hysblog.com/en/lets-make-a-2d-pixel-art-jump-action-game-with-javascript-final-part-with-love-to-mario/
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]) {
     for (argument_index = 1; argument_index < argc; argument_index++) {
         if (strcmp(argv[argument_index], "megahit") == 0) {
             megahit_mode = 1;
-        } else if (strcmp(argv[argument_index], "fps70") == 0) {
+        } else if (strcmp(argv[argument_index], "pentium") == 0) {
             render_mask = 0; // fast (PCI/VLB) video: draw every tick
         } else if (strcmp(argv[argument_index], "lang_en") == 0) {
             lang = LANG_EN_TXT;
@@ -93,6 +94,9 @@ int main(int argc, char* argv[]) {
             lang = LANG_CAT_TXT;
         } else if (strcmp(argv[argument_index], "lang_es") == 0) {
             lang = LANG_ES_TXT;
+        } else if (strcmp(argv[argument_index], "help") == 0) {
+            printf("\nB2p\n * Accepted args:\n * b2p [pentium] [lang_xx]\n\n  -pentium: uncapped 70fps\n  -lang_[es|en|cat] allows to choose language");
+            exit(0);
         }
     }
     MainMenuResult res;
@@ -106,8 +110,8 @@ int main(int argc, char* argv[]) {
     set_color_depth(8);
 
 
-    // 664 wide: two 328px pages side by side (Allegro aligns video bitmaps to 16px) plus the background ring below
-    if (set_gfx_mode(GFX_MODEX, 320, 200, 664, 0) != 0) {
+    // 336 wide: two pages stacked vertically, with a 16px margin so screen_shake can pan sideways
+    if (set_gfx_mode(GFX_MODEX, 320, 200, 336, 0) != 0) {
         /* ponytail: fall back to chained VGA if Mode X isn't available */
         if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
             set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);

@@ -402,7 +402,7 @@ void boss_draw(int scroll_x) {
     // HP bar (top-left), like the existing enemy boss bar
     int width = boss.hp << 1; // 0..40 px
     if (width > 0) {
-        blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120 + fine_x, 2, width, 5);
+        blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120, 2, width, 5);
     }
 }
 

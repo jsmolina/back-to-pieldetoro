@@ -151,7 +151,7 @@ int game_try_spend_money(int amount) {
 }
 
 typedef struct {
-    int generation, fine, level, energy, lives, money, books;
+    int generation, level, energy, lives, money, books;
 } HudState;
 
 // what each page's HUD currently shows, so unchanged parts aren't rewritten (VRAM writes are the ISA bottleneck)
@@ -159,7 +159,6 @@ static HudState hud_drawn[2];
 
 void lifebar() {
     HudState* h = &hud_drawn[current_page_index()];
-    int hx = fine_x; // HUD is fixed on screen, so it follows the 0-3px panning
     int e = player.energy;
     if (e < 0)
         e = 0;
@@ -168,11 +167,11 @@ void lifebar() {
     int money = game_get_money();
     int books = get_book_count();
 
-    // a different pan offset shifts the whole HUD, and menus/intros may have drawn over the page
-    int full = h->generation != page_generation || h->fine != hx || h->level != current_level;
+    // menus/intros may have drawn over the page since its HUD was drawn
+    int full = h->generation != page_generation || h->level != current_level;
 
     if (full) {
-        blit(dat_file[LIFEBAR_BMP].dat, current_screen, 0, 0, hx, 170, 320, 30);
+        blit(dat_file[LIFEBAR_BMP].dat, current_screen, 0, 0, 0, 170, 320, 30);
         int year = 0001;
         if (current_level == 1) {
             year = 2026;
@@ -187,17 +186,16 @@ void lifebar() {
         }
         printf_at_ingame(26, 185, 46, -1, "%d", year);
         h->generation = page_generation;
-        h->fine = hx;
         h->level = current_level;
     }
 
     if (full || h->energy != e) {
         if (!full)
-            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 145, 0, 145 + hx, 170, 29, 30);
-        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, current_screen, 0, 0, 145 + hx, 170, 29, 30);
+            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 145, 0, 145, 170, 29, 30);
+        blit(dat_file[LIFEBAR_MARTIN_BMP].dat, current_screen, 0, 0, 145, 170, 29, 30);
         int bruno_h = ((HUD_MAX_ENERGY - e) << 2) + (HUD_MAX_ENERGY - e);
         if (bruno_h > 0) {
-            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, current_screen, 0, 0, 145 + hx, 170, 29, bruno_h);
+            blit(dat_file[LIFEBAR_BRUNO_BMP].dat, current_screen, 0, 0, 145, 170, 29, bruno_h);
         }
         h->energy = e;
     }
@@ -205,8 +203,8 @@ void lifebar() {
     int lives_redrawn = full || h->lives != player.lives;
     if (lives_redrawn) {
         if (!full) // from 182 so the first head is cleared too; this also wipes the money area
-            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 182, 0, 182 + hx, 170, 138, 30);
-        int x = 182 + hx;
+            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 182, 0, 182, 170, 138, 30);
+        int x = 182;
         for (int i = 0; i < player.lives; i++) {
             draw_sprite(current_screen, dat_file[HEAD_BMP].dat, x, 185);
             x += 15;
@@ -216,7 +214,7 @@ void lifebar() {
 
     if (lives_redrawn || h->money != money) {
         if (!full)
-            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 255, 5, 255 + hx, 175, 65, 15);
+            blit(dat_file[LIFEBAR_BMP].dat, current_screen, 255, 5, 255, 175, 65, 15);
         printf_at_ingame(255, 185, 41, -1, "%6d", money);
         h->money = money;
     }
@@ -226,8 +224,8 @@ void lifebar() {
         for (int i = books; i < DEFAULT_STOCK; i++)
             width -= 5;
         if (width >= 0) {
-            rectfill(current_screen, 83 + hx, 185, 132 + hx, 190, 19);
-            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, current_screen, 0, 0, 83 + hx, 185, width, 5);
+            rectfill(current_screen, 83, 185, 132, 190, 19);
+            blit(dat_file[LIFEBAR_THROWABLE_BMP].dat, current_screen, 0, 0, 83, 185, width, 5);
         }
         h->books = books;
     }
@@ -489,9 +487,6 @@ inline void draw_game(int render) {
     }
     collisionType f2;
     int current_door_id;
-    // draw in 4px-aligned page coordinates; hardware panning shifts the display by the remaining 0-3px
-    int coarse_x = scroll_x & ~3;
-    fine_x = scroll_x & 3;
 
     switch (current_level) {
 
@@ -499,10 +494,10 @@ inline void draw_game(int render) {
         sea_sparkle();
         if (!render)
             break;
-        draw_background(current_background, coarse_x);
+        blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
         set_clip_rect(current_screen, 0, 0, current_screen->w - 1, 169); // keep sprites out of the cached HUD
 
-        player_draw(coarse_x);
+        player_draw(scroll_x);
         set_clip_rect(current_screen, 0, 0, current_screen->w - 1, current_screen->h - 1);
         lifebar();
         // draw objects, player, enemies
@@ -518,31 +513,31 @@ inline void draw_game(int render) {
         /* Draw background and player sprite first. Only call player_foot_area
            if player.data is valid to avoid dereferencing NULL and SIGSEGV. */
         if (render) {
-            draw_background(current_background, coarse_x);
+            blit(current_background, current_screen, scroll_x, 0, 0, 0, SCREEN_W, 170);
             set_clip_rect(current_screen, 0, 0, current_screen->w - 1, 169); // keep sprites out of the cached HUD
-            draw_door_getin(coarse_x);
+            draw_door_getin(scroll_x);
             if (current_level == LEVEL_CITY) {
-                sinking_draw(coarse_x);
+                sinking_draw(scroll_x);
             }
             if (current_level == LEVEL_AUTOVOICE) {
-                tnt_draw(coarse_x);
+                tnt_draw(scroll_x);
             }
             if (current_level == LEVEL_BOSS) {
-                boss_draw(coarse_x);
+                boss_draw(scroll_x);
             }
-            player_draw(coarse_x);
-            draw_enemies(coarse_x);
-            draw_throwable(coarse_x);
+            player_draw(scroll_x);
+            draw_enemies(scroll_x);
+            draw_throwable(scroll_x);
             if (current_level == LEVEL_MOUNTAIN || current_level == LEVEL_AUTOVOICE) {
-                draw_enemy_throwable(coarse_x);
+                draw_enemy_throwable(scroll_x);
             }
-            draw_coins(coarse_x);
+            draw_coins(scroll_x);
             if (current_level >= LEVEL_MOUNTAIN) {
-                draw_platforms(coarse_x);
+                draw_platforms(scroll_x);
             }
 
             if (current_level == LEVEL_MOUNTAIN) {
-                draw_pieces(coarse_x);
+                draw_pieces(scroll_x);
             }
         }
 
@@ -571,7 +566,7 @@ inline void draw_game(int render) {
             for (int i = 0; i < boss_hits; i++) {
                 width -= 5;
             }
-            blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120 + fine_x, 2, width, 5);
+            blit(dat_file[LIFEBAR_ENEMY_BMP].dat, current_screen, 0, 0, 120, 2, width, 5);
         }
         // f2 = player_foot_area();
         // rect(screen, f2.x - scroll_x, f2.y, f2.x + f2.w - scroll_x, f2.y + f2.h, makecol(255, 0, 0));

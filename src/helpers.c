@@ -44,75 +44,27 @@ static char* game_texts[TXT_COUNT] = {
     "NECESITO LAS 3 PIEZAS ANTES"
 };
 
-#define BG_H 170
-#define RING_W 512 // power of two so wrapping is a mask, not a divide
-
 BITMAP* current_screen;
-int fine_x;
 int page_generation = 1;
 static BITMAP* video_page[2];
 static BITMAP* displayed_page;
-static int displayed_fine;
-static BITMAP* bg_ring;
-static int ring_valid, ring_lo, ring_hi;
 
 void present_frame(void) {
-    // scroll_screen waits for vertical blank and applies start address and 0-3px panning together
-    scroll_screen(current_screen->x_ofs + fine_x, current_screen->y_ofs);
+    // scroll_screen waits for vertical blank before switching the display to the finished page
+    scroll_screen(current_screen->x_ofs, current_screen->y_ofs);
     displayed_page = current_screen;
-    displayed_fine = fine_x;
     current_screen = (current_screen == video_page[0]) ? video_page[1] : video_page[0];
 }
 
 void init_video_pages(void) {
-    // pages are wider than the screen so panning by up to 3px never shows an unpainted column;
-    // page 0 lands at VRAM origin (same memory as screen), page 1 at x=336, ring below at y=200
-    video_page[0] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
-    video_page[1] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
-    bg_ring = create_video_bitmap(RING_W, BG_H);
+    // full virtual width (336) so screen_shake can pan a few px into a cleared margin;
+    // page 0 lands at VRAM origin (same memory as screen), page 1 below it at y=200
+    video_page[0] = create_video_bitmap(VIRTUAL_W, SCREEN_H);
+    video_page[1] = create_video_bitmap(VIRTUAL_W, SCREEN_H);
+    clear_bitmap(video_page[0]);
+    clear_bitmap(video_page[1]);
     displayed_page = video_page[0];
-    displayed_fine = 0;
     current_screen = video_page[1];
-}
-
-static void ring_fill(BITMAP* bg, int x0, int x1) {
-    while (x0 < x1) {
-        int rx = x0 & (RING_W - 1);
-        int w = MIN(x1 - x0, RING_W - rx);
-        blit(bg, bg_ring, x0, 0, rx, 0, w, BG_H);
-        x0 += w;
-    }
-}
-
-void draw_background(BITMAP* bg, int coarse_x) {
-    int page_w = current_screen->w;
-    int lo = coarse_x, hi = coarse_x + page_w;
-
-    // upload only the columns entering view; the ring keeps world column x at x & (RING_W - 1)
-    if (!ring_valid || hi <= ring_lo || lo >= ring_hi) {
-        ring_fill(bg, lo, hi);
-        ring_lo = lo;
-        ring_hi = hi;
-        ring_valid = TRUE;
-    } else {
-        if (lo < ring_lo) {
-            ring_fill(bg, lo, ring_lo);
-            ring_lo = lo;
-            ring_hi = MIN(ring_hi, ring_lo + RING_W);
-        }
-        if (hi > ring_hi) {
-            ring_fill(bg, ring_hi, hi);
-            ring_hi = hi;
-            ring_lo = MAX(ring_lo, ring_hi - RING_W);
-        }
-    }
-
-    // coarse_x, page and ring offsets are all multiples of 4, so these hit the VGA latch copy
-    int rx = lo & (RING_W - 1);
-    int w = MIN(page_w, RING_W - rx);
-    blit(bg_ring, current_screen, rx, 0, 0, 0, w, BG_H);
-    if (w < page_w)
-        blit(bg_ring, current_screen, 0, 0, w, 0, page_w - w, BG_H);
 }
 
 int current_page_index(void) {
@@ -120,20 +72,13 @@ int current_page_index(void) {
 }
 
 void show_screen_page(void) {
-    ring_valid = FALSE; // menus and intros draw to screen; refill rather than trust the ring afterwards
     page_generation++;
-    // keep the last game frame visible, unshifted, under overlays like pause or dialogs
-    if (displayed_page == video_page[0]) {
-        if (displayed_fine == 0)
-            return;
-        blit(video_page[0], video_page[1], displayed_fine, 0, 0, 0, SCREEN_W, SCREEN_H);
-        scroll_screen(video_page[1]->x_ofs, video_page[1]->y_ofs);
-        displayed_fine = 0;
-    }
-    blit(video_page[1], video_page[0], displayed_fine, 0, 0, 0, SCREEN_W, SCREEN_H);
+    if (displayed_page == video_page[0])
+        return;
+    // keep the last game frame visible under overlays like pause or dialogs
+    blit(video_page[1], video_page[0], 0, 0, 0, 0, SCREEN_W, SCREEN_H);
     scroll_screen(0, 0);
     displayed_page = video_page[0];
-    displayed_fine = 0;
     current_screen = video_page[1];
 }
 
@@ -329,7 +274,7 @@ void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
     va_end(args);
 
     buffer[sizeof(buffer) - 1] = '\0';
-    textprintf_ex(current_screen, myfont, x + fine_x, y, col, bg, "%s", buffer);
+    textprintf_ex(current_screen, myfont, x, y, col, bg, "%s", buffer);
 }
 
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {
@@ -356,7 +301,7 @@ void screen_shake() {
     // and waits for retrace, so each step lasts exactly one frame
     static const int offsets[] = { 3, 0, 2, 0, 1, 0 };
     for (int i = 0; i < 6; i++)
-        scroll_screen(displayed_page->x_ofs + displayed_fine + offsets[i], displayed_page->y_ofs);
+        scroll_screen(displayed_page->x_ofs + offsets[i], displayed_page->y_ofs);
 }
 
 void beep(int frequency, int duration) {
