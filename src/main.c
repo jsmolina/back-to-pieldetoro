@@ -104,7 +104,8 @@ int main(int argc, char* argv[]) {
     set_color_depth(8);
 
 
-    if (set_gfx_mode(GFX_MODEX, 320, 200, 0, 0) != 0) {
+    // 664 wide: two 328px pages side by side (Allegro aligns video bitmaps to 16px) plus the background ring below
+    if (set_gfx_mode(GFX_MODEX, 320, 200, 664, 0) != 0) {
         /* ponytail: fall back to chained VGA if Mode X isn't available */
         if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
             set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
@@ -112,7 +113,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
-    init_video_pages(320, 200);
+    init_video_pages();
     lang_select(lang);
 
     set_color_conversion(COLORCONV_NONE);

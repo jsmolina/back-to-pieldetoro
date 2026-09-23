@@ -117,11 +117,17 @@ void lang_select(int lang);
 
 extern BITMAP* current_screen;
 
-/** @brief Shows the just-drawn current_screen and flips current_screen to the other back buffer for the next frame. */
+/** @brief 0-3px sub-scroll applied by hardware panning; fixed-position overlays (HUD) add it to their x. */
+extern int fine_x;
+
+/** @brief Shows the just-drawn current_screen (panned by fine_x) on the next retrace and flips current_screen to the other page. */
 void present_frame(void);
 
-/** @brief Allocates the two back-buffer pages and sets current_screen to the first one. Falls back to a single system-RAM bitmap if video bitmaps can't be allocated (e.g. GFX_VGA without page-flip support). */
-void init_video_pages(int width, int height);
+/** @brief Allocates the two Mode X pages and the background ring in VRAM. Needs a 664-wide virtual screen. */
+void init_video_pages(void);
+
+/** @brief Copies the background at 4px-aligned coarse_x into current_screen through the VRAM ring, uploading only new columns from bg. */
+void draw_background(BITMAP* bg, int coarse_x);
 
 /** @brief Puts page 0 (the one sharing memory with screen) on display, so code drawing to screen is visible. Call before any direct screen drawing. */
 void show_screen_page(void);

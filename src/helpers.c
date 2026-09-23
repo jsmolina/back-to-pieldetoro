@@ -44,33 +44,89 @@ static char* game_texts[TXT_COUNT] = {
     "NECESITO LAS 3 PIEZAS ANTES"
 };
 
+#define BG_H 170
+
 BITMAP* current_screen;
+int fine_x;
 static BITMAP* video_page[2];
 static BITMAP* displayed_page;
+static int displayed_fine;
+static BITMAP* bg_ring;
+static int ring_valid, ring_lo, ring_hi;
 
 void present_frame(void) {
-    request_video_bitmap(current_screen);
+    // scroll_screen waits for vertical blank and applies start address and 0-3px panning together
+    scroll_screen(current_screen->x_ofs + fine_x, current_screen->y_ofs);
     displayed_page = current_screen;
+    displayed_fine = fine_x;
     current_screen = (current_screen == video_page[0]) ? video_page[1] : video_page[0];
-    while (poll_scroll())
-        ; // wait for the flip to actually land before drawing resumes on the freed page
 }
 
-void init_video_pages(int width, int height) {
-    // first allocation lands at VRAM row 0, sharing memory with screen; second one is at row 200
-    video_page[0] = create_video_bitmap(width, height);
-    video_page[1] = create_video_bitmap(width, height);
+void init_video_pages(void) {
+    // pages are wider than the screen so panning by up to 3px never shows an unpainted column;
+    // page 0 lands at VRAM origin (same memory as screen), page 1 at x=336, ring below at y=200
+    video_page[0] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
+    video_page[1] = create_video_bitmap(SCREEN_W + 8, SCREEN_H);
+    bg_ring = create_video_bitmap(VIRTUAL_W, BG_H);
     displayed_page = video_page[0];
+    displayed_fine = 0;
     current_screen = video_page[1];
 }
 
+static void ring_fill(BITMAP* bg, int x0, int x1) {
+    while (x0 < x1) {
+        int rx = x0 % bg_ring->w;
+        int w = MIN(x1 - x0, bg_ring->w - rx);
+        blit(bg, bg_ring, x0, 0, rx, 0, w, BG_H);
+        x0 += w;
+    }
+}
+
+void draw_background(BITMAP* bg, int coarse_x) {
+    int page_w = current_screen->w;
+    int lo = coarse_x, hi = coarse_x + page_w;
+
+    // upload only the columns entering view; the ring keeps world column x at x % ring width
+    if (!ring_valid || hi <= ring_lo || lo >= ring_hi) {
+        ring_fill(bg, lo, hi);
+        ring_lo = lo;
+        ring_hi = hi;
+        ring_valid = TRUE;
+    } else {
+        if (lo < ring_lo) {
+            ring_fill(bg, lo, ring_lo);
+            ring_lo = lo;
+            ring_hi = MIN(ring_hi, ring_lo + bg_ring->w);
+        }
+        if (hi > ring_hi) {
+            ring_fill(bg, ring_hi, hi);
+            ring_hi = hi;
+            ring_lo = MAX(ring_lo, ring_hi - bg_ring->w);
+        }
+    }
+
+    // coarse_x, page and ring offsets are all multiples of 4, so these hit the VGA latch copy
+    int rx = lo % bg_ring->w;
+    int w = MIN(page_w, bg_ring->w - rx);
+    blit(bg_ring, current_screen, rx, 0, 0, 0, w, BG_H);
+    if (w < page_w)
+        blit(bg_ring, current_screen, 0, 0, w, 0, page_w - w, BG_H);
+}
+
 void show_screen_page(void) {
-    if (displayed_page == video_page[0])
-        return;
-    // keep the last game frame visible under overlays like pause or dialogs
-    blit(video_page[1], video_page[0], 0, 0, 0, 0, SCREEN_W, SCREEN_H);
-    show_video_bitmap(video_page[0]);
+    ring_valid = FALSE; // menus and intros draw to screen; refill rather than trust the ring afterwards
+    // keep the last game frame visible, unshifted, under overlays like pause or dialogs
+    if (displayed_page == video_page[0]) {
+        if (displayed_fine == 0)
+            return;
+        blit(video_page[0], video_page[1], displayed_fine, 0, 0, 0, SCREEN_W, SCREEN_H);
+        scroll_screen(video_page[1]->x_ofs, video_page[1]->y_ofs);
+        displayed_fine = 0;
+    }
+    blit(video_page[1], video_page[0], displayed_fine, 0, 0, 0, SCREEN_W, SCREEN_H);
+    scroll_screen(0, 0);
     displayed_page = video_page[0];
+    displayed_fine = 0;
     current_screen = video_page[1];
 }
 
@@ -266,7 +322,7 @@ void printf_at_ingame(int x, int y, int col, int bg, const char* format, ...) {
     va_end(args);
 
     buffer[sizeof(buffer) - 1] = '\0';
-    textprintf_ex(current_screen, myfont, x, y, col, bg, "%s", buffer);
+    textprintf_ex(current_screen, myfont, x + fine_x, y, col, bg, "%s", buffer);
 }
 
 void print_at_slow(int x, int y, const char* texto, int col, int bg) {
