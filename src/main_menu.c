@@ -3,6 +3,7 @@
 #include "allegro/keyboard.h"
 #include "allegro/text.h"
 #include "dat_manager.h"
+#include "helpers.h"
 #include "passcode.h"
 #include "statics.h"
 #include <allegro.h>
@@ -60,21 +61,23 @@ static void draw_main_menu(int selected) {
     BITMAP* bg = dat_file[MENU2_BMP].dat;
     BITMAP* menu_sprite = dat_file[TEXT_MENU_BMP].dat;
     int car_x = MAIN_MENU_X - minicar->w - 2;
-    /* restore background over the whole menu strip so the car cursor does not ghost */
-    
-    blit(bg, screen, 0, 40, 0, 0,
+    /* compose on the hidden page, then copy in one go: drawing bg straight on
+       screen erased the menu for a moment and made it flicker */
+    blit(bg, current_screen, 0, 40, 0, 0,
          SCREEN_W, SCREEN_H);
     if (show_menu == 1) {
         // maybe 70
-        draw_sprite(screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
+        draw_sprite(current_screen, menu_sprite, MAIN_MENU_X, MAIN_MENU_Y);
         int offset_y = MAIN_MENU_Y + 4;
-        // TODO offset_y should increase +19 based on selected item        
+        // TODO offset_y should increase +19 based on selected item
         for (int i = 0; i < selected; i++) {
             offset_y += 19;
         }
-        draw_sprite(screen, minicar, car_x, offset_y - 4);
-       
+        draw_sprite(current_screen, minicar, car_x, offset_y - 4);
+
     }
+    vsync();
+    blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 }
 
 MainMenuResult show_main_menu() {
