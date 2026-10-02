@@ -1,6 +1,8 @@
 # Back to Pieldetoro
 Known also as `Back to Cowhide`. 
 
+See it and PLAY in browser in itch: https://jbinary.itch.io/back-to-cowhide/
+
 ## ES
 ### MARTIN: BACK TO PIELDETORO
 
