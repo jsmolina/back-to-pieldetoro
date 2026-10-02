@@ -290,7 +290,11 @@ int martin_is_on_obj() {
 int car_is_on_obj() {
     collisionType rear = rear_wheels_area();
     collisionType front = front_wheels_area();
-    return checkOverObj(rear) && checkOverObj(front);
+    // the car tips over an edge only when its middle is past it: one wheel in the air is fine
+    // while the center is still over ground (easier landings), but it still falls into the 80px bridge holes
+    collisionType center = rear;
+    center.x = rear.x + ((front.x - rear.x) >> 1);
+    return checkOverObj(center) || (checkOverObj(rear) && checkOverObj(front));
 }
 
 int player_is_over_almanac_tile() {

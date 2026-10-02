@@ -1190,6 +1190,9 @@ static void player_action_jump_up() {
     }
     // arc driven by gravity: transition when vy reaches 0 or positive
     if (player.vy >= 0) {
+        // start the fall with vy > 0: the car only gets gravity every other frame,
+        // so vy == 0 here would read as "landed" in jump_down and allow a mid-air jump
+        player.vy = 1;
         player_change_state(JUMP_DOWN);
         return;
     }
