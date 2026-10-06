@@ -126,6 +126,10 @@ int sdl_set_gfx_mode(void);
 /** @brief Linux/Windows: the screen changed, present it on the next vsync/readkey. */
 void sdl_mark_dirty(void);
 #endif
+#ifdef __APPLE__
+/** @brief macOS: allegro_init() for the plain unix Allegro core, timers/sound from SDL2. */
+int sdl_allegro_init(void);
+#endif
 
 
 #endif

@@ -1,10 +1,15 @@
-/* linux/windows: Allegro 4 keeps timers, sound, bitmaps and datafiles; SDL2 shows the frame
-   and reads the keyboard. Allegro's console/fbcon drivers fight KMSDRM handhelds (R36S) and
-   GDI can't scale well. DOS keeps Allegro's VGA driver */
+/* linux/windows/macos: Allegro 4 keeps timers, sound, bitmaps and datafiles; SDL2 shows the
+   frame and reads the keyboard. Allegro's console/fbcon drivers fight KMSDRM handhelds (R36S),
+   GDI can't scale well and its macOS driver no longer builds. DOS keeps Allegro's VGA driver */
 #ifndef __DJGPP__
 #include <allegro.h>
 #ifdef _WIN32
 #include <winalleg.h>
+#endif
+#ifdef __APPLE__
+#include <allegro/internal/aintern.h>
+#include <errno.h>
+#include <unistd.h>
 #endif
 #define SDL_MAIN_HANDLED   /* main() belongs to Allegro (END_OF_MAIN), not SDL2main */
 #include <SDL.h>
@@ -209,4 +214,98 @@ int sdl_set_gfx_mode(void) {
 #endif
     return 0;
 }
+
+#ifdef __APPLE__
+/* macos: Makefile.macos builds Allegro as a plain unix core (no Cocoa/QuickTime platform),
+   so allegro runs on system_none. Give it Allegro's own pthread timer, the DIGMID synth
+   and a sound driver that runs Allegro's mixer from SDL's audio callback */
+#define DIGI_SDL2 AL_ID('S','D','L','2')
+
+static SDL_AudioDeviceID audio_dev;
+
+static void audio_callback(void* user, Uint8* stream, int len) {
+    (void)user; (void)len;   /* the mixer fills exactly the buffer size given to _mixer_init */
+    _mix_some_samples((uintptr_t)stream, 0, TRUE);
+}
+
+static DIGI_DRIVER digi_sdl2;
+
+static int digi_sdl2_detect(int input) {
+    return !input;
+}
+
+static int digi_sdl2_init(int input, int voices) {
+    SDL_AudioSpec want = { 0 }, have;
+    if (input || SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
+        return -1;
+    want.freq = 44100;
+    want.format = AUDIO_S16SYS;
+    want.channels = 2;
+    want.samples = 1024;
+    want.callback = audio_callback;
+    audio_dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);   /* 0: SDL converts to the device */
+    if (!audio_dev)
+        return -1;
+    digi_sdl2.voices = voices;   /* _mixer_init caps it; DIGMID takes its voices from these */
+    if (_mixer_init(have.samples * 2, have.freq, TRUE, TRUE, &digi_sdl2.voices) != 0) {
+        SDL_CloseAudioDevice(audio_dev);
+        return -1;
+    }
+    SDL_PauseAudioDevice(audio_dev, 0);
+    return 0;
+}
+
+static void digi_sdl2_exit(int input) {
+    (void)input;
+    SDL_CloseAudioDevice(audio_dev);
+    _mixer_exit();
+}
+
+static DIGI_DRIVER digi_sdl2 = {
+    .id = DIGI_SDL2, .name = "SDL2", .desc = "SDL2", .ascii_name = "SDL2",
+    .max_voices = MIXER_MAX_SFX, .def_voices = MIXER_DEF_SFX,
+    .detect = digi_sdl2_detect, .init = digi_sdl2_init, .exit = digi_sdl2_exit,
+    .init_voice = _mixer_init_voice, .release_voice = _mixer_release_voice,
+    .start_voice = _mixer_start_voice, .stop_voice = _mixer_stop_voice, .loop_voice = _mixer_loop_voice,
+    .get_position = _mixer_get_position, .set_position = _mixer_set_position,
+    .get_volume = _mixer_get_volume, .set_volume = _mixer_set_volume,
+    .ramp_volume = _mixer_ramp_volume, .stop_volume_ramp = _mixer_stop_volume_ramp,
+    .get_frequency = _mixer_get_frequency, .set_frequency = _mixer_set_frequency,
+    .sweep_frequency = _mixer_sweep_frequency, .stop_frequency_sweep = _mixer_stop_frequency_sweep,
+    .get_pan = _mixer_get_pan, .set_pan = _mixer_set_pan,
+    .sweep_pan = _mixer_sweep_pan, .stop_pan_sweep = _mixer_stop_pan_sweep,
+    .set_echo = _mixer_set_echo, .set_tremolo = _mixer_set_tremolo, .set_vibrato = _mixer_set_vibrato
+};
+
+static _DRIVER_INFO timer_list[] = { { TIMERDRV_UNIX_PTHREADS, &timerdrv_unix_pthreads, TRUE }, { 0, NULL, 0 } };
+static _DRIVER_INFO digi_list[] = { { DIGI_SDL2, &digi_sdl2, TRUE }, { 0, NULL, 0 } };
+static _DRIVER_INFO midi_list[] = { { MIDI_DIGMID, &midi_digmid, TRUE }, { 0, NULL, 0 } };
+static _DRIVER_INFO* get_timer_list(void) { return timer_list; }
+static _DRIVER_INFO* get_digi_list(void) { return digi_list; }
+static _DRIVER_INFO* get_midi_list(void) { return midi_list; }
+
+/* the mixer locks voices against the audio callback with these */
+static void* sdl_create_mutex(void) { return SDL_CreateMutex(); }
+static void sdl_destroy_mutex(void* m) { SDL_DestroyMutex(m); }
+static void sdl_lock_mutex(void* m) { SDL_LockMutex(m); }
+static void sdl_unlock_mutex(void* m) { SDL_UnlockMutex(m); }
+
+int sdl_allegro_init(void) {
+    /* data files are loaded by relative path: run from Contents/Resources in the .app,
+       or from the binary's folder outside one */
+    char* base = SDL_GetBasePath();
+    if (base) {
+        chdir(base);
+        SDL_free(base);
+    }
+    system_none.timer_drivers = get_timer_list;
+    system_none.digi_drivers = get_digi_list;
+    system_none.midi_drivers = get_midi_list;
+    system_none.create_mutex = sdl_create_mutex;
+    system_none.destroy_mutex = sdl_destroy_mutex;
+    system_none.lock_mutex = sdl_lock_mutex;
+    system_none.unlock_mutex = sdl_unlock_mutex;
+    return install_allegro(SYSTEM_NONE, &errno, atexit);
+}
+#endif
 #endif

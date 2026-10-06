@@ -107,7 +107,11 @@ int main(int argc, char* argv[]) {
 
     RGB black = { 16, 16, 16, 0 };
 
+#ifdef __APPLE__
+    if (sdl_allegro_init() != 0)   // allegro's core on SDL2 timers/sound (sdl_driver.c)
+#else
     if (allegro_init() != 0)
+#endif
         return 1;
     set_color_depth(8);
 
@@ -142,7 +146,7 @@ int main(int argc, char* argv[]) {
     gfx_init_timer();
 
 #if !defined(_WIN32) && !defined(__DJGPP__)
-    // linux: no hardware synth (R36S), use the DIGMID software synth with patches.dat
+    // linux/macos: no hardware synth (R36S), use the DIGMID software synth with patches.dat
     // next to the binary; without it, keep sound effects and play no music
     if (install_sound(DIGI_AUTODETECT, MIDI_DIGMID, "./allegro.cfg") != 0
         && install_sound(DIGI_AUTODETECT, MIDI_NONE, "./allegro.cfg") != 0) {
