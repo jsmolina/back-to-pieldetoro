@@ -3,11 +3,16 @@ CC = i686-w64-mingw32-gcc
 VENDOR = vendor
 DISTDIR = dist-windows
 
+# SDL2 (screen + keyboard, src/sdl_driver.c): official mingw dev package, see windows.yml
+SDL2 = $(VENDOR)/SDL2-2.30.9/i686-w64-mingw32
+
 CFLAGS = -DHAVE_STDBOOL_H=1 -fgnu89-inline \
-         -I$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/include
+         -I$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/include \
+         -I$(SDL2)/include/SDL2
 
 LDFLAGS = -L$(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/lib \
-          -lalleg
+          -L$(SDL2)/lib \
+          -lalleg -lSDL2
 
 CFLAGS += -O3
 
@@ -25,7 +30,7 @@ ALLEGRO_BIN = $(VENDOR)/allegro-mingw/allegro-mingw-4.2.2/bin
 $(DISTDIR)/$(BIN): $(OBJS)
 	@mkdir -p $(DISTDIR)
 	$(CC) -o $@ $^ $(LDFLAGS)
-	cp $(ALLEGRO_BIN)/*.dll $(DISTDIR)/
+	cp $(ALLEGRO_BIN)/*.dll $(SDL2)/bin/SDL2.dll static/*.dat $(DISTDIR)/
 
 build/windows/%.o: src/%.c
 	@mkdir -p $(dir $@)

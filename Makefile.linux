@@ -1,0 +1,51 @@
+CC ?= gcc
+
+DISTDIR ?= dist-linux
+BUILDDIR ?= build/linux
+
+# Allegro 4.4 built with SHARED=off: liballeg.a has every driver compiled in, so the
+# port does not need liballeg.so nor /usr/lib/allegro/4.4.x modules on the device.
+# SDL2 (screen + keyboard) links dynamically: handheld CFWs and desktops ship libSDL2.
+# point ALLEGRO_CONFIG at the allegro-config of a cross build, e.g. vendor/allegro-aarch64/bin/allegro-config
+ALLEGRO_CONFIG ?= allegro-config
+READELF ?= readelf
+
+CFLAGS = -DHAVE_STDBOOL_H=1 -fgnu89-inline -O3 $(shell $(ALLEGRO_CONFIG) --cflags) $(shell sdl2-config --cflags)
+LDFLAGS = $(shell $(ALLEGRO_CONFIG) --static --libs) $(shell sdl2-config --libs) -lm
+
+BIN = b2p
+
+SRCS = $(wildcard src/*.c)
+OBJS = $(SRCS:src/%.c=$(BUILDDIR)/%.o)
+
+.PHONY: all clean
+
+all: $(DISTDIR)/$(BIN) $(DISTDIR)/patches.dat
+
+# instruments for Allegro's DIGMID software synth, only those the game's MIDIs use.
+# uses a SoundFont from static/ if there is one, else freepats; PATCHES overrides it
+PATCHES ?= $(firstword $(wildcard static/*.sf2) build/freepats/default.cfg)
+MIDIS = $(wildcard static/*.mid static/*.MID)
+
+build/freepats/default.cfg:
+	@mkdir -p build
+	cp -r /usr/share/midi/freepats build/
+	grep -v '^dir ' /etc/timidity/freepats.cfg > $@
+
+$(DISTDIR)/patches.dat: $(PATCHES) $(MIDIS)
+	@mkdir -p $(DISTDIR)
+	pat2dat -o -c -8 $@ $(PATCHES) $(MIDIS)
+
+$(DISTDIR)/$(BIN): $(OBJS)
+	@mkdir -p $(DISTDIR)
+	$(CC) -o $@ $^ $(LDFLAGS)
+	@if $(READELF) -d $@ | grep -q 'NEEDED.*alleg'; then \
+		echo "error: $@ links liballeg.so, build Allegro with -DSHARED=off"; rm -f $@; exit 1; fi
+	cp static/*.dat $(DISTDIR)/
+
+$(BUILDDIR)/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILDDIR) $(DISTDIR)

@@ -1,0 +1,22 @@
+# linux builds: R36S/PortMaster (build_r36s.sh: arm64) and desktop (build_linux.sh: amd64).
+# ubuntu 18.04 = glibc 2.27, older than ArkOS (2.30)
+FROM ubuntu:18.04
+
+RUN apt-get update && \
+    apt-get install -y build-essential cmake wget pkg-config libasound2-dev libsdl2-dev freepats && \
+    rm -rf /var/lib/apt/lists/*
+
+# static Allegro 4.4 for timers, ALSA sound, bitmaps and datafiles (WANT_MODULES=off). graphics and
+# keyboard come from SDL2 (src/sdl_driver.c); WANT_LINUX_CONSOLE is what builds the linux system driver
+RUN wget -q https://github.com/liballeg/allegro5/releases/download/4.4.3.1/allegro-4.4.3.1.tar.gz -O - | tar -xz -C /tmp && \
+    cd /tmp/allegro-4.4.3.1 && \
+    mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DSHARED=off -DWANT_MODULES=off -DWANT_X11=off -DWANT_ALSA=on -DWANT_OSS=off \
+        -DWANT_LINUX_CONSOLE=on -DWANT_LINUX_FBCON=off -DWANT_LINUX_VGA=off -DWANT_LINUX_SVGALIB=off -DWANT_LINUX_TSLIB=off \
+        -DWANT_EXAMPLES=off -DWANT_TOOLS=on -DWANT_TESTS=off -DWANT_DOCS=off \
+        -DWANT_ALLEGROGL=off -DWANT_LOADPNG=off -DWANT_LOGG=off -DWANT_JPGALLEG=off && \
+    make -j"$(nproc)" && make install && rm -rf /tmp/allegro-4.4.3.1
+
+WORKDIR /compile
+CMD ["make", "-f", "Makefile.linux"]
