@@ -18,6 +18,14 @@
 #define PAUSE_SELECTED_COLOR 67      /* yellow */
 #define PAUSE_BORDER_COLOR 63        /* bright white */
 
+/* DOS draws straight on the VGA screen; other platforms draw the 320x200 frame
+   and present it upscaled (screen there is 640x480/960x600, maybe not 8-bit) */
+#ifdef __DJGPP__
+#define PAUSE_DST screen
+#else
+#define PAUSE_DST current_screen
+#endif
+
 static const char* pause_menu_options[PAUSE_MENU_OPTION_COUNT] = {
     "CONTINUE",
     "MENU",
@@ -26,8 +34,8 @@ static const char* pause_menu_options[PAUSE_MENU_OPTION_COUNT] = {
 
 static void draw_pause_menu(int selected, const char* passcode) {
     /* Draw dark blue background with border */
-    rectfill(screen, PAUSE_MENU_X, PAUSE_MENU_Y, PAUSE_MENU_X + PAUSE_MENU_W, PAUSE_MENU_Y + PAUSE_MENU_H, PAUSE_BG_COLOR);
-    rect(screen, PAUSE_MENU_X - 1, PAUSE_MENU_Y - 1, PAUSE_MENU_X + PAUSE_MENU_W + 1, PAUSE_MENU_Y + PAUSE_MENU_H + 1, PAUSE_BORDER_COLOR);
+    rectfill(PAUSE_DST, PAUSE_MENU_X, PAUSE_MENU_Y, PAUSE_MENU_X + PAUSE_MENU_W, PAUSE_MENU_Y + PAUSE_MENU_H, PAUSE_BG_COLOR);
+    rect(PAUSE_DST, PAUSE_MENU_X - 1, PAUSE_MENU_Y - 1, PAUSE_MENU_X + PAUSE_MENU_W + 1, PAUSE_MENU_Y + PAUSE_MENU_H + 1, PAUSE_BORDER_COLOR);
     int offset_y = PAUSE_MENU_Y + 10;
     /* Draw each option */
     for (int i = 0; i < PAUSE_MENU_OPTION_COUNT; i++) {
@@ -36,19 +44,22 @@ static void draw_pause_menu(int selected, const char* passcode) {
         int fg_color = (i == selected) ? PAUSE_TEXT_SELECTED_COLOR : PAUSE_TEXT_COLOR;
 
         if (i == selected) {
-            rectfill(screen, PAUSE_MENU_X, y - 8, PAUSE_MENU_X + PAUSE_MENU_W, y + 16, bg_color);
+            rectfill(PAUSE_DST, PAUSE_MENU_X, y - 8, PAUSE_MENU_X + PAUSE_MENU_W, y + 16, bg_color);
         }
 
-        // textprintf_ex(screen, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
-        printf_at_simple(screen, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
+        // textprintf_ex(PAUSE_DST, font, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
+        printf_at_simple(PAUSE_DST, PAUSE_MENU_X + 20, y, fg_color, bg_color, "%s", pause_menu_options[i]);
         offset_y += PAUSE_OPTION_HEIGHT;
     }
     /* Draw passcode at the top of the menu */
     int passcode_y = 32;
-    rectfill(screen, PAUSE_MENU_X, passcode_y - 8, PAUSE_MENU_X + PAUSE_MENU_W, passcode_y + 16, PAUSE_BG_COLOR);
+    rectfill(PAUSE_DST, PAUSE_MENU_X, passcode_y - 8, PAUSE_MENU_X + PAUSE_MENU_W, passcode_y + 16, PAUSE_BG_COLOR);
     //printf_at_simple(PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
     textprintf_ex(
-        screen, font, PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
+        PAUSE_DST, font, PAUSE_MENU_X + 20, passcode_y, PAUSE_TEXT_COLOR, PAUSE_BG_COLOR, "PASS: %s", passcode);
+#ifndef __DJGPP__
+    present_screen(current_screen, 0, 0, 320, 200);
+#endif
 }
 
 enum PauseMenuOption show_pause_menu(const char* passcode) {

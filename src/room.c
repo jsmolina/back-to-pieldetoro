@@ -131,10 +131,8 @@ int enter_room(int room_id, int level) {
     draw_selector_at(options, selected, room_index);
 
     while (1) {
-        #ifdef _WIN32
-            stretch_blit(current_screen, screen,
-                0, 0, 320, 200,
-                0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+        #ifndef __DJGPP__
+            present_screen(current_screen, 0, 0, 320, 200);
         #else
             blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
         #endif
@@ -194,6 +192,7 @@ int enter_room(int room_id, int level) {
 
     // wait for key release before returning to game
     do {
+        vsync();
     } while (key[KEY_SPACE] || key[KEY_ESC]);
 
     if (owns_bitmap) {

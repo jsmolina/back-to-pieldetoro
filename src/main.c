@@ -56,7 +56,7 @@ static int skip_fli_on_space(void) {
 
 static void wait_for_space_release(void) {
     while (key[KEY_SPACE]) {
-        rest(0);
+        vsync();
     }
     clear_keybuf();
 }
@@ -70,10 +70,8 @@ static void wait_a_bit(int amount) {
 }
 
 static void present_full_frame() {
-#ifdef _WIN32
-    stretch_blit(current_screen, screen,
-        0, 0, 320, 200,
-        0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#ifndef __DJGPP__
+    present_screen(current_screen, 0, 0, 320, 200);
 #else
     blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 200);
 #endif
@@ -111,16 +109,17 @@ int main(int argc, char* argv[]) {
 
     if (allegro_init() != 0)
         return 1;
-    install_keyboard();
     set_color_depth(8);
 
-#ifdef _WIN32
-    if (set_gfx_mode(GFX_GDI, WIN32_WIDTH, WIN32_HEIGHT, 0, 0) != 0) {
+#ifndef __DJGPP__
+    // linux/windows: SDL2 shows an 8-bit 320x200 `screen` and feeds key[]/readkey()
+    if (sdl_set_gfx_mode() != 0) {
 #else
+    install_keyboard();
     if (set_gfx_mode(GFX_VGA, 320, 200, 320, 200) != 0) {
 #endif
         set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("Unable to set a 320x240 mode \n");
+        allegro_message("Unable to set graphics mode: %s (system: %s)\n", allegro_error, system_driver ? system_driver->name : "none");
         return 1;
     }
     current_screen = create_bitmap(320, 200);
@@ -142,7 +141,14 @@ int main(int argc, char* argv[]) {
     set_color(0, &black);
     gfx_init_timer();
 
+#if !defined(_WIN32) && !defined(__DJGPP__)
+    // linux: no hardware synth (R36S), use the DIGMID software synth with patches.dat
+    // next to the binary; without it, keep sound effects and play no music
+    if (install_sound(DIGI_AUTODETECT, MIDI_DIGMID, "./allegro.cfg") != 0
+        && install_sound(DIGI_AUTODETECT, MIDI_NONE, "./allegro.cfg") != 0) {
+#else
     if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, "./allegro.cfg") != 0) {
+#endif
         allegro_message("Error: cannot enable sound\n%s\n", allegro_error);
         return 1;
     }
@@ -260,6 +266,7 @@ int main(int argc, char* argv[]) {
                 exit_game = 1; // exit from title/other states
             }
             do {
+                vsync();
             } while (key[KEY_ESC]);
         }
 

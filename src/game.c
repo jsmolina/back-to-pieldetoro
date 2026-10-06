@@ -156,7 +156,7 @@ int game_try_spend_money(int amount) {
 void lifebar() {
     int force_full_redraw = (hud_last_level != current_level);
     BITMAP* hud_screen = screen;
-    #ifdef _WIN32
+    #ifndef __DJGPP__
         hud_screen = current_screen;
         force_full_redraw = TRUE;
     #endif
@@ -258,10 +258,8 @@ void lifebar() {
 
     hud_last_level = current_level;
 
-    #ifdef _WIN32
-        stretch_blit(current_screen, screen, 
-                    0, 170, 320, 30,
-                    0, WIN32_HUD_START, WIN32_WIDTH, WIN32_HUD_HEIGHT);
+    #ifndef __DJGPP__
+        present_screen(current_screen, 0, 170, 320, 30);
     #endif
 }
 
@@ -437,6 +435,7 @@ void update_game_run() {
             return;
         } else if (flow_event.type == PLAYER_ENTER_ROOM) {
             do {
+                vsync();
             } while (key[KEY_SPACE]);
             int room_choice = enter_room(flow_event.data, current_level);
             (void)room_choice;
@@ -502,7 +501,7 @@ inline void draw_game() {
     if (megahit_mode == 1 && key[KEY_F1]) {
         world_state = STAGE_CLEAR;
         while (key[KEY_F1])
-            ; // wait key release
+            vsync(); // wait key release
     } else if (megahit_mode == 1 && key[KEY_F2]) {
         all_collected();
         player.pos.x = almanac_tile_x -1;
@@ -521,10 +520,8 @@ inline void draw_game() {
         player_draw(scroll_x);
         lifebar();
         // draw objects, player, enemies
-        #ifdef _WIN32
-            stretch_blit(current_screen, screen,
-                0, 0, 320, 170,
-                0, 0, WIN32_WIDTH, WIN32_HUD_START);
+        #ifndef __DJGPP__
+            present_screen(current_screen, 0, 0, 320, 170);
         #else 
             blit(current_screen, screen, 0, 0, 0, 0, 320, 170);
         #endif
@@ -587,10 +584,8 @@ inline void draw_game() {
         // rectfill(screen, 10, 190, 290, 200, 16);
         // textprintf_ex(current_screen, font, 10, 10, makecol(255, 0, 0), -1, "l:%d, y:%d, vy:%d, s:%d", current_level, player.pos.y, player.vy, player.state);
         //textprintf_ex(current_screen, font, 0, 10, 31, 16, "%d %d", current_level, player.pos.y);
-        #ifdef _WIN32
-            stretch_blit(current_screen, screen,
-                0, 0, 320, 170,
-                0, 0, WIN32_WIDTH, WIN32_HUD_START);
+        #ifndef __DJGPP__
+            present_screen(current_screen, 0, 0, 320, 170);
         #else 
              blit(current_screen, screen, 0, 0, 0, 0, SCREEN_W, 170);
         #endif
@@ -734,12 +729,8 @@ inline int update_game() {
         play_midi(dat_file[SAMBA_MID].dat, 1);
         continue_bg = load_shop_bg(CONTINUE_TMX);
         blit(continue_bg, current_screen, 0, 0, 0, 0, 320, 200);
-        #ifdef _WIN32
-            stretch_blit(current_screen, screen, 
-                    0, 0, 
-                    320, 200,
-                    0, 0, 
-                    WIN32_WIDTH, WIN32_HEIGHT);   
+        #ifndef __DJGPP__
+            present_screen(current_screen, 0, 0, 320, 200);   
         #else
             blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
         #endif

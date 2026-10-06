@@ -25,12 +25,8 @@
 static int show_menu = 1;
 
 static inline void present_menu() {
-#ifdef _WIN32
-    stretch_blit(current_screen, screen, 
-                    0, 0, 
-                    320, 200,
-                    0, 0, 
-                    WIN32_WIDTH, WIN32_HEIGHT);   
+#ifndef __DJGPP__
+    present_screen(current_screen, 0, 0, 320, 200);   
 #else
     blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
 #endif
@@ -125,8 +121,8 @@ MainMenuResult show_main_menu() {
                 /* Draw passcode write */
                 clear_keybuf();
                 while(key[KEY_ENTER]) {
-                    
-                };
+                    vsync();
+                }
                 char buf[PASSCODE_LENGTH + 1];
                 read_passcode( buf);
                 if (strlen(buf) && 

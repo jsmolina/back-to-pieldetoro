@@ -118,5 +118,14 @@ void lang_select(int lang);
 
 extern BITMAP* current_screen;
 
+#ifndef __DJGPP__
+/** @brief Linux/Windows: copies a rect of src to `screen` and shows it (sdl_driver.c presents). */
+void present_screen(BITMAP* src, int sx, int sy, int sw, int sh);
+/** @brief Linux/Windows: sets up SDL2 as the 320x200x8 screen and keyboard (sdl_driver.c). */
+int sdl_set_gfx_mode(void);
+/** @brief Linux/Windows: the screen changed, present it on the next vsync/readkey. */
+void sdl_mark_dirty(void);
+#endif
+
 
 #endif

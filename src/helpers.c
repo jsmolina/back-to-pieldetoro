@@ -7,7 +7,7 @@
 
 #include <allegro.h>
 
-#ifndef _WIN32
+#ifdef __DJGPP__
 #include <dos.h>
 #include <pc.h>
 #endif
@@ -48,19 +48,27 @@ static char* game_texts[TXT_COUNT] = {
 };
 
 BITMAP* current_screen;
+
+#ifndef __DJGPP__
+/* linux/windows: `screen` is SDL2's 320x200 8-bit buffer (sdl_driver.c), which scales it
+   and shows it on the next vsync/readkey */
+void present_screen(BITMAP* src, int sx, int sy, int sw, int sh) {
+    blit(src, screen, sx, sy, sx, sy, sw, sh);
+    sdl_mark_dirty();
+}
+#endif
+
 static int (*fli_callback)(void);
 
 static int present_fli_frame() {
-#ifdef _WIN32
-    stretch_blit(current_screen, screen,
-                 0, 0, 320, 200,
-                 0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+#ifndef __DJGPP__
+    present_screen(current_screen, 0, 0, 320, 200);
 #endif
     return fli_callback ? fli_callback() : 0;
 }
 
 int play_upscaled_memory_fli(void *fli_data, BITMAP *bmp, int loop, int (*callback)(void)) {
-#ifdef _WIN32
+#ifndef __DJGPP__
     fli_callback = callback;
     int result = play_memory_fli(fli_data, current_screen, loop, present_fli_frame);
     fli_callback = NULL;
@@ -107,10 +115,8 @@ void lang_select(int lang) {
         menu_lang_print(selected, KEY_4, 94, "4-Galego", fnt);
         menu_lang_print(selected, KEY_0, 112, "0-EXIT", fnt);
         textprintf_ex(current_screen, fnt, 130, 122, 2, -1, "v0.6");
-        #ifdef _WIN32
-            stretch_blit(current_screen, screen,
-                0, 0, 320, 200,
-                0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+        #ifndef __DJGPP__
+            present_screen(current_screen, 0, 0, 320, 200);
         #else
             blit(current_screen, screen, 125, 55, 125, 55, 195, 145);
         #endif
@@ -178,19 +184,17 @@ const char* game_text(gameTextId id) {
 
 void wait_for_space() {
     // stretch_blit
-    #ifdef _WIN32
-        stretch_blit(current_screen, screen, 
-                    0, 0, 
-                    320, 200,
-                    0, 0, 
-                    WIN32_WIDTH, WIN32_HEIGHT);   
+    #ifndef __DJGPP__
+        present_screen(current_screen, 0, 0, 320, 200);   
     #else 
         blit(current_screen, screen, 0, 0, 0, 0, 320, 200);
     #endif 
-     do {
+    do {
+        vsync();
     } while (!key[KEY_SPACE]);
     rectfill(current_screen, 0, 160, 320, 200, makecol(1, 1, 1));
     do {
+        vsync();
     } while (key[KEY_SPACE]);
 }
 
@@ -285,7 +289,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
     FONT* myfont = dat_file[FONT_FNT].dat;
     int cursor_x = x;
     BITMAP * scr = screen;
-    #ifdef _WIN32
+    #ifndef __DJGPP__
         scr = current_screen;
     #endif
 
@@ -300,10 +304,8 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 
         textprintf_ex(scr, myfont, cursor_x, y, col, bg, "%s", ch);
         cursor_x += text_length(myfont, ch);
-        #ifdef _WIN32
-            stretch_blit(scr, screen,
-                    0, 0, 320, 200,
-                    0, 0, WIN32_WIDTH, WIN32_HEIGHT);
+        #ifndef __DJGPP__
+            present_screen(scr, 0, 0, 320, 200);
         #endif
 
         rest(PRINT_SLOW_DELAY_MS);
@@ -311,7 +313,7 @@ void print_at_slow(int x, int y, const char* texto, int col, int bg) {
 }
 
 void screen_shake() {
-#ifndef _WIN32
+#ifdef __DJGPP__
     int offsets[] = { 3, -3, 2, -2, 1, 0 };  // logical, map to pel values
     int i;
     for (i = 0; i < 6; i++) {
@@ -333,7 +335,7 @@ void screen_shake() {
 }
 
 void beep(int frequency, int duration) {
-#ifndef _WIN32
+#ifdef __DJGPP__
     int div = 1193180 / frequency;
 
     outportb(0x43, 0xb6);
