@@ -1,0 +1,62 @@
+# macOS app, universal (arm64 + x86_64): make -f Makefile.macos [zip]
+# Allegro 4.4's own macOS platform (Cocoa/QuickTime) no longer builds, so its core is built
+# here as a plain unix library and src/sdl_driver.c gives it screen, keyboard, timer and sound.
+# SDL2.framework (official release, universal) is bundled inside the app.
+ALLEGRO_VER = 4.4.3.1
+SDL2_VER = 2.30.9
+B = build/macos
+AL = $(B)/allegro-$(ALLEGRO_VER)
+ARCHS = -arch arm64 -arch x86_64 -mmacosx-version-min=10.13
+APP = dist-macos/BackToPielDeToro.app
+# DIGMID instruments: platform independent, built by the linux build (pat2dat) from static/*.sf2
+PATCHES_DAT ?= dist-linux/patches.dat
+
+CFLAGS = $(ARCHS) -DHAVE_STDBOOL_H=1 -fgnu89-inline -O2 -DALLEGRO_STATICLINK \
+         -I$(AL)/include -F$(B) -I$(B)/SDL2.framework/Headers -Wno-error=implicit-function-declaration
+LDFLAGS = $(ARCHS) -F$(B) -framework SDL2 -Wl,-rpath,@executable_path/../Frameworks
+
+OBJS = $(patsubst src/%.c,$(B)/obj/%.o,$(wildcard src/*.c))
+# core + C blitters (cmake/FileList.cmake) + the unix bits a system_none build needs
+AL_UNIX = ufile udrvlist ugfxdrv ujoydrv ukeybd umouse usnddrv uptimer usystem uthreads utimer
+
+.PHONY: all zip clean
+
+all: $(APP)
+
+zip: $(APP)
+	cd dist-macos && rm -f BackToPielDeToro-macos.zip && ditto -c -k --keepParent BackToPielDeToro.app BackToPielDeToro-macos.zip
+	@echo "created dist-macos/BackToPielDeToro-macos.zip"
+
+$(B)/liballeg.a:
+	@mkdir -p $(B)
+	curl -sL https://github.com/liballeg/allegro5/releases/download/$(ALLEGRO_VER)/allegro-$(ALLEGRO_VER).tar.gz | tar -xz -C $(B)
+	cp port/macos/alplatf.h port/macos/alunixac.h $(AL)/include/allegro/platform/
+	mkdir -p $(AL)/obj
+	cd $(AL) && { awk '/^set\(ALLEGRO_SRC_(C_)?FILES/,/\)/' cmake/FileList.cmake | grep '\.c$$'; \
+		for f in $(AL_UNIX); do echo src/unix/$$f.c; done; } | \
+		xargs -P 8 -I{} sh -c 'clang $(ARCHS) -c -O2 -DALLEGRO_SRC -DALLEGRO_STATICLINK -Iinclude -w {} -o obj/$$(echo {} | tr / _).o'
+	ar rcs $@ $(AL)/obj/*.o
+
+$(B)/SDL2.framework:
+	@mkdir -p $(B)
+	curl -sL https://github.com/libsdl-org/SDL/releases/download/release-$(SDL2_VER)/SDL2-$(SDL2_VER).dmg -o $(B)/SDL2.dmg
+	hdiutil attach -quiet -nobrowse -readonly -mountpoint $(B)/sdl2-dmg $(B)/SDL2.dmg
+	cp -R $(B)/sdl2-dmg/SDL2.framework $(B)/
+	hdiutil detach -quiet $(B)/sdl2-dmg
+
+$(B)/obj/%.o: src/%.c | $(B)/liballeg.a $(B)/SDL2.framework
+	@mkdir -p $(dir $@)
+	clang $(CFLAGS) -c $< -o $@
+
+$(APP): $(OBJS) $(B)/liballeg.a port/macos/Info.plist
+	@test -f $(PATCHES_DAT) || { echo "missing $(PATCHES_DAT): run ./build_r36s.sh or set PATCHES_DAT"; exit 1; }
+	rm -rf $@
+	mkdir -p $@/Contents/MacOS $@/Contents/Resources $@/Contents/Frameworks
+	clang -o $@/Contents/MacOS/b2p $(OBJS) $(B)/liballeg.a $(LDFLAGS)
+	cp port/macos/Info.plist $@/Contents/
+	cp static/*.dat $(PATCHES_DAT) $@/Contents/Resources/
+	cp -R $(B)/SDL2.framework $@/Contents/Frameworks/
+	codesign --force --deep -s - $@
+
+clean:
+	rm -rf $(B)/obj dist-macos
